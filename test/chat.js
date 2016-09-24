@@ -6,7 +6,7 @@ const wrapped = lambdaWrapper.wrap(mod, { handler: 'chat' });
 import fs from 'fs';
 import nock from 'nock';
 
-describe('bot', () => {
+describe('chat', () => {
   context('with a text message', () => {
     const receivedData = JSON.parse(fs.readFileSync('event.json', 'utf8'));
     it('should send a greeting message', (done) => {
