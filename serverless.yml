@@ -4,6 +4,9 @@ service: volunteer-chat-bot
 plugins:
   - serverless-webpack
 
+custom:
+  webpackIncludeModules: true
+
 provider:
   name: aws
   runtime: nodejs4.3
@@ -11,9 +14,15 @@ provider:
   profile: showcase
 
 functions:
-  hello:
-    handler: handler.hello
+  challenge:
+    handler: bot.challenge
     events:
       - http:
           method: get
-          path: hello
+          path: webhook
+  chat:
+    handler: bot.chat
+    events:
+      - http:
+          method: post
+          path: webhook
