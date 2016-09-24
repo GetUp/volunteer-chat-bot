@@ -17,12 +17,19 @@ export const chat = (e, ctx, cb) => {
   data.entry.forEach(pageEntry => {
     pageEntry.messaging.forEach(messagingEvent => {
       if (!messagingEvent.message) return console.error(`Unknown message ${messagingEvent}`);
-      console.log(JSON.stringify(messagingEvent)); 
-      sendTextMessage(messagingEvent.sender.id, `You said ${messagingEvent.message.text}`);
+      //console.log(JSON.stringify(messagingEvent)); 
+      sendIntro(messagingEvent.sender.id);
     });
   })
   cb();
 };
+
+function sendIntro(recipientId) {
+  const greeting = `Hello! I'm the GetUp Volunteer Chatbot (or “robot”). 
+          I'm a computer program designed to help you connect with the
+          GetUp community and take action on the #BringThemHere campaign`;
+  sendTextMessage(recipientId, greeting)
+}
 
 function sendTextMessage(recipientId, messageText) {
   let messageData = {
@@ -50,8 +57,8 @@ function callSendAPI(messageData) {
       var messageId = body.message_id;
 
       if (messageId) {
-        console.log("Successfully sent message with id %s to recipient %s", 
-          messageId, recipientId);
+        //console.log("Successfully sent message with id %s to recipient %s", 
+        //  messageId, recipientId);
       } else {
       console.log("Successfully called Send API for recipient %s", 
         recipientId);
