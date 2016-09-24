@@ -1,8 +1,11 @@
-'use strict';
-
-// Your first function handler
-module.exports.hello = (event, context, cb) => {
-  cb(null, { message: 'Go Serverless v1.0! Your function executed successfully!', event });
+export const hello = (event, context, cb) => {
+  const p = new Promise((resolve, reject) => {
+    resolve('success');
+  });
+  p
+    .then(r => cb(null, {
+      message: 'Go Serverless Webpack (Babel) v1.0! Your function executed successfully!',
+      event,
+    }))
+    .catch(e => cb(e));
 };
-
-// You can add more handlers here, and reference them in serverless.yml
