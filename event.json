@@ -1,5 +1,12 @@
 {
-  "key3": "value3",
-  "key2": "value2",
-  "key1": "value1"
+  "body": {
+    "object": "page",
+    "entry": [
+      {
+        "messaging": [
+          {"sender":{"id":"1089823244399799"},"recipient":{"id":"1591266374508213"},"timestamp":1474709392650,"message":{"mid":"mid.1474709392571:0305fa8f2392076497","seq":7,"text":"test message"}}
+        ]
+      }
+    ]
+  }
 }
