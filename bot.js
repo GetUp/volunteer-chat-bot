@@ -25,10 +25,12 @@ export const chat = (e, ctx, cb) => {
 };
 
 function sendIntro(recipientId) {
-  const greeting = `Hello! I'm the GetUp Volunteer Chatbot (or “robot”). 
-          I'm a computer program designed to help you connect with the
-          GetUp community and take action on the #BringThemHere campaign`;
+  const greeting = "Hello! I'm the GetUp Volunteer Chatbot (or “robot”). "
+          "I'm a computer program designed to help you connect with the " +
+          "GetUp community and take action on the #BringThemHere campaign";
+  const question = "What action would you like to take?";
   sendTextMessage(recipientId, greeting)
+  sendQuickReply(recipientId, question, ['Sign the petition', 'Meet your local group'])
 }
 
 function sendTextMessage(recipientId, messageText) {
@@ -42,6 +44,21 @@ function sendTextMessage(recipientId, messageText) {
     }
   };
   callSendAPI(messageData);
+}
+
+function sendQuickReply(recipientId, question, options) {
+  let reply = { "content_type":"text" };
+  let messageData = {
+    recipient: {
+      id: recipientId
+    },
+    message: {
+      text: question,
+      metadata: "DEVELOPER_DEFINED_METADATA",
+      quick_replies: options.map(option => Object.assign({"title":option, "payload":`ACTION ${option}` }, reply))
+    }
+  }
+  callSendAPI(messageData)
 }
 
 function callSendAPI(messageData) {
