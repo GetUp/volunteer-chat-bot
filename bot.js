@@ -1,11 +1,12 @@
 const VALIDATION_TOKEN = 'validate me'
-const PAGE_ACCESS_TOKEN = 'EAAEu0WOT5qUBAIKZArUgdHblMGxy6ZAZAlmPDUwjgd0QJ0ZAsAipXCARQCCBOHipZAM2z7xDRH1GFlERLNXMvEXEoDads1BIsm51qdg1VUIIoZBWZAis8sPzOhpuJTwhalhJKpXAIikE1coNTTnyS8pcjHJTY51icHhSC6TpIU2GQZDZD'
+//const PAGE_ACCESS_TOKEN = 'EAAEu0WOT5qUBAIKZArUgdHblMGxy6ZAZAlmPDUwjgd0QJ0ZAsAipXCARQCCBOHipZAM2z7xDRH1GFlERLNXMvEXEoDads1BIsm51qdg1VUIIoZBWZAis8sPzOhpuJTwhalhJKpXAIikE1coNTTnyS8pcjHJTY51icHhSC6TpIU2GQZDZD'
+const PAGE_ACCESS_TOKEN = 'EAAEvIPkKEaABAE6PZCZA1f9p9WpydZBPcQkUVW6ZA9LHwn66nY3nkrxbmrjYeo7ZBr4IgxTFRiaMyQleZBjGrha2cFl1xe2mya1ajXjTS60Oj3KV6S2c2HlqUaIiovmwUbPXBw13MvARaHCK7ExlbisWQqGnralkmLcU02EavYGQZDZD'
 
 import request from 'request';
 
 export const challenge = (e, ctx, cb) => {
   if (e.query['hub.mode'] === 'subscribe' && e.query['hub.verify_token'] === VALIDATION_TOKEN) {
-    cb(null, e.query['hub.challenge']);
+    cb(null, parseInt(e.query['hub.challenge'], 10));
   } else {
     cb('Validation failed');
   }
@@ -30,7 +31,7 @@ function sendIntro(recipientId) {
           "GetUp community and take action on the #BringThemHere campaign";
   const question = "What action would you like to take?";
   sendTextMessage(recipientId, greeting)
-  sendQuickReply(recipientId, question, ['Sign the petition', 'Meet your local group'])
+  sendQuickReply(recipientId, question, ['Sign the petition', 'Find a local group'])
 }
 
 function sendTextMessage(recipientId, messageText) {

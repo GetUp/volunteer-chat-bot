@@ -19,6 +19,7 @@
 
 ## TODO
 
+* switch to environment variables of some kind
 * validate FB token
 * add greeting message?
 * gather the email and details of the sender
