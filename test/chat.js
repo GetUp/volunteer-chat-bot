@@ -9,14 +9,32 @@ import nock from 'nock';
 describe('chat', () => {
   context('with a text message', () => {
     const receivedData = JSON.parse(fs.readFileSync('event.json', 'utf8'));
-    it('should send a greeting message and options to take action', (done) => {
+
+    it('should start the converstaion and send a quick reply', (done) => {
       const graphAPICalls = nock('https://graph.facebook.com')
-        .post('/v2.6/me/messages', {message: {text: /GetUp Volunteer Chatbot/}})
-        .query(true)
-        .reply(200, {message_id: 1, recipient_id: 1})
         .post('/v2.6/me/messages', (body) => {
-          return body.message.text.match(/What action would you like to take/) &&
-            body.message.quick_replies[0].title.match(/petition/);
+          return body.message.text.match(/Have you joined/) &&
+            body.message.quick_replies[0].title.match(/Not yet/);
+        })
+        .query(true)
+        .reply(200);
+      wrapped.run(receivedData, (err) => {
+        setImmediate( () => {
+          graphAPICalls.done();
+          done(err)
+        });
+      });
+    });
+  });
+
+  context('with a text message with a quick reply payloy', () => {
+    const receivedData = JSON.parse(fs.readFileSync('event.json', 'utf8'));
+    receivedData.body.entry[0].messaging[0].message.quick_reply = { payload: 'vollie_yes' };
+
+    it('should respond with the correct reply', (done) => {
+      const graphAPICalls = nock('https://graph.facebook.com')
+        .post('/v2.6/me/messages', (body) => {
+          return body.message.text.match(/Keep your eye out/);
         })
         .query(true)
         .reply(200);

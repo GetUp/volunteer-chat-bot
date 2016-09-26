@@ -1,4 +1,4 @@
-const mod = require('../bot.js');
+const mod = require('../messenger.js');
 const mochaPlugin = require('serverless-mocha-plugin');
 const lambdaWrapper = mochaPlugin.lambdaWrapper;
 const expect = mochaPlugin.chai.expect;

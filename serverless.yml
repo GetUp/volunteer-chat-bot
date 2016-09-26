@@ -16,7 +16,7 @@ provider:
 
 functions:
   challenge:
-    handler: bot.challenge
+    handler: messenger.challenge
     events:
       - http:
           method: get
