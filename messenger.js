@@ -3,7 +3,7 @@ const PAGE_ACCESS_TOKEN = 'EAAEvIPkKEaABAE6PZCZA1f9p9WpydZBPcQkUVW6ZA9LHwn66nY3n
 import request from 'request';
 
 const VALIDATION_TOKEN = 'validate me';
-export const challenge = (e, ctx, cb) => {
+export const validateChallenge = (e, ctx, cb) => {
   if (e.query['hub.mode'] === 'subscribe' && e.query['hub.verify_token'] === VALIDATION_TOKEN) {
     cb(null, parseInt(e.query['hub.challenge'], 10));
   } else {
@@ -26,6 +26,8 @@ export const conversation = (replies) => {
         if (!reply) return console.error('Unknown reply');
         if (reply.replies){
           sendQuickReply(recipientId, reply.text, reply.replies)
+        } else if (reply.buttons) {
+          sendButtonMessage(recipientId, reply.text, reply.buttons)
         }else{
           sendTextMessage(recipientId, reply.text)
         }
@@ -34,7 +36,6 @@ export const conversation = (replies) => {
     cb();
   }
 }
-
 
 export const sendTextMessage = (recipientId, messageText) => {
   let messageData = {
@@ -58,10 +59,35 @@ export const sendQuickReply = (recipientId, question, options) => {
     message: {
       text: question,
       metadata: "DEVELOPER_DEFINED_METADATA",
-      quick_replies: options.map(option => Object.assign({"title": option.a, "payload": option.k }, reply))
+      quick_replies: options.map(option => Object.assign({"title": option.t, "payload": option.k }, reply))
     }
   }
   callSendAPI(messageData)
+}
+
+function sendButtonMessage(recipientId, text, buttons) {
+  var messageData = {
+    recipient: {
+      id: recipientId
+    },
+    message: {
+      attachment: {
+        type: "template",
+        payload: {
+          template_type: "button",
+          text: text,
+          buttons: buttons.map(button => {
+            return {
+              type: "web_url",
+              url: button.url,
+              title: button.t
+            }
+          })
+        }
+      }
+    }
+  };
+  callSendAPI(messageData);
 }
 
 function callSendAPI(messageData) {

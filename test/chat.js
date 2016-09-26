@@ -46,4 +46,25 @@ describe('chat', () => {
       });
     });
   });
+
+  context('with a reply that has a button', () => {
+    const receivedData = JSON.parse(fs.readFileSync('event.json', 'utf8'));
+    receivedData.body.entry[0].messaging[0].message.quick_reply = { payload: 'vollie_no' };
+
+    it('should respond with the correct reply', (done) => {
+      const graphAPICalls = nock('https://graph.facebook.com')
+        .post('/v2.6/me/messages', (body) => {
+          return body.message.attachment.payload.text.match(/here's the link/) &&
+                 body.message.attachment.payload.buttons[0].url.match(/facebook.com\/groups/);
+        })
+        .query(true)
+        .reply(200);
+      wrapped.run(receivedData, (err) => {
+        setImmediate( () => {
+          graphAPICalls.done();
+          done(err)
+        });
+      });
+    });
+  });
 });
