@@ -17,11 +17,24 @@ export const conversation = (replies) => {
     if (data.object !== 'page') return cb();
     data.entry.forEach(pageEntry => {
       pageEntry.messaging.forEach(messagingEvent => {
-        console.error('message event: ', JSON.stringify(messagingEvent)); 
         const message = messagingEvent.message;
         if (!message) return console.error('Unknown message event');
         const recipientId = messagingEvent.sender.id;
         const key = message.quick_reply ? message.quick_reply.payload : 'default';
+
+        let matchNumber;
+        if (key === 'default' && message.text) {
+          if (matchNumber = message.text.match(/^\s*([\d\(\)\-\s]{7,})/)){
+            const phone = matchNumber[1].replace(/[^\d]/g, '');
+            const reply = replies.detected_phone_number;
+            return sendQuickReply(recipientId, reply.text.replace(/PHONE/, phone), reply.replies);
+          }else if (matchNumber = message.text.match(/^\s*(\d{4})/)){
+            const postcode = matchNumber[1].replace(/[^\d]/g, '');
+            const reply = replies.detected_postcode;
+            return sendQuickReply(recipientId, reply.text.replace(/POSTCODE/, postcode), reply.replies);
+          }
+        }
+
         const reply = replies[key];
         if (!reply) return console.error('Unknown reply');
         if (reply.replies){
@@ -91,6 +104,7 @@ function sendButtonMessage(recipientId, text, buttons) {
 }
 
 function callSendAPI(messageData) {
+  //console.error(JSON.stringify(messageData))
   request({
     uri: 'https://graph.facebook.com/v2.6/me/messages',
     qs: { access_token: PAGE_ACCESS_TOKEN },
