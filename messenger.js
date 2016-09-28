@@ -1,8 +1,7 @@
-//const PAGE_ACCESS_TOKEN = 'EAAEu0WOT5qUBAIKZArUgdHblMGxy6ZAZAlmPDUwjgd0QJ0ZAsAipXCARQCCBOHipZAM2z7xDRH1GFlERLNXMvEXEoDads1BIsm51qdg1VUIIoZBWZAis8sPzOhpuJTwhalhJKpXAIikE1coNTTnyS8pcjHJTY51icHhSC6TpIU2GQZDZD'
-const PAGE_ACCESS_TOKEN = 'EAAEvIPkKEaABAE6PZCZA1f9p9WpydZBPcQkUVW6ZA9LHwn66nY3nkrxbmrjYeo7ZBr4IgxTFRiaMyQleZBjGrha2cFl1xe2mya1ajXjTS60Oj3KV6S2c2HlqUaIiovmwUbPXBw13MvARaHCK7ExlbisWQqGnralkmLcU02EavYGQZDZD'
+const PAGE_ACCESS_TOKEN = 'EAAEwFhGmiGwBABghZAehC2p5Bk28g43GT0pornGJVx5QLZAs2fm1W5tRxyYmDNvimMh73tKSoROZCw3Aw6sxZCJJ2mem66hFoVnp02U6Jd0fNXqdgbLZAJdbMhUWGugdbZCeIbop9KZCgCRO2CEmJlZAgniconmU1BR8fHxsaPA1IwZDZD'
 import request from 'request';
 
-const VALIDATION_TOKEN = 'validate me';
+const VALIDATION_TOKEN = 'l5pKlkZMIeSOf2PX9M45';
 export const validateChallenge = (e, ctx, cb) => {
   if (e.query['hub.mode'] === 'subscribe' && e.query['hub.verify_token'] === VALIDATION_TOKEN) {
     cb(null, parseInt(e.query['hub.challenge'], 10));
