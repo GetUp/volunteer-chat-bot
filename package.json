@@ -1,5 +1,6 @@
 {
   "name": "volunteer-chat-bot",
+  "private": true,
   "version": "1.0.0",
   "description": "Chatbot for volunteers",
   "main": "bot.js",
