@@ -1,9 +1,8 @@
-import config from 'config';
+//const PAGE_ACCESS_TOKEN = 'EAAEu0WOT5qUBAIKZArUgdHblMGxy6ZAZAlmPDUwjgd0QJ0ZAsAipXCARQCCBOHipZAM2z7xDRH1GFlERLNXMvEXEoDads1BIsm51qdg1VUIIoZBWZAis8sPzOhpuJTwhalhJKpXAIikE1coNTTnyS8pcjHJTY51icHhSC6TpIU2GQZDZD'
+const PAGE_ACCESS_TOKEN = 'EAAEvIPkKEaABAE6PZCZA1f9p9WpydZBPcQkUVW6ZA9LHwn66nY3nkrxbmrjYeo7ZBr4IgxTFRiaMyQleZBjGrha2cFl1xe2mya1ajXjTS60Oj3KV6S2c2HlqUaIiovmwUbPXBw13MvARaHCK7ExlbisWQqGnralkmLcU02EavYGQZDZD'
 import request from 'request';
 
-const PAGE_ACCESS_TOKEN = config.get('pageAccessToken');
-const VALIDATION_TOKEN = config.get('validationToken');
-
+const VALIDATION_TOKEN = 'validate me';
 export const validateChallenge = (e, ctx, cb) => {
   if (e.query['hub.mode'] === 'subscribe' && e.query['hub.verify_token'] === VALIDATION_TOKEN) {
     cb(null, parseInt(e.query['hub.challenge'], 10));
