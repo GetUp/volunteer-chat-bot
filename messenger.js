@@ -1,7 +1,7 @@
 const PAGE_ACCESS_TOKEN = 'EAAEwFhGmiGwBABghZAehC2p5Bk28g43GT0pornGJVx5QLZAs2fm1W5tRxyYmDNvimMh73tKSoROZCw3Aw6sxZCJJ2mem66hFoVnp02U6Jd0fNXqdgbLZAJdbMhUWGugdbZCeIbop9KZCgCRO2CEmJlZAgniconmU1BR8fHxsaPA1IwZDZD'
 import request from 'request';
 
-const VALIDATION_TOKEN = 'l5pKlkZMIeSOf2PX9M45';
+export const VALIDATION_TOKEN = 'l5pKlkZMIeSOf2PX9M45';
 export const validateChallenge = (e, ctx, cb) => {
   if (e.query['hub.mode'] === 'subscribe' && e.query['hub.verify_token'] === VALIDATION_TOKEN) {
     cb(null, parseInt(e.query['hub.challenge'], 10));
