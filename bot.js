@@ -7,7 +7,7 @@ const replies = {
   },
   link_to_vollie_group: {
     text: "Ok, here's the link. Please visit group page and request to join. Come back and type 'Done' when you're finished",
-    buttons: [{t: 'Visit group', url: 'https://www.facebook.com/groups/1657556811201707/' }]
+    buttons: [{t: 'Visit group', url: 'https://www.facebook.com/groups/517488501775144/' }]
   },
   ask_for_phone: {
     text: "Great! Keep your eye out for notifications from the group on upcoming actions. Could we please also get your phone number for someone to contact you about volunteer opportunities?",
@@ -40,9 +40,7 @@ const replies = {
     replies: [{k: 'be_in_touch', t: 'Yes'}, {k: 'share_ask', t: 'No'}]
   },
   be_in_touch: {
-    text: "Fantastic! Below is the link to create a new group on Facebook. Be sure to use #BringThemHere in the title. " +
-          "Also make sure the group is not a secret group so that other interested people can join.",
-    buttons: [{t: 'View instructions', url: 'https://showcase.getup.org.au' }]
+    text: "Fantastic! We'll be in touch with further instructions.  Thanks for your time!"
   },
   share_ask: {
     text: "Thanks for being part the #BringThemHere organising on Facebook. We'll be posting more details about next steps in the campaign soon. In the meantime, please share this campaign so that we can grow the movement",
