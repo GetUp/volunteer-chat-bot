@@ -6,7 +6,7 @@ const replies = {
     replies: [{k: 'link_to_vollie_group', t: 'Not yet'}, {k: 'ask_for_phone', t: 'I have joined'}]
   },
   link_to_vollie_group: {
-    text: "Ok, here's the link. Please visit group page and request to join. Come back and type 'Done' when you're finished",
+    text: "Ok, here's the link. Please visit the group page and request to join. Come back and type 'Done' when you're finished",
     buttons: [{t: 'Visit group', url: 'https://www.facebook.com/groups/517488501775144/' }]
   },
   ask_for_phone: {
@@ -14,7 +14,7 @@ const replies = {
     replies: [{k: 'join_local_group_ask', t: 'No thanks'}, {k: 'prompt_for_phone', t: 'Yes'}]
   },
   prompt_for_phone: {
-    text: "Please enter your Australian mobile or phone number? E.g. 0468519266"
+    text: "Please enter your Australian mobile or phone number. E.g. 0468519266"
   },
   detected_phone_number: {
     text: "Can I please confirm that PHONE is your number?",
@@ -25,7 +25,7 @@ const replies = {
     replies: [{k: 'share_ask', t: 'No thanks'}, {k: 'ask_for_postcode', t: 'Yes'}]
   },
   ask_for_postcode: {
-    text: "Please enter your four digit postcode? E.g. 2000"
+    text: "Please enter your four digit postcode E.g. 2000"
   },
   detected_postcode: {
     text: "Can I please confirm that POSTCODE is your postcode?",
@@ -36,11 +36,11 @@ const replies = {
     replies: [{k: 'ask_to_start', t: 'Yes'}, {k: 'ask_to_start', t: 'No'}]
   },
   ask_to_start: {
-    text: "Would you interested in helping to start a local group in your area? We'll provide guidelines and advice on running your group.",
+    text: "Would you be interested in helping to start a local group in your area? We'll provide guidelines and advice on running your group.",
     replies: [{k: 'be_in_touch', t: 'Yes'}, {k: 'share_ask', t: 'No'}]
   },
   be_in_touch: {
-    text: "Fantastic! We'll be in touch with further instructions.  Thanks for your time!"
+    text: "Fantastic! We'll be in touch with further instructions. Thanks for your time!"
   },
   share_ask: {
     text: "Thanks for being part the #BringThemHere organising on Facebook. We'll be posting more details about next steps in the campaign soon. In the meantime, please share this campaign so that we can grow the movement",
