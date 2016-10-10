@@ -93,7 +93,8 @@ function sendButtonMessage(recipientId, text, buttons) {
             return {
               type: "web_url",
               url: button.url,
-              title: button.t
+              title: button.t,
+              webview_height_ratio: 'tall'
             }
           })
         }

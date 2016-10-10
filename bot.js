@@ -7,7 +7,7 @@ const replies = {
   },
   link_to_vollie_group: {
     text: "Ok, here's the link. Please visit the group page and request to join. Come back and type 'Done' when you're finished",
-    buttons: [{t: 'Visit group', url: 'https://www.facebook.com/groups/517488501775144/' }]
+    buttons: [{t: 'Join vollie group', url: 'https://www.facebook.com/groups/517488501775144/' }]
   },
   ask_for_phone: {
     text: "Great! Keep your eye out for notifications from the group on upcoming actions. Could we please also get your phone number for someone to contact you about volunteer opportunities?",
