@@ -17,11 +17,37 @@
 
 * `npm test`
 
+## Page "Thread Setup"
+
+To provide help text and a Get Started button in the messenger interface, grab a page token and use the following curl commands:
+
+```
+curl -X POST -H "Content-Type: application/json" -d '{
+  "setting_type":"call_to_actions",
+  "thread_state":"new_thread",
+  "call_to_actions":[
+    {
+      "payload":"GET_STARTED"
+    }
+  ]
+}' "https://graph.facebook.com/v2.6/me/thread_settings?access_token=PAGE_ACCESS_TOKEN"
+```
+
+```
+curl -X POST -H "Content-Type: application/json" -d '{
+  "setting_type":"greeting",
+  "greeting":{
+    "text":"Hi {{user_first_name}}!\n\nDo not worry, I am a friendly bot.  I like humans and would never destroy them all.  To talk to me, please hit the\n•Get Started button•\nway down there. ☟\n\nThanks puny human!"
+  }
+}' "https://graph.facebook.com/v2.6/me/thread_settings?access_token=PAGE_ACCESS_TOKEN"
+```
+
+More info: https://developers.facebook.com/docs/messenger-platform/thread-settings
+
 ## TODO
 
 * switch to environment variables of some kind
 * validate FB token
-* add greeting message?
 * gather the email and details of the sender
 
 ## Chat
