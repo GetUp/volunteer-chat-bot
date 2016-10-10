@@ -1,0 +1,12 @@
+{
+  "body": {
+    "object": "page",
+    "entry": [
+      {
+        "messaging": [
+          {"recipient":{"id":"964554703655053"},"timestamp":1476058262314,"sender":{"id":"1180637708649211"},"postback":{"payload":"GET_STARTED"}}
+        ]
+      }
+    ]
+  }
+}

@@ -1,4 +1,4 @@
-const PAGE_ACCESS_TOKEN = 'EAAEwFhGmiGwBABghZAehC2p5Bk28g43GT0pornGJVx5QLZAs2fm1W5tRxyYmDNvimMh73tKSoROZCw3Aw6sxZCJJ2mem66hFoVnp02U6Jd0fNXqdgbLZAJdbMhUWGugdbZCeIbop9KZCgCRO2CEmJlZAgniconmU1BR8fHxsaPA1IwZDZD'
+const PAGE_ACCESS_TOKEN = 'EAAEwFhGmiGwBAIZCfGZBeM3yraIzQ91KZCgLUdISvP0WYgRr0ttTVXbjPSd13qmjiAgoZB4pYNV3pBhxXT7Ie5ZCu1ZBZBnMBxoIscoZC8xveFZChgNeyiUyDKks98n9dFmcxmPZBqexaAm7bQcswkgnZAEo3FBkozbLsZCSAOVIwzqujwZDZD'
 import request from 'request';
 
 export const VALIDATION_TOKEN = 'l5pKlkZMIeSOf2PX9M45';
@@ -16,8 +16,9 @@ export const conversation = (replies) => {
     if (data.object !== 'page') return cb();
     data.entry.forEach(pageEntry => {
       pageEntry.messaging.forEach(messagingEvent => {
+        console.log(JSON.stringify(messagingEvent));
         const message = messagingEvent.message;
-        if (!message) return console.error('Unknown message event');
+        if (!message) return console.error('refusing to process: ' + JSON.stringify(messagingEvent));
         const recipientId = messagingEvent.sender.id;
         const key = message.quick_reply ? message.quick_reply.payload : 'default';
 
