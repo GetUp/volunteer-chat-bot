@@ -17,7 +17,7 @@ export const conversation = (replies) => {
     data.entry.forEach(pageEntry => {
       pageEntry.messaging.forEach(messagingEvent => {
         console.log(JSON.stringify(messagingEvent));
-        const message = messagingEvent.message;
+        const message = messagingEvent.postback ? 'postback' : messagingEvent.message;
         if (!message) return console.error('refusing to process: ' + JSON.stringify(messagingEvent));
         const recipientId = messagingEvent.sender.id;
         const key = message.quick_reply ? message.quick_reply.payload : 'default';

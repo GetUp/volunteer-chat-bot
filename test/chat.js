@@ -7,10 +7,30 @@ import fs from 'fs';
 import nock from 'nock';
 
 describe('chat', () => {
+  context('with a postback from the Get Started button', () => {
+    const receivedData = JSON.parse(fs.readFileSync('test/fixtures/postback.json', 'utf8'));
+
+    it('starts the converstaion and send the default message', (done) => {
+      const graphAPICalls = nock('https://graph.facebook.com')
+        .post('/v2.6/me/messages', (body) => {
+          return body.message.text.match(/Have you joined/) &&
+            body.message.quick_replies[0].title.match(/Not yet/);
+        })
+        .query(true)
+        .reply(200);
+      wrapped.run(receivedData, (err) => {
+        setImmediate( () => {
+          graphAPICalls.done();
+          done(err)
+        });
+      });
+    });
+  });
+
   context('with a text message', () => {
     const receivedData = JSON.parse(fs.readFileSync('event.json', 'utf8'));
 
-    it('should start the converstaion and send a quick reply', (done) => {
+    it('should start the conversation and send a quick reply', (done) => {
       const graphAPICalls = nock('https://graph.facebook.com')
         .post('/v2.6/me/messages', (body) => {
           return body.message.text.match(/Have you joined/) &&
