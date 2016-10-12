@@ -4,7 +4,14 @@
     "entry": [
       {
         "messaging": [
-          {"recipient":{"id":"964554703655053"},"timestamp":1476058262314,"sender":{"id":"1180637708649211"},"postback":{"payload":"GET_STARTED"}}
+          {
+            "sender": { "id": "1274747332556664" },
+            "recipient": { "id": "1800830403504977" },
+            "timestamp": 1476244992676,
+            "postback": {
+              "payload":"group_intro"
+            }
+          }
         ]
       }
     ]
