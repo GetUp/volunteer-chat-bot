@@ -1,0 +1,12 @@
+{
+  "body": {
+    "object": "page",
+    "entry": [
+      {
+        "messaging": [
+          {"sender":{"id":"1274747332556664"},"recipient":{"id":"1800830403504977"},"timestamp":1476244992676,"message":{"quick_reply":{"payload":"group_joined"},"mid":"mid.1476244992676:3e11f3c670","seq":572,"text":"I have joined"}}
+        ]
+      }
+    ]
+  }
+}

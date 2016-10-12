@@ -1,0 +1,12 @@
+{
+  "body": {
+    "object": "page",
+    "entry": [
+      {
+        "messaging": [
+          {"sender":{"id":"1274747332556664"},"recipient":{"id":"1800830403504977"},"timestamp":1476245099011,"message":{"mid":"mid.1476245099011:3b65a68485","seq":576,"text":"all"}}
+        ]
+      }
+    ]
+  }
+}
