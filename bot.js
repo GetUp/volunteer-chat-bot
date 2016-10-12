@@ -1,3 +1,4 @@
+if (!global._babelPolyfill) require('babel-polyfill');
 import {validateChallenge, conversation} from './messenger';
 
 const replies = {

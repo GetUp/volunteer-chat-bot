@@ -1,10 +1,7 @@
 var nodeExternals = require('webpack-node-externals');
 
 module.exports = {
-  entry: [
-    'babel-polyfill',
-    './bot.js'
-  ],
+  entry: './bot.js',
   target: 'node',
   externals: [nodeExternals()],
   module: {
