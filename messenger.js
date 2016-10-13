@@ -4,7 +4,7 @@ import request from 'request';
 export const VALIDATION_TOKEN = 'l5pKlkZMIeSOf2PX9M45';
 export const validateChallenge = (e, ctx, cb) => {
   if (e.query['hub.mode'] === 'subscribe' && e.query['hub.verify_token'] === VALIDATION_TOKEN) {
-    cb(null, parseInt(e.query['hub.challenge'], 10));
+    cb(null, '' + parseInt(e.query['hub.challenge'], 10));
   } else {
     cb('Validation failed');
   }
