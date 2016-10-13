@@ -9,71 +9,152 @@ const replies = {
   default: {
     text: "Here are some ways you can help close the camps and #BringThemHere:",
     buttons: [
-      {type: 'postback', payload: 'petition_sign', title: 'Sign the petition'},
-      {type: 'postback', payload: 'group_intro', title: 'Join the Facebook Group'},
-      {type: 'postback', payload: 'subscribe_initiate', title: 'Subscribe to receive campaign updates'},
-    ]
+      {type: 'postback', payload: 'subscribe_intro', title: 'Subscribe to updates'},
+      {type: 'postback', payload: 'petition_intro', title: 'Sign the petition'},
+      {type: 'postback', payload: 'group_intro', title: 'Join the group'},
+    ],
   },
 
   group_intro: {
-    text: 'The Facebook group is a great way to stay up to date with campaign developments and upcoming actions.',
-    next: 'group_join',
-  },
-  group_join: {
-    text: 'Have you joined our #BringThemHere volunteer Facebook group yet?',
-    replies: [{k: 'group_view', t: 'Not yet'}, {k: 'group_joined', t: 'I have joined'}]
+    text: 'The GetUp Volunteer group is a great way to share ideas with other GetUp members about how we can help to end offshore detention.',
+    next: 'group_view',
   },
   group_view: {
-    text: "Ok, here's the link. Please visit the group page and request to join. Come back and type 'Done' when you're finished",
-    buttons: [{t: 'Join vollie group', url: 'https://www.facebook.com/groups/517488501775144/' }],
-    next: 'default',
+    text: "Join the group by pressing the button below and pressing on the usual join button in the window that opens. Press Done when you're finished.",
+    buttons: [{type: 'web_url', title: 'Join vollie group', url: 'https://www.facebook.com/groups/517488501775144/', webview_height_ratio: 'tall'}],
+    next: 'group_prompt',
+    delay: 20000,
+  },
+  group_prompt: {
+    text: "How'd you go?",
+    buttons: [
+      {type: 'postback', payload: 'group_joined', title: 'I joined the group'},
+      {type: 'postback', payload: 'group_error', title: 'Something went wrong'},
+      {type: 'postback', payload: 'group_no_thanks', title: "I don't want to join the group right now"},
+    ],
   },
   group_joined: {
-    text: "Excellent! Keep your eye out for notifications from the group.",
+    text: "Excellent! Keep your eye out for Facebook notifications from the group.",
     persist: 'group_joined',
     next: 'default',
   },
+  group_error: {
+    text: "Bummer! Somebody will be in touch shortly. Maybe try one of the other ways to get involved?",
+    persist: 'group_error',
+    next: 'default',
+  },
+  group_no_thanks: {
+    text: "No worries, we have other ways you can get involved. :)",
+    next: 'default',
+  },
 
-  subscribe_initiate: {},
+  subscribe_intro: {
+    text: "The GetUp Strategy Team can message you when there are important updates to the campaign and opportunities for you to help out.",
+    next: 'subscribe_frequency',
+  },
+  subscribe_frequency: {
+    text: "It's unlikely you'll receive more than two per week.",
+    next: 'subscribe_ask',
+  },
+  subscribe_ask: {
+    text: "Would you like us to keep you in the loop?",
+    replies: [{k: 'subscribe_yes', t: 'Yes please!'}, {k: 'subscribe_no', t: 'No thanks'}],
+  },
+  subscribe_yes: {
+    text: "Great! We'll be in touch when something important comes up.",
+    persist: 'subscribed',
+    next: 'subscribe_manage',
+  },
+  subscribe_manage: {
+    text: "You can manage when we contact you from the ≡ icon below.",
+    next: 'default',
+  },
+  subscribe_no: {
+    text: "No problem, there are plenty of ways to stay up to date. :)",
+    persist: 'subscribe_no',
+    next: 'default',
+  },
+  subscribe_examples: [
+// TODO images? maybe a third?
+    {
+      text: "Papua New Guinea's Hight Court has just ruled the Manus island camp illegal. Share this great news with your friends.",
+      buttons: [{type: 'element_share', title: 'Share', url: 'https://www.theguardian.com/australia-news/2016/apr/26/papua-new-guinea-court-rules-detention-asylum-seekers-manus-unconstitutional'}],
+    },
+    {
+      text: "There's a rally to support refugees tomorrow at Town Hall. It'll be at 6:30pm - can you join everyone?",
+      buttons: [{type: 'element_share', title: 'Share', url: 'http://www.refugeeaction.org.au/?p=5230'}],
+    },
+  ],
 
-  petition_sign: {},
+  petition_intro: {
+    text: "We'll be delivering our petition to the immigration minister at the start of next month. Make sure your name is on it!",
+    next: 'petition_show',
+  },
+  petition_show: {
+// TODO petition template: image_url: "https://d68ej2dhhub09.cloudfront.net/image_11715_full.jpg",
+    buttons: [
+      {title: 'Sign now', type: 'postback', payload: 'petition_postcode'},
+      {title: 'Read more', type: 'web_url', webview_height_ratio: 'tall', url: 'https://www.getup.org.au/campaigns/refugees/bring-them-here/petition-bring-them-here'},
+    ],
+  },
+  petition_postcode: {
+    text: "Thanks for agreeing to sign! What's your postcode?",
+  },
+  petition_details: {
+// TODO template function
+    template: "Great! Your signature will be recorded as {first_name} {last_name}, {postcode}. Is that correct?",
+    replies: [{k: 'petition_details_yes', t: "Yep, that's me"}, {k: 'petition_details_no', t: "No, something isn't right"}],
+  },
+  petition_details_yes: {
+    text: "Excellent! All done. Thank you for signing the petition.",
+    next: 'petition_share_ask',
+  },
+  petition_share_ask: {
+    text: "Would you be willing to share the petition with your friends?",
+    replies: [{k: 'petition_share_yes', t: 'Yeah sure'}, {k: 'petition_share_no', t: 'Not right now'}],
+  },
+  petition_share: {
+    text: "I just signed to end offshore detention and close the camps. Will you join me?",
+    // TODO image_url: "https://d68ej2dhhub09.cloudfront.net/image_11715_full.jpg",
+  },
+  petition_share_no: {
+    text: "Not a problem. Maybe another time. :)",
+    next: 'default',
+  },
+  petition_details_no: {
+    text: "Aah, that's no good. To sign, please use our website:",
+    buttons: [{title: 'Open petition', type: 'web_url', webview_height_ratio: 'full', url: 'https://www.getup.org.au/campaigns/refugees/bring-them-here/petition-bring-them-here'}],
+    next: 'petition_details_no_prompt',
+  },
+  petition_details_no_prompt: {
+    text: "How'd you go?",
+    buttons: [
+      {type: 'postback', payload: 'petition_details_yes', title: 'All signed'},
+      {type: 'postback', payload: 'petition_error', title: 'Something went wrong'},
+    ],
+  },
+  petition_error: {
+    text: "Bummer! Somebody will be in touch shortly. Maybe try one of the other ways to get involved?",
+    persist: 'petition_error',
+    next: 'default',
+  },
 
-  ask_for_phone: {
-    text: "Great! Keep your eye out for notifications from the group on upcoming actions. Could we please also get your phone number for someone to contact you about volunteer opportunities?",
-    replies: [{k: 'join_local_group_ask', t: 'No thanks'}, {k: 'prompt_for_phone', t: 'Yes'}]
+  all_done: {
+    text: "Awesome! That's all we have for now. Thanks for helping to end offshore detention.",
   },
-  prompt_for_phone: {
-    text: "Please enter your Australian mobile or phone number. E.g. 0468519266"
+
+  subscription_manage: {
+    text: "Would you like campaign update messages on or off?",
+    replies: [{k: 'subscription_on', t: 'On please'}, {k: 'subscription_off', t: 'Off thanks'}],
   },
-  detected_phone_number: {
-    text: "Can I please confirm that PHONE is your number?",
-    replies: [{k: 'join_local_group_ask', t: 'Yes'}, {k: 'prompt_for_phone', t: "That's not right"}, {k: 'join_local_group_ask', t: 'Skip'}]
+  subscription_on: {
+    text: "Awesome! We'll be in touch when there's an update. :)",
+    persist: 'subscribed',
   },
-  join_local_group_ask: {
-    text: "We're also helping people to connect with other people in their area. Would you be interested in meeting members in a local group?",
-    replies: [{k: 'share_ask', t: 'No thanks'}, {k: 'ask_for_postcode', t: 'Yes'}]
+  subscription_off: {
+    text: "No worries. You won't receive any more campaign updates from us. :)",
+    persist: 'unsubscribed',
   },
-  ask_for_postcode: {
-    text: "Please enter your four digit postcode E.g. 2000"
-  },
-  detected_postcode: {
-    text: "Can I please confirm that POSTCODE is your postcode?",
-    replies: [{k: 'ask_for_notification', t: 'Yes'}, {k: 'ask_for_postcode', t: "That's not right"}, {k: 'share_ask', t: 'Skip'}]
-  },
-  ask_for_notification: {
-    text: "There aren't any groups near you yet. Do you want us to notify you if one starts?",
-    replies: [{k: 'ask_to_start', t: 'Yes'}, {k: 'ask_to_start', t: 'No'}]
-  },
-  ask_to_start: {
-    text: "Would you be interested in helping to start a local group in your area? We'll provide guidelines and advice on running your group.",
-    replies: [{k: 'be_in_touch', t: 'Yes'}, {k: 'share_ask', t: 'No'}]
-  },
-  be_in_touch: {
-    text: "Fantastic! We'll be in touch with further instructions. Thanks for your time!"
-  },
-  share_ask: {
-    text: "Thanks for being part the #BringThemHere organising on Facebook. We'll be posting more details about next steps in the campaign soon. In the meantime, please share this campaign so that we can grow the movement",
-  }
 }
 
 export const chat = conversation(replies);

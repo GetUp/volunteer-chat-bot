@@ -66,8 +66,8 @@ export const sendMessage = (recipientId, reply) => {
     if (reply.next) {
       callSendAPI({recipient, sender_action: 'typing_on'}).then(() => {
         setTimeout(() => {
-          sendMessage(recipientId, script[reply.next])
-        }, reply.delay || 2000)
+          sendMessage(recipientId, script[reply.next]);
+        }, reply.delay || 5000);
       }).catch(::console.error);
     }
   }).catch(::console.error);
@@ -85,7 +85,7 @@ function callSendAPI(messageData, cb) {
 
     request(payload, function(error, response, body) {
       if (!error && response.statusCode === 200) return resolve(body);
-      reject(error);
+      reject(error || body);
     });
   })
 }
