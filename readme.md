@@ -19,7 +19,7 @@
 
 ## Page "Thread Setup"
 
-To provide help text and a Get Started button in the messenger interface, grab a page token and use the following curl commands:
+To provide help text, Get Started button, and persistent menu in the messenger interface, grab a page token and use the following curl commands:
 
 ```
 curl -X POST -H "Content-Type: application/json" -d '{
@@ -27,19 +27,31 @@ curl -X POST -H "Content-Type: application/json" -d '{
   "thread_state":"new_thread",
   "call_to_actions":[
     {
-      "payload":"GET_STARTED"
+      "payload":"intro"
     }
   ]
-}' "https://graph.facebook.com/v2.6/me/thread_settings?access_token=PAGE_ACCESS_TOKEN"
-```
+}' "https://graph.facebook.com/v2.6/me/thread_settings?access_token=$PAGE_ACCESS_TOKEN"
 
-```
 curl -X POST -H "Content-Type: application/json" -d '{
   "setting_type":"greeting",
   "greeting":{
-    "text":"Hi {{user_first_name}}!\n\nDo not worry, I am a friendly bot.  I like humans and would never destroy them all.  To talk to me, please hit the\n•Get Started button•\nway down there. ☟\n\nThanks puny human!"
+    "text":"Hi {{user_first_name}}!\n\nWelcome to the GetUp Volunteer Action Hub.\n\nPress Get Started to begin. :)"
   }
-}' "https://graph.facebook.com/v2.6/me/thread_settings?access_token=PAGE_ACCESS_TOKEN"
+}' "https://graph.facebook.com/v2.6/me/thread_settings?access_token=$PAGE_ACCESS_TOKEN"
+
+curl -X POST -H "Content-Type: application/json" -d '{
+  "setting_type" : "call_to_actions",
+  "thread_state" : "existing_thread",
+  "call_to_actions": [{
+    "type":"postback",
+    "title":"What can I do?",
+    "payload":"default"
+  },{
+    "type":"postback",
+    "title":"Manage campaign updates",
+    "payload":"subscription_manage"
+  }]
+}' "https://graph.facebook.com/v2.6/me/thread_settings?access_token=$PAGE_ACCESS_TOKEN"
 ```
 
 More info: https://developers.facebook.com/docs/messenger-platform/thread-settings
