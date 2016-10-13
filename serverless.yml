@@ -21,10 +21,12 @@ functions:
       - http:
           method: get
           path: webhook
+    memorySize: 512
   chat:
     handler: bot.chat
     events:
       - http:
           method: post
           path: webhook
+    memorySize: 512
     timeout: 300
