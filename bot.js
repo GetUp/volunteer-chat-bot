@@ -157,6 +157,11 @@ const replies = {
     text: "No worries. You won't receive any more campaign updates from us. :)",
     persist: 'unsubscribed',
   },
+
+  unknown_payload: {
+    text: "Sorry, we didn't quite understand that message.",
+    next: 'default',
+  }
 }
 
 export const chat = conversation(replies);

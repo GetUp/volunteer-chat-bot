@@ -39,6 +39,7 @@ export const conversation = (replies) => {
 
 export const sendMessage = (recipientId, reply) => {
   const recipient = { id: recipientId };
+  if (!reply) reply = script['unknown_payload'];
   let message = { text: reply.text };
 
   if (reply.buttons) {
@@ -59,7 +60,7 @@ export const sendMessage = (recipientId, reply) => {
       text: reply.text,
       metadata: 'DEVELOPER_DEFINED_METADATA',
       quick_replies: reply.replies.map(option => ({title: option.t, payload: option.k, content_type: 'text'}))
-    }
+    };
   }
 
   callSendAPI({recipient, message}).then(() => {
