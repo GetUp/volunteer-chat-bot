@@ -75,7 +75,7 @@ export const sendMessage = (recipientId, reply) => {
 
 function callSendAPI(messageData, cb) {
   return new Promise((resolve, reject) => {
-    // console.log('messageData:', JSON.stringify(messageData));
+    console.log('messageData:', JSON.stringify(messageData));
     const payload = {
       uri: 'https://graph.facebook.com/v2.6/me/messages',
       qs: { access_token: PAGE_ACCESS_TOKEN },
