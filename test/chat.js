@@ -8,13 +8,12 @@ import nock from 'nock';
 
 describe('chat', () => {
   context('with a postback from the Get Started button', () => {
-    const receivedData = JSON.parse(fs.readFileSync('test/fixtures/postback.json', 'utf8'));
+    const receivedData = JSON.parse(fs.readFileSync('test/fixtures/get_started.json', 'utf8'));
 
-    it('starts the converstaion and send the default message', (done) => {
+    it('starts the conversation and sends the intro message', (done) => {
       const graphAPICalls = nock('https://graph.facebook.com')
         .post('/v2.6/me/messages', (body) => {
-          return body.message.text.match(/Have you joined/) &&
-            body.message.quick_replies[0].title.match(/Not yet/);
+          return !!body.message.text.match(/Welcome to the GetUp Volunteer Action Hub/);
         })
         .query(true)
         .reply(200);
@@ -109,7 +108,7 @@ describe('chat', () => {
     });
   });
 
-  context('with a reply that appears to be a mobile', () => {
+  context('with a reply that appears to be a postcode', () => {
     const receivedData = JSON.parse(fs.readFileSync('event.json', 'utf8'));
     receivedData.body.entry[0].messaging[0].message.text = ' 2000 ';
 
