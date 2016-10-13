@@ -18,7 +18,7 @@ export const conversation = (replies) => {
     if (data.object !== 'page') return cb();
     data.entry.forEach(pageEntry => {
       pageEntry.messaging.forEach(messagingEvent => {
-        // console.log('messagingEvent:', JSON.stringify(messagingEvent));
+        console.log('messagingEvent:', JSON.stringify(messagingEvent));
 
         const recipientId = messagingEvent.sender.id;
         if (messagingEvent.postback) {
