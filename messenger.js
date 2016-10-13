@@ -22,24 +22,24 @@ export const conversation = (replies) => {
 
         const recipientId = messagingEvent.sender.id;
         if (messagingEvent.postback) {
-          return sendMessage(recipientId, replies[messagingEvent.postback.payload]);
+          return sendMessage(recipientId, messagingEvent.postback.payload);
         }
 
         const message = messagingEvent.message;
         if (message.quick_reply) {
-          return sendMessage(recipientId, replies[message.quick_reply.payload]);
+          return sendMessage(recipientId, message.quick_reply.payload);
         }
 
-        sendMessage(recipientId, replies['intro']);
+        sendMessage(recipientId, 'fallthrough');
       });
     })
     cb();
   }
 }
 
-export const sendMessage = (recipientId, reply) => {
+export const sendMessage = (recipientId, key) => {
   const recipient = { id: recipientId };
-  if (!reply) reply = script['unknown_payload'];
+  const reply = script[key] || script['unknown_payload'];
 
   let message;
   if (reply.text) message = { text: reply.text };
@@ -51,7 +51,7 @@ export const sendMessage = (recipientId, reply) => {
     if (reply.next) {
       callSendAPI({recipient, sender_action: 'typing_on'}).then(() => {
         setTimeout(() => {
-          sendMessage(recipientId, script[reply.next]);
+          sendMessage(recipientId, reply.next);
         }, reply.delay || 5000);
       }).catch(::console.error);
     }
@@ -78,9 +78,11 @@ function callSendAPI(messageData, cb) {
 function quickReply(reply) {
   return {
     text: reply.text,
-    quick_replies: reply.replies.map(option => (
-      {title: option.t, payload: option.k, content_type: 'text'}
-    )),
+    quick_replies: reply.replies.map(option => ({
+      content_type: 'text',
+      title: option.t,
+      payload: option.k,
+    })),
   };
 }
 
