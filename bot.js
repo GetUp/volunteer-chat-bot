@@ -1,6 +1,13 @@
 if (!global._babelPolyfill) require('babel-polyfill');
 import {validateChallenge, conversation} from './messenger';
 
+const petition = {
+  title: 'Close the camps!',
+  // item_url: '',
+  image_url: 'https://d68ej2dhhub09.cloudfront.net/image_11715_full.jpg',
+  subtitle: 'Minister Dutton, please end offshore detention.',
+}
+
 const replies = {
   intro: {
     text: "Welcome to the GetUp Volunteer Action Hub. The current campaign is to end Australia's offshore detention regime and bring the remaining refugees to Australia.",
@@ -94,10 +101,7 @@ const replies = {
   },
   petition_show: {
     generic: [{
-      title: 'Close the camps!',
-      // item_url: '',
-      image_url: 'https://d68ej2dhhub09.cloudfront.net/image_11715_full.jpg',
-      subtitle: 'Minister Dutton, please end offshore detention.',
+      ...petition,
       buttons: [
         {title: 'Sign now', type: 'postback', payload: 'petition_postcode'},
         {title: 'Read more', type: 'web_url', webview_height_ratio: 'tall', url: 'https://www.getup.org.au/campaigns/refugees/bring-them-here/petition-bring-them-here'},
@@ -120,9 +124,13 @@ const replies = {
     text: "Would you be willing to share the petition with your friends?",
     replies: [{k: 'petition_share_yes', t: 'Yeah sure'}, {k: 'petition_share_no', t: 'Not right now'}],
   },
-  petition_share: {
-    text: "I just signed to end offshore detention and close the camps. Will you join me?",
-    // TODO image_url: "https://d68ej2dhhub09.cloudfront.net/image_11715_full.jpg",
+  petition_share_yes: {
+    generic: [{
+      ...petition,
+      buttons: [{type: 'element_share'}],
+    }],
+    next: 'default',
+    delay: 20000,
   },
   petition_share_no: {
     text: "Not a problem. Maybe another time. :)",
@@ -130,7 +138,7 @@ const replies = {
   },
   petition_details_no: {
     text: "Aah, that's no good. To sign, please use our website:",
-    buttons: [{title: 'Open petition', type: 'web_url', webview_height_ratio: 'full', url: 'https://www.getup.org.au/campaigns/refugees/bring-them-here/petition-bring-them-here'}],
+    buttons: [{title: 'Open petition', type: 'web_url', webview_height_ratio: 'tall', url: 'https://www.getup.org.au/campaigns/refugees/bring-them-here/petition-bring-them-here'}],
     next: 'petition_details_no_prompt',
   },
   petition_details_no_prompt: {
