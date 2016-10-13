@@ -27,3 +27,4 @@ functions:
       - http:
           method: post
           path: webhook
+    timeout: 300
