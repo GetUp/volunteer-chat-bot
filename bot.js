@@ -30,7 +30,7 @@ const replies = {
     buttons: [
       {type: 'postback', payload: 'group_joined', title: 'I joined the group'},
       {type: 'postback', payload: 'group_error', title: 'Something went wrong'},
-      {type: 'postback', payload: 'group_no_thanks', title: "I don't want to join the group right now"},
+      {type: 'postback', payload: 'group_no_thanks', title: "Not right now"},
     ],
   },
   group_joined: {
@@ -110,7 +110,7 @@ const replies = {
   petition_details: {
 // TODO template function
     template: "Great! Your signature will be recorded as {first_name} {last_name}, {postcode}. Is that correct?",
-    replies: [{k: 'petition_details_yes', t: "Yep, that's me"}, {k: 'petition_details_no', t: "No, something isn't right"}],
+    replies: [{k: 'petition_details_yes', t: "Yep, that's me"}, {k: 'petition_details_no', t: "No, that's not right"}],
   },
   petition_details_yes: {
     text: "Excellent! All done. Thank you for signing the petition.",
@@ -165,6 +165,11 @@ const replies = {
 
   unknown_payload: {
     text: "Sorry, we didn't quite understand that message.",
+    next: 'default',
+  },
+
+  fallthrough: {
+    text: "somehow, that message passed through the gatekeepers",
     next: 'default',
   }
 }
