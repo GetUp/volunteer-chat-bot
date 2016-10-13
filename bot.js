@@ -93,11 +93,16 @@ const replies = {
     next: 'petition_show',
   },
   petition_show: {
-// TODO petition template: image_url: "https://d68ej2dhhub09.cloudfront.net/image_11715_full.jpg",
-    buttons: [
-      {title: 'Sign now', type: 'postback', payload: 'petition_postcode'},
-      {title: 'Read more', type: 'web_url', webview_height_ratio: 'tall', url: 'https://www.getup.org.au/campaigns/refugees/bring-them-here/petition-bring-them-here'},
-    ],
+    generic: [{
+      title: 'Close the camps!',
+      // item_url: '',
+      image_url: 'https://d68ej2dhhub09.cloudfront.net/image_11715_full.jpg',
+      subtitle: 'Minister Dutton, please end offshore detention.',
+      buttons: [
+        {title: 'Sign now', type: 'postback', payload: 'petition_postcode'},
+        {title: 'Read more', type: 'web_url', webview_height_ratio: 'tall', url: 'https://www.getup.org.au/campaigns/refugees/bring-them-here/petition-bring-them-here'},
+      ],
+    }],
   },
   petition_postcode: {
     text: "Thanks for agreeing to sign! What's your postcode?",

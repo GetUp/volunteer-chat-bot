@@ -40,28 +40,12 @@ export const conversation = (replies) => {
 export const sendMessage = (recipientId, reply) => {
   const recipient = { id: recipientId };
   if (!reply) reply = script['unknown_payload'];
-  let message = { text: reply.text };
 
-  if (reply.buttons) {
-    message = {
-      attachment: {
-        type: 'template',
-        payload: {
-          template_type: 'button',
-          text: reply.text,
-          buttons: reply.buttons
-        }
-      }
-    };
-  }
-
-  if (reply.replies) {
-    message = {
-      text: reply.text,
-      metadata: 'DEVELOPER_DEFINED_METADATA',
-      quick_replies: reply.replies.map(option => ({title: option.t, payload: option.k, content_type: 'text'}))
-    };
-  }
+  let message;
+  if (reply.text) message = { text: reply.text };
+  if (reply.replies) message = quickReply(reply);
+  if (reply.buttons) message = buttonTemplate(reply);
+  if (reply.generic) message = genericTemplate(reply);
 
   callSendAPI({recipient, message}).then(() => {
     if (reply.next) {
@@ -89,4 +73,38 @@ function callSendAPI(messageData, cb) {
       reject(error || body);
     });
   })
+}
+
+function quickReply(reply) {
+  return {
+    text: reply.text,
+    quick_replies: reply.replies.map(option => (
+      {title: option.t, payload: option.k, content_type: 'text'}
+    )),
+  };
+}
+
+function buttonTemplate(reply) {
+  return {
+    attachment: {
+      type: 'template',
+      payload: {
+        template_type: 'button',
+        text: reply.text,
+        buttons: reply.buttons,
+      }
+    }
+  };
+}
+
+function genericTemplate(reply) {
+  return {
+    attachment: {
+      type: 'template',
+      payload: {
+        template_type: 'generic',
+        elements: reply.generic,
+      }
+    }
+  };
 }
