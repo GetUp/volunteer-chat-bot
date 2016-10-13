@@ -2,14 +2,42 @@ if (!global._babelPolyfill) require('babel-polyfill');
 import {validateChallenge, conversation} from './messenger';
 
 const replies = {
+  intro: {
+    text: "Welcome to the GetUp Volunteer Action Hub. The current campaign is to end Australia's offshore detention regime and bring the remaining refugees to Australia.",
+    next: 'default',
+  },
   default: {
-    text: 'Have you joined our #BringThemHere volunteer group yet?',
-    replies: [{k: 'link_to_vollie_group', t: 'Not yet'}, {k: 'ask_for_phone', t: 'I have joined'}]
+    text: "Here are some ways you can help close the camps and #BringThemHere:",
+    buttons: [
+      {type: 'postback', payload: 'petition_sign', title: 'Sign the petition'},
+      {type: 'postback', payload: 'group_intro', title: 'Join the Facebook Group'},
+      {type: 'postback', payload: 'subscribe_initiate', title: 'Subscribe to receive campaign updates'},
+    ]
   },
-  link_to_vollie_group: {
+
+  group_intro: {
+    text: 'The Facebook group is a great way to stay up to date with campaign developments and upcoming actions.',
+    next: 'group_join',
+  },
+  group_join: {
+    text: 'Have you joined our #BringThemHere volunteer Facebook group yet?',
+    replies: [{k: 'group_view', t: 'Not yet'}, {k: 'group_joined', t: 'I have joined'}]
+  },
+  group_view: {
     text: "Ok, here's the link. Please visit the group page and request to join. Come back and type 'Done' when you're finished",
-    buttons: [{t: 'Join vollie group', url: 'https://www.facebook.com/groups/517488501775144/' }]
+    buttons: [{t: 'Join vollie group', url: 'https://www.facebook.com/groups/517488501775144/' }],
+    next: 'default',
   },
+  group_joined: {
+    text: "Excellent! Keep your eye out for notifications from the group.",
+    persist: 'group_joined',
+    next: 'default',
+  },
+
+  subscribe_initiate: {},
+
+  petition_sign: {},
+
   ask_for_phone: {
     text: "Great! Keep your eye out for notifications from the group on upcoming actions. Could we please also get your phone number for someone to contact you about volunteer opportunities?",
     replies: [{k: 'join_local_group_ask', t: 'No thanks'}, {k: 'prompt_for_phone', t: 'Yes'}]

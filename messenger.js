@@ -10,122 +10,82 @@ export const validateChallenge = (e, ctx, cb) => {
   }
 };
 
+let script;
 export const conversation = (replies) => {
+  script = replies;
   return (e, ctx, cb) => {
     const data = e.body;
     if (data.object !== 'page') return cb();
     data.entry.forEach(pageEntry => {
       pageEntry.messaging.forEach(messagingEvent => {
-        console.log(JSON.stringify(messagingEvent));
-        const message = messagingEvent.postback ? 'postback' : messagingEvent.message;
-        if (!message) return console.error('refusing to process: ' + JSON.stringify(messagingEvent));
+        // console.log('messagingEvent:', JSON.stringify(messagingEvent));
+
         const recipientId = messagingEvent.sender.id;
-        const key = message.quick_reply ? message.quick_reply.payload : 'default';
-
-        let matchNumber;
-        if (key === 'default' && message.text) {
-          if (matchNumber = message.text.match(/^\s*([\d\(\)\-\s]{7,})/)){
-            const phone = matchNumber[1].replace(/[^\d]/g, '');
-            const reply = replies.detected_phone_number;
-            return sendQuickReply(recipientId, reply.text.replace(/PHONE/, phone), reply.replies);
-          }else if (matchNumber = message.text.match(/^\s*(\d{4})/)){
-            const postcode = matchNumber[1].replace(/[^\d]/g, '');
-            const reply = replies.detected_postcode;
-            return sendQuickReply(recipientId, reply.text.replace(/POSTCODE/, postcode), reply.replies);
-          }
+        if (messagingEvent.postback) {
+          return sendMessage(recipientId, replies[messagingEvent.postback.payload]);
         }
 
-        const reply = replies[key];
-        if (!reply) return console.error('Unknown reply');
-        if (reply.replies){
-          sendQuickReply(recipientId, reply.text, reply.replies)
-        } else if (reply.buttons) {
-          sendButtonMessage(recipientId, reply.text, reply.buttons)
-        }else{
-          sendTextMessage(recipientId, reply.text)
+        const message = messagingEvent.message;
+        if (message.quick_reply) {
+          return sendMessage(recipientId, replies[message.quick_reply.payload]);
         }
+
+        sendMessage(recipientId, replies['intro']);
       });
     })
     cb();
   }
 }
 
-export const sendTextMessage = (recipientId, messageText) => {
-  let messageData = {
-    recipient: {
-      id: recipientId
-    },
-    message: {
-      text: messageText,
-      metadata: "DEVELOPER_DEFINED_METADATA"
-    }
-  };
-  callSendAPI(messageData);
-}
+export const sendMessage = (recipientId, reply) => {
+  const recipient = { id: recipientId };
+  let message = { text: reply.text };
 
-export const sendQuickReply = (recipientId, question, options) => {
-  let reply = { "content_type":"text" };
-  let messageData = {
-    recipient: {
-      id: recipientId
-    },
-    message: {
-      text: question,
-      metadata: "DEVELOPER_DEFINED_METADATA",
-      quick_replies: options.map(option => Object.assign({"title": option.t, "payload": option.k }, reply))
-    }
-  }
-  callSendAPI(messageData)
-}
-
-function sendButtonMessage(recipientId, text, buttons) {
-  var messageData = {
-    recipient: {
-      id: recipientId
-    },
-    message: {
+  if (reply.buttons) {
+    message = {
       attachment: {
-        type: "template",
+        type: 'template',
         payload: {
-          template_type: "button",
-          text: text,
-          buttons: buttons.map(button => {
-            return {
-              type: "web_url",
-              url: button.url,
-              title: button.t,
-              webview_height_ratio: 'tall'
-            }
-          })
+          template_type: 'button',
+          text: reply.text,
+          buttons: reply.buttons
         }
       }
+    };
+  }
+
+  if (reply.replies) {
+    message = {
+      text: reply.text,
+      metadata: 'DEVELOPER_DEFINED_METADATA',
+      quick_replies: reply.replies.map(option => ({title: option.t, payload: option.k, content_type: 'text'}))
     }
-  };
-  callSendAPI(messageData);
+  }
+
+  callSendAPI({recipient, message}).then(() => {
+    if (reply.next) {
+      callSendAPI({recipient, sender_action: 'typing_on'}).then(() => {
+        setTimeout(() => {
+          sendMessage(recipientId, script[reply.next])
+        }, reply.delay || 2000)
+      }).catch(::console.error);
+    }
+  }).catch(::console.error);
 }
 
-function callSendAPI(messageData) {
-  //console.error(JSON.stringify(messageData))
-  request({
-    uri: 'https://graph.facebook.com/v2.6/me/messages',
-    qs: { access_token: PAGE_ACCESS_TOKEN },
-    method: 'POST',
-    json: messageData
+function callSendAPI(messageData, cb) {
+  return new Promise((resolve, reject) => {
+    // console.log('messageData:', JSON.stringify(messageData));
+    const payload = {
+      uri: 'https://graph.facebook.com/v2.6/me/messages',
+      qs: { access_token: PAGE_ACCESS_TOKEN },
+      method: 'POST',
+      json: messageData,
+    };
 
-  }, function (error, response, body) {
-    if (!error && response.statusCode == 200) {
-      var recipientId = body.recipient_id;
-      var messageId = body.message_id;
-
-      if (messageId) {
-        //console.log("Successfully sent message with id %s to recipient %s", 
-        //  messageId, recipientId);
-      } else {
-      console.log("Successfully called Send API for recipient %s", 
-        recipientId);
-      }
-    } else {
-      console.error('error:', response);
-    }
-  });
+    request(payload, function(error, response, body) {
+      if (!error && response.statusCode === 200) return resolve(body);
+      reject(error);
+    });
+  })
 }
