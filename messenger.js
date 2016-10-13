@@ -64,7 +64,7 @@ export const sendMessage = (recipientId, key) => {
   }).catch(::console.error);
 }
 
-function callSendAPI(messageData, cb) {
+function callSendAPI(messageData) {
   return new Promise((resolve, reject) => {
     console.log('messageData:', JSON.stringify(messageData));
     const payload = {
