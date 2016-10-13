@@ -30,6 +30,12 @@ export const conversation = (replies) => {
           return sendMessage(recipientId, message.quick_reply.payload);
         }
 
+        let matchNumber;
+        if (matchNumber = message.text.match(/^\s*(\d{4})/)) {
+          const postcode = matchNumber[1].replace(/[^\d]/g, '');
+          return sendMessage(recipientId, 'petition_details', postcode);
+        }
+
         sendMessage(recipientId, 'fallthrough');
       });
     })
