@@ -55,6 +55,7 @@ const replies = {
   subscribe_frequency: {
     text: "It's unlikely you'll receive more than two per week.",
     next: 'subscribe_ask',
+    delay: 3000,
   },
   subscribe_ask: {
     text: "Would you like us to keep you in the loop?",
@@ -64,6 +65,7 @@ const replies = {
     text: "Great! We'll be in touch when something important comes up.",
     persist: 'subscribed',
     next: 'subscribe_manage',
+    delay: 3000,
   },
   subscribe_manage: {
     text: "You can manage when we contact you from the ≡ icon below.",
