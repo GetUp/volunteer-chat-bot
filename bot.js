@@ -112,7 +112,6 @@ const replies = {
     text: "Thanks for agreeing to sign! What's your postcode?",
   },
   petition_details: {
-// TODO template function
     template: "Great! Your signature will be recorded as {first_name} {last_name}, {postcode}. Is that correct?",
     replies: [{k: 'petition_details_yes', t: "Yep, that's me"}, {k: 'petition_details_no', t: "No, that's not right"}],
   },
