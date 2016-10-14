@@ -17,12 +17,15 @@ describe('chat', () => {
           return !!body.message.text.match(/Welcome to the GetUp Volunteer Action Hub/);
         })
         .query(true)
-        .reply(200);
+        .reply(200)
+        .post('/v2.6/me/messages', {"recipient":{"id":"1274747332556664"},"sender_action":"typing_on"})
+        .query(true)
+        .reply(200)
       wrapped.run(receivedData, (err) => {
-        setImmediate( () => {
+        setTimeout( () => {
           graphAPICalls.done();
           done(err)
-        });
+        }, 20);
       });
     });
   });
@@ -38,12 +41,15 @@ describe('chat', () => {
              body.message.quick_replies[0].title.match(/Subscribe to updates/) );
         })
         .query(true)
+        .reply(200)
+        .post('/v2.6/me/messages', {"recipient":{"id":"1274747332556664"},"sender_action":"typing_on"})
+        .query(true)
         .reply(200);
       wrapped.run(receivedData, (err) => {
-        setImmediate( () => {
+        setTimeout( () => {
           graphAPICalls.done();
           done(err)
-        });
+        }, 20);
       });
     });
   });
@@ -58,12 +64,15 @@ describe('chat', () => {
           return body.message.text.match(script.subscribe_yes.text);
         })
         .query(true)
+        .reply(200)
+        .post('/v2.6/me/messages', {"recipient":{"id":"1089823244399799"},"sender_action":"typing_on"})
+        .query(true)
         .reply(200);
       wrapped.run(receivedData, (err) => {
-        setImmediate( () => {
+        setTimeout( () => {
           graphAPICalls.done();
           done(err)
-        });
+        }, 10);
       });
     });
   });
@@ -79,12 +88,15 @@ describe('chat', () => {
                  body.message.attachment.payload.buttons[0].url.match(script.group_view.buttons[0].url);
         })
         .query(true)
+        .reply(200)
+        .post('/v2.6/me/messages', {"recipient":{"id":"1089823244399799"},"sender_action":"typing_on"})
+        .query(true)
         .reply(200);
       wrapped.run(receivedData, (err) => {
-        setImmediate( () => {
+        setTimeout( () => {
           graphAPICalls.done();
           done(err)
-        });
+        }, 10);
       });
     });
   });
