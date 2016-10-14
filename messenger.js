@@ -63,11 +63,11 @@ export async function sendMessage(recipientId, key, answer) {
 
   callSendAPI({recipient, message}).then(() => {
     if (reply.next) {
-      callSendAPI({recipient, sender_action: 'typing_on'}).then(() => {
+      // callSendAPI({recipient, sender_action: 'typing_on'}).then(() => {
         setTimeout(() => {
           sendMessage(recipientId, reply.next);
         }, reply.delay || 5000);
-      }).catch(::console.error);
+      // }).catch(::console.error);
     }
   }).catch(::console.error);
 }
