@@ -27,10 +27,11 @@ export const replies = {
     next: 'group_view',
   },
   group_view: {
-    text: "Join the group by pressing the button below and pressing on the usual join button in the window that opens. Press Done when you're finished.",
+    text: "Join the group by pressing the button below and pressing on the usual join button in the window that opens. Press Close when you're finished.",
     buttons: [{type: 'web_url', title: 'Join vollie group', url: 'https://www.facebook.com/groups/517488501775144/', webview_height_ratio: 'tall'}],
     next: 'group_prompt',
     delay: 20000,
+    typing: false,
   },
   group_prompt: {
     text: "How'd you go?",
