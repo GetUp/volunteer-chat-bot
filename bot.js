@@ -8,7 +8,7 @@ const petition = {
   subtitle: 'Minister Dutton, please end offshore detention.',
 }
 
-const replies = {
+export const replies = {
   intro: {
     text: "Welcome to the GetUp Volunteer Action Hub. The current campaign is to end Australia's offshore detention regime and bring the remaining refugees to Australia.",
     next: 'default',

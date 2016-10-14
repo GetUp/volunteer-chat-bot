@@ -26,14 +26,15 @@ describe('chat', () => {
     });
   });
 
-  context('with a text message', () => {
-    const receivedData = JSON.parse(fs.readFileSync('event.json', 'utf8'));
+  context('with a message that triggers a short message followed by quick replies', () => {
+    const receivedData = JSON.parse(fs.readFileSync('test/fixtures/get_started.json', 'utf8'));
 
-    it('should start the conversation and send a quick reply', (done) => {
+    it('should send back a message and then after a short delay send quick replies', (done) => {
       const graphAPICalls = nock('https://graph.facebook.com')
         .post('/v2.6/me/messages', (body) => {
-          return body.message.text.match(/Have you joined/) &&
-            body.message.quick_replies[0].title.match(/Not yet/);
+          return body.message.text.match(/Welcome to the GetUp Volunteer Action Hub/) ||
+            ( body.message.text.match(/Here are some ways/) &&
+             body.message.quick_replies[0].title.match(/Subscribe to updates/) );
         })
         .query(true)
         .reply(200);
@@ -48,12 +49,12 @@ describe('chat', () => {
 
   context('with a text message with a quick reply payload', () => {
     const receivedData = JSON.parse(fs.readFileSync('event.json', 'utf8'));
-    receivedData.body.entry[0].messaging[0].message.quick_reply = { payload: 'ask_for_phone' };
+    receivedData.body.entry[0].messaging[0].message.quick_reply = { payload: 'subscribe_yes' };
 
     it('should respond with the correct reply', (done) => {
       const graphAPICalls = nock('https://graph.facebook.com')
         .post('/v2.6/me/messages', (body) => {
-          return body.message.text.match(/Keep your eye out/);
+          return body.message.text.match(mod.replies.subscribe_yes.text);
         })
         .query(true)
         .reply(200);
@@ -68,34 +69,13 @@ describe('chat', () => {
 
   context('with a reply that has a button', () => {
     const receivedData = JSON.parse(fs.readFileSync('event.json', 'utf8'));
-    receivedData.body.entry[0].messaging[0].message.quick_reply = { payload: 'link_to_vollie_group' };
+    receivedData.body.entry[0].messaging[0].message.quick_reply = { payload: 'group_view' };
 
     it('should respond with the correct reply', (done) => {
       const graphAPICalls = nock('https://graph.facebook.com')
         .post('/v2.6/me/messages', (body) => {
-          return body.message.attachment.payload.text.match(/here's the link/) &&
-                 body.message.attachment.payload.buttons[0].url.match(/facebook.com\/groups/);
-        })
-        .query(true)
-        .reply(200);
-      wrapped.run(receivedData, (err) => {
-        setImmediate( () => {
-          graphAPICalls.done();
-          done(err)
-        });
-      });
-    });
-  });
-
-  context('with a reply that appears to be a mobile', () => {
-    const receivedData = JSON.parse(fs.readFileSync('event.json', 'utf8'));
-    receivedData.body.entry[0].messaging[0].message.text = '02 9579 5627';
-
-    it('should with a prompt to confirm the number', (done) => {
-      const graphAPICalls = nock('https://graph.facebook.com')
-        .post('/v2.6/me/messages', (body) => {
-          return body.message.text.match(/0295795627/) &&
-            body.message.quick_replies[0].title.match(/Yes/);
+          return body.message.attachment.payload.text.match(mod.replies.group_view.text) &&
+                 body.message.attachment.payload.buttons[0].url.match(mod.replies.group_view.buttons[0].url);
         })
         .query(true)
         .reply(200);
@@ -111,20 +91,26 @@ describe('chat', () => {
   context('with a reply that appears to be a postcode', () => {
     const receivedData = JSON.parse(fs.readFileSync('event.json', 'utf8'));
     receivedData.body.entry[0].messaging[0].message.text = ' 2000 ';
+    const recipient = receivedData.body.entry[0].messaging[0].sender.id;
+    const profile = {first_name: 'test', last_name: 'user'};
 
-    it('should with a prompt to confirm the number', (done) => {
+    it('should get their details from a facebook and prompt to confirm the number', (done) => {
       const graphAPICalls = nock('https://graph.facebook.com')
+        .get(`/v2.8/${recipient}`)
+        .query(true)
+        .reply(200, profile)
         .post('/v2.6/me/messages', (body) => {
-          return body.message.text.match(/2000 is your postcode/) &&
-            body.message.quick_replies[0].title.match(/Yes/);
+          return body.message.text.match(/2000/) &&
+            body.message.text.match(profile.first_name) &&
+            body.message.quick_replies[0].title.match(mod.replies.petition_details.replies[0].t);
         })
         .query(true)
         .reply(200);
       wrapped.run(receivedData, (err) => {
-        setImmediate( () => {
+        setTimeout( () => {
           graphAPICalls.done();
           done(err)
-        });
+        }, 10);
       });
     });
   });
