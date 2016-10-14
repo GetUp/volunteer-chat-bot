@@ -43,12 +43,19 @@ export const conversation = (replies) => {
   }
 }
 
-export const sendMessage = (recipientId, key, answer) => {
+export async function sendMessage(recipientId, key, answer) {
   const recipient = { id: recipientId };
   const reply = script[key] || script['unknown_payload'];
 
+  if (reply.template) {
+    try {
+      reply.text = await getName(recipientId, reply, answer);
+    } catch(error) {
+      console.error(error);
+    }
+  }
+
   let message;
-  if (reply.template) reply.text = parseTemplate(recipientId, reply, answer);
   if (reply.text) message = { text: reply.text };
   if (reply.replies) message = quickReply(reply);
   if (reply.buttons) message = buttonTemplate(reply);
@@ -82,7 +89,7 @@ function callSendAPI(messageData) {
   })
 }
 
-function getName(recipientId) {
+function getName(recipientId, reply, answer) {
   return new Promise((resolve, reject) => {
     const payload = {
       uri: `https://graph.facebook.com/v2.8/${recipientId}`,
@@ -90,28 +97,17 @@ function getName(recipientId) {
       method: 'GET',
     };
     request(payload, (err, res, body) => {
-      if (!err && res.statusCode === 200) return resolve(body);
+      if (!err && res.statusCode === 200) {
+        const {first_name, last_name} = JSON.parse(body);
+        const text = reply.template
+          .replace(/{first_name}/, first_name)
+          .replace(/{last_name}/, last_name)
+          .replace(/{postcode}/, answer);
+        return resolve(text);
+      }
       reject(err || body);
     });
   })
-}
-
-function parseTemplate(recipientId, reply, answer) {
-  const [first_name, last_name] = ["First", "Last"];
-  const text = reply.template
-    .replace(/{first_name}/, first_name)
-    .replace(/{last_name}/, last_name)
-    .replace(/{postcode}/, answer);
-  return text;
-
-  // getName(recipientId).then(response => {
-  //   const {first_name, last_name} = JSON.parse(response);
-  //   const text = reply.template
-  //     .replace(/{first_name}/, first_name)
-  //     .replace(/{last_name}/, last_name)
-  //     .replace(/{postcode}/, answer);
-  //   return text;
-  // }).catch(::console.error);
 }
 
 function quickReply(reply) {
