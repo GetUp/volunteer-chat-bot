@@ -28,7 +28,7 @@ export const script = {
     buttons: [{type: 'web_url', title: 'Join vollie group', url: 'https://www.facebook.com/groups/517488501775144/', webview_height_ratio: 'tall'}],
     next: 'group_prompt',
     delay: 20000,
-    typing: false,
+    disable_typing: true
   },
   group_prompt: {
     text: "How'd you go?",

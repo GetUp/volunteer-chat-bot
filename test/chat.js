@@ -72,7 +72,7 @@ describe('chat', () => {
         setTimeout( () => {
           graphAPICalls.done();
           done(err)
-        }, 10);
+        }, 40);
       });
     });
   });
@@ -89,14 +89,11 @@ describe('chat', () => {
         })
         .query(true)
         .reply(200)
-        .post('/v2.6/me/messages', {"recipient":{"id":"1274747332556664"},"sender_action":"typing_on"})
-        .query(true)
-        .reply(200);
       wrapped.run(receivedData, (err) => {
         setTimeout( () => {
           graphAPICalls.done();
           done(err)
-        }, 10);
+        }, 40);
       });
     });
   });
@@ -117,6 +114,24 @@ describe('chat', () => {
             body.message.text.match(profile.first_name) &&
             body.message.quick_replies[0].title.match(script.petition_details.replies[0].t);
         })
+        .query(true)
+        .reply(200);
+      wrapped.run(receivedData, (err) => {
+        setTimeout( () => {
+          graphAPICalls.done();
+          done(err)
+        }, 40);
+      });
+    });
+  });
+
+  context('with a delayed reply that typing turned off', () => {
+    let receivedData = JSON.parse(fs.readFileSync(fixture('get_started'), 'utf8'));
+    receivedData.body.entry[0].messaging[0].postback.payload = 'group_intro';
+
+    it('should not send the typing message', (done) => {
+      const graphAPICalls = nock('https://graph.facebook.com')
+        .post('/v2.6/me/messages', body => !body.message.sender_action)
         .query(true)
         .reply(200);
       wrapped.run(receivedData, (err) => {

@@ -62,11 +62,16 @@ export async function sendMessage(recipientId, key, answer) {
 
   callSendAPI({recipient, message}).then(() => {
     if (reply.next) {
-      callSendAPI({recipient, sender_action: 'typing_on'}).then(() => {
+      let delayedCall = () => {
         setTimeout(() => {
           sendMessage(recipientId, reply.next);
         }, reply.delay || 5000);
-      }).catch(::console.error);
+      }
+      if (reply.disable_typing){
+        delayedCall();
+      }else{
+        callSendAPI({recipient, sender_action: 'typing_on'}).then(delayedCall);
+      }
     }
   }).catch(::console.error);
 }
