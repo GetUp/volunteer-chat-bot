@@ -65,7 +65,7 @@ describe('chat', () => {
         })
         .query(true)
         .reply(200)
-        .post('/v2.6/me/messages', {"recipient":{"id":"1089823244399799"},"sender_action":"typing_on"})
+        .post('/v2.6/me/messages', {"recipient":{"id":"1274747332556664"},"sender_action":"typing_on"})
         .query(true)
         .reply(200);
       wrapped.run(receivedData, (err) => {
@@ -89,7 +89,7 @@ describe('chat', () => {
         })
         .query(true)
         .reply(200)
-        .post('/v2.6/me/messages', {"recipient":{"id":"1089823244399799"},"sender_action":"typing_on"})
+        .post('/v2.6/me/messages', {"recipient":{"id":"1274747332556664"},"sender_action":"typing_on"})
         .query(true)
         .reply(200);
       wrapped.run(receivedData, (err) => {
