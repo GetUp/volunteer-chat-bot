@@ -128,6 +128,7 @@ export const script = {
     }],
     next: 'default',
     delay: 20000,
+    disable_typing: true
   },
   petition_share_no: {
     text: "Not a problem. Maybe another time. :)",
