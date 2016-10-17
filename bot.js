@@ -83,7 +83,7 @@ export const message = (e, ctx, cb) => {
 
 export function delayMessage(recipientId, next, delay) {
   const aws = require('aws-sdk');
-  const lambda = new aws.Lambda();
+  const lambda = new aws.Lambda({region: 'us-east-1'});
   const message = {recipientId: recipientId, next: next, delay: delay};
   lambda.invoke({
     FunctionName: 'message',

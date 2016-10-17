@@ -27,7 +27,7 @@ export const script = {
     text: "Join the group by pressing the button below and pressing on the usual join button in the window that opens. Press Close when you're finished.",
     buttons: [{type: 'web_url', title: 'Join vollie group', url: 'https://www.facebook.com/groups/517488501775144/', webview_height_ratio: 'tall'}],
     next: 'group_prompt',
-    delay: 2000,
+    delay: 20000,
     disable_typing: true
   },
   group_prompt: {
@@ -127,7 +127,7 @@ export const script = {
       buttons: [{type: 'element_share'}],
     }],
     next: 'default',
-    delay: 2000,
+    delay: 20000,
     disable_typing: true
   },
   petition_share_no: {
