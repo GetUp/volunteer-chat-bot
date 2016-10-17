@@ -12,6 +12,7 @@
   "author": "GetUp Tech <tech@getup.org.au>",
   "license": "MIT",
   "devDependencies": {
+    "aws-sdk": "^2.6.9",
     "babel-cli": "^6.14.0",
     "babel-core": "^6.13.2",
     "babel-eslint": "^7.0.0",
