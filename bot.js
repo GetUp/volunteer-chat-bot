@@ -63,7 +63,7 @@ export async function sendMessage(recipientId, key, answer) {
   callSendAPI({recipient, message}).then(() => {
     if (reply.next) {
       let delayedCall = () => {
-        delayMessage(recipientId, reply.net, reply.delay || 5000)
+        delayMessage(recipientId, reply.next, reply.delay || 5000)
       }
       if (reply.disable_typing){
         delayedCall();
@@ -78,19 +78,24 @@ export const message = (e, ctx, cb) => {
   console.error("invoking!", e)
   setTimeout(() => {
     sendMessage(e.recipientId, e.next);
+    cb();
   }, e.delay);
 };
 
 export function delayMessage(recipientId, next, delay) {
   const aws = require('aws-sdk');
   const lambda = new aws.Lambda({region: 'us-east-1'});
-  const message = {recipientId: recipientId, next: next, delay: delay};
+  const payload = {recipientId: recipientId, next: next, delay: delay};
+  console.log("process.env.NODE_ENV", process.env.NODE_ENV);
+  if (process.env.NODE_ENV === 'dev' || process.env.NODE_ENV === 'test') {
+    return message(payload, null, ()=>{});
+  }
   lambda.invoke({
-    FunctionName: 'message',
+    FunctionName: 'volunteer-chat-bot-staging-message',
     InvocationType: 'Event',
-    Payload: JSON.stringify(message)
-  }, function(error) {
-    console.error("Error invoking lambda", error, arguments);
+    Payload: JSON.stringify(payload)
+  }, function(err) {
+    if (err) console.error("Error invoking lambda", err, arguments);
   });
 }
 
