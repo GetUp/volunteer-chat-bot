@@ -22,10 +22,10 @@ describe('chat', () => {
         .query(true)
         .reply(200)
       wrapped.run(receivedData, (err) => {
-        setTimeout( () => {
+        nestedTimeout(3, () => {
           graphAPICalls.done();
           done(err)
-        }, 20);
+        });
       });
     });
   });
@@ -46,10 +46,10 @@ describe('chat', () => {
         .query(true)
         .reply(200);
       wrapped.run(receivedData, (err) => {
-        setTimeout( () => {
+        nestedTimeout(3, () => {
           graphAPICalls.done();
           done(err)
-        }, 20);
+        });
       });
     });
   });
@@ -69,10 +69,10 @@ describe('chat', () => {
         .query(true)
         .reply(200);
       wrapped.run(receivedData, (err) => {
-        setTimeout( () => {
+        nestedTimeout(3, () => {
           graphAPICalls.done();
           done(err)
-        }, 40);
+        });
       });
     });
   });
@@ -90,10 +90,10 @@ describe('chat', () => {
         .query(true)
         .reply(200)
       wrapped.run(receivedData, (err) => {
-        setTimeout( () => {
+        nestedTimeout(3, () => {
           graphAPICalls.done();
           done(err)
-        }, 40);
+        });
       });
     });
   });
@@ -117,10 +117,10 @@ describe('chat', () => {
         .query(true)
         .reply(200);
       wrapped.run(receivedData, (err) => {
-        setTimeout( () => {
+        nestedTimeout(4, () => {
           graphAPICalls.done();
-          done(err)
-        }, 40);
+          done(err);
+        });
       });
     });
   });
@@ -135,10 +135,10 @@ describe('chat', () => {
         .query(true)
         .reply(200);
       wrapped.run(receivedData, (err) => {
-        setTimeout( () => {
+        nestedTimeout(1, () => {
           graphAPICalls.done();
           done(err)
-        }, 40);
+        });
       });
     });
   });
@@ -146,4 +146,11 @@ describe('chat', () => {
 
 function fixture(file) {
   return `${__dirname}/fixtures/${file}.json`
+}
+
+function nestedTimeout(levels, cb) {
+  if (levels === -1) return cb();
+  setTimeout( () => {
+    nestedTimeout(levels - 1, cb);
+  }, 0);
 }
