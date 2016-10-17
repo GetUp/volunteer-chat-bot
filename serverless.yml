@@ -30,3 +30,7 @@ functions:
           path: webhook
     memorySize: 512
     timeout: 300
+  message:
+    handler: bot.message
+    memorySize: 512
+    timeout: 300

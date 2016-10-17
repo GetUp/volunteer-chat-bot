@@ -63,9 +63,7 @@ export async function sendMessage(recipientId, key, answer) {
   callSendAPI({recipient, message}).then(() => {
     if (reply.next) {
       let delayedCall = () => {
-        setTimeout(() => {
-          sendMessage(recipientId, reply.next);
-        }, reply.delay || 5000);
+        delayMessage(recipientId, reply.net, reply.delay || 5000)
       }
       if (reply.disable_typing){
         delayedCall();
@@ -74,6 +72,26 @@ export async function sendMessage(recipientId, key, answer) {
       }
     }
   }).catch(::console.error);
+}
+
+export const message = (e, ctx, cb) => {
+  console.error("invoking!", e)
+  setTimeout(() => {
+    sendMessage(e.recipientId, e.next);
+  }, e.delay);
+};
+
+export function delayMessage(recipientId, next, delay) {
+  const aws = require('aws-sdk');
+  const lambda = new aws.Lambda();
+  const message = {recipientId: recipientId, next: next, delay: delay};
+  lambda.invoke({
+    FunctionName: 'message',
+    InvocationType: 'Event',
+    Payload: JSON.stringify(message)
+  }, function(error) {
+    console.error("Error invoking lambda", error, arguments);
+  });
 }
 
 function callSendAPI(messageData) {
