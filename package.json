@@ -5,8 +5,9 @@
   "description": "Chatbot for volunteers",
   "main": "bot.js",
   "scripts": {
-    "start": "sls webpack serve -p 8001",
-    "test": "./node_modules/serverless-mocha-plugin/node_modules/mocha/bin/mocha --full-trace --compilers js:babel-core/register"
+    "build": "sls webpack",
+    "start": "NODE_ENV=dev sls webpack serve -p 8001",
+    "test": "NODE_ENV=test ./node_modules/serverless-mocha-plugin/node_modules/mocha/bin/mocha --full-trace --compilers js:babel-core/register"
   },
   "author": "GetUp Tech <tech@getup.org.au>",
   "license": "MIT",
