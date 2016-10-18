@@ -19,7 +19,7 @@ export const chat = (e, ctx, cb) => {
   if (data.object !== 'page') return cb();
   data.entry.forEach(pageEntry => {
     pageEntry.messaging.forEach(messagingEvent => {
-      console.log('messagingEvent:', JSON.stringify(messagingEvent));
+      if (process.env.NODE_ENV !== 'test') console.log('messagingEvent:', JSON.stringify(messagingEvent));
 
       const recipientId = messagingEvent.sender.id;
       if (messagingEvent.postback) {
@@ -76,7 +76,7 @@ export async function sendMessage(recipientId, key, answer) {
 }
 
 export const message = (e, ctx, cb) => {
-  console.error("invoking!", e)
+  if (process.env.NODE_ENV !== 'test') console.log("invoking!", e)
   setTimeout(() => {
     sendMessage(e.recipientId, e.next);
     cb();
@@ -87,7 +87,7 @@ export function delayMessage(recipientId, next, delay) {
   const aws = require('aws-sdk');
   const lambda = new aws.Lambda({region: 'us-east-1'});
   const payload = {recipientId: recipientId, next: next, delay: delay};
-  if (process.env.NODE_ENV === 'dev' || process.env.NODE_ENV === 'test') {
+  if (['dev', 'test'].includes(process.env.NODE_ENV)) {
     return message(payload, null, ()=>{});
   }
   lambda.invoke({
@@ -101,7 +101,7 @@ export function delayMessage(recipientId, next, delay) {
 
 function callSendAPI(messageData) {
   return new Promise((resolve, reject) => {
-    console.log('messageData:', JSON.stringify(messageData));
+    if (process.env.NODE_ENV !== 'test') console.log('messageData:', JSON.stringify(messageData));
     const payload = {
       uri: 'https://graph.facebook.com/v2.6/me/messages',
       qs: { access_token: PAGE_ACCESS_TOKEN },

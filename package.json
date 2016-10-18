@@ -9,7 +9,7 @@
     "deploy": "./node_modules/.bin/sls deploy",
     "deployprod": "./node_modules/.bin/sls deploy --stage production --account 390857597435",
     "start": "NODE_ENV=dev ./node_modules/.bin/sls webpack serve -p 8001",
-    "test": "NODE_ENV=test ./node_modules/serverless-mocha-plugin/node_modules/mocha/bin/mocha --full-trace --compilers js:babel-core/register"
+    "test": "NODE_ENV=test ./node_modules/mocha/bin/mocha --full-trace --compilers js:babel-core/register"
   },
   "author": "GetUp Tech <tech@getup.org.au>",
   "license": "MIT",
