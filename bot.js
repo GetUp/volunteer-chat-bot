@@ -129,36 +129,33 @@ function getName(recipientId, reply, answer) {
     request(payload, (err, res, body) => {
       if (!err && res.statusCode === 200) {
         const {first_name, last_name, ...attrs} = JSON.parse(body);
+
         const returnText = () => {
           const text = reply.template
             .replace(/{first_name}/, first_name)
             .replace(/{last_name}/, last_name)
             .replace(/{postcode}/, answer);
           return resolve(text);
-        }
-        return storeMember(recipientId, {first_name, last_name, answer, ...attrs})
-          .then(returnText)
-          .catch((err) => {
-            console.error({err});
-            returnText();
-          });
+        };
+
+        const cb = (err, res) => {
+          if (err) console.log({err});
+          returnText();
+        };
+        const memberData = {first_name, last_name, answer, ...attrs};
+        return storeMember(recipientId, memberData, cb);
       }
       reject(err || body);
     });
   })
 }
 
-function storeMember(fbid, member) {
-  return new Promise((resolve, reject) => {
-    const payload = {
-      TableName: "members",
-      Item: {fbid, ...member}
-    };
-    dynamo.put(payload, (err, res) => {
-      if (err) return reject(err);
-      resolve(res);
-    });
-  })
+function storeMember(fbid, member, cb) {
+  const payload = {
+    TableName: 'members',
+    Item: {fbid, ...member}
+  };
+  dynamo.put(payload, cb);
 }
 
 function quickReply(reply) {
