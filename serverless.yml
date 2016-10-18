@@ -1,19 +1,26 @@
 service: volunteer-chat-bot
 
-# Add the serverless-webpack plugin
 plugins:
   - serverless-webpack
   - serverless-mocha-plugin
+  - serverless-plugin-write-env-vars
 
 custom:
   webpackIncludeModules: true
+  defaultStage: staging
+  defaultAccount: '333126681707'
+  envVars: ${file(./env_vars.yml)}
+  writeEnvVars:
+    NODE_ENV: ${opt:stage, self:custom.defaultStage}
+    PAGE_ACCESS_TOKEN: ${self:custom.envVars.${opt:stage,self:custom.defaultStage}_page_access_token}
+    VALIDATION_TOKEN: ${self:custom.envVars.${opt:stage,self:custom.defaultStage}_validation_token}
 
 provider:
   name: aws
   runtime: nodejs4.3
-  stage: staging
-  profile: staging
-  iamRoleARN: arn:aws:iam::333126681707:role/lambda_full_access
+  stage: ${opt:stage, self:custom.defaultStage}
+  profile: ${opt:stage, self:custom.defaultStage}
+  iamRoleARN: arn:aws:iam::${opt:account, self:custom.defaultAccount}:role/lambda_full_access
 
 functions:
   challenge:

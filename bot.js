@@ -1,10 +1,11 @@
 if (!global._babelPolyfill) require('babel-polyfill');
+require('dotenv').config();
 import request from 'request';
 import { script } from './script';
 
-const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN || 'EAAEwFhGmiGwBAIZCfGZBeM3yraIzQ91KZCgLUdISvP0WYgRr0ttTVXbjPSd13qmjiAgoZB4pYNV3pBhxXT7Ie5ZCu1ZBZBnMBxoIscoZC8xveFZChgNeyiUyDKks98n9dFmcxmPZBqexaAm7bQcswkgnZAEo3FBkozbLsZCSAOVIwzqujwZDZD';
+const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN;
+const VALIDATION_TOKEN = process.env.VALIDATION_TOKEN;
 
-export const VALIDATION_TOKEN = 'l5pKlkZMIeSOf2PX9M45';
 export const challenge = (e, ctx, cb) => {
   if (e.query['hub.mode'] === 'subscribe' && e.query['hub.verify_token'] === VALIDATION_TOKEN) {
     cb(null, parseInt(e.query['hub.challenge'], 10));
@@ -91,7 +92,7 @@ export function delayMessage(recipientId, next, delay) {
     return message(payload, null, ()=>{});
   }
   lambda.invoke({
-    FunctionName: 'volunteer-chat-bot-staging-message',
+    FunctionName: `volunteer-chat-bot-${process.env.NODE_ENV}-message`,
     InvocationType: 'Event',
     Payload: JSON.stringify(payload)
   }, function(err) {

@@ -6,6 +6,8 @@
   "main": "bot.js",
   "scripts": {
     "build": "sls webpack",
+    "deploy": "sls deploy",
+    "deployprod": "sls deploy --stage production --account 390857597435",
     "start": "NODE_ENV=dev sls webpack serve -p 8001",
     "test": "NODE_ENV=test ./node_modules/serverless-mocha-plugin/node_modules/mocha/bin/mocha --full-trace --compilers js:babel-core/register"
   },
@@ -23,6 +25,7 @@
     "eslint": "^3.7.1",
     "nock": "^8.0.0",
     "serverless-mocha-plugin": "^1.0.2",
+    "serverless-plugin-write-env-vars": "^1.0.1",
     "serverless-webpack": "^1.0.0-beta.2",
     "webpack": "^1.13.1",
     "webpack-node-externals": "^1.4.3"
@@ -30,6 +33,7 @@
   "dependencies": {
     "babel-polyfill": "6.13.0",
     "babel-runtime": "6.11.6",
+    "dotenv": "^2.0.0",
     "request": "^2.75.0"
   }
 }
