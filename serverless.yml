@@ -12,7 +12,7 @@ provider:
   name: aws
   runtime: nodejs4.3
   stage: staging
-  profile: showcase
+  profile: staging
   iamRoleARN: arn:aws:iam::333126681707:role/lambda_full_access
 
 functions:
