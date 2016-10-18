@@ -1,0 +1,21 @@
+{
+    "Table": {
+        "TableName": "members",
+        "KeySchema": [
+            {
+                "AttributeName": "fbid",
+                "KeyType": "HASH"
+            }
+        ],
+        "AttributeDefinitions": [
+            {
+                "AttributeName": "fbid",
+                "AttributeType": "S"
+            }
+        ],
+        "ProvisionedThroughput": {
+            "ReadCapacityUnits": 1,
+            "WriteCapacityUnits": 1
+        }
+    }
+}

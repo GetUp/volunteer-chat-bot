@@ -2,6 +2,8 @@ if (!global._babelPolyfill) require('babel-polyfill');
 require('dotenv').config();
 import request from 'request';
 import { script } from './script';
+import AWS from 'aws-sdk';
+const dynamo = new AWS.DynamoDB.DocumentClient(dbConf());
 
 const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN;
 const VALIDATION_TOKEN = process.env.VALIDATION_TOKEN;
@@ -125,14 +127,35 @@ function getName(recipientId, reply, answer) {
     };
     request(payload, (err, res, body) => {
       if (!err && res.statusCode === 200) {
-        const {first_name, last_name} = JSON.parse(body);
-        const text = reply.template
-          .replace(/{first_name}/, first_name)
-          .replace(/{last_name}/, last_name)
-          .replace(/{postcode}/, answer);
-        return resolve(text);
+        const {first_name, last_name, ...attrs} = JSON.parse(body);
+        const returnText = () => {
+          const text = reply.template
+            .replace(/{first_name}/, first_name)
+            .replace(/{last_name}/, last_name)
+            .replace(/{postcode}/, answer);
+          return resolve(text);
+        }
+        return storeMember(recipientId, {first_name, last_name, answer, ...attrs})
+          .then(returnText)
+          .catch((err) => {
+            console.error({err});
+            returnText();
+          });
       }
       reject(err || body);
+    });
+  })
+}
+
+function storeMember(fbid, member) {
+  return new Promise((resolve, reject) => {
+    const payload = {
+      TableName: "members",
+      Item: {fbid, ...member}
+    };
+    dynamo.put(payload, (err, res) => {
+      if (err) return reject(err);
+      resolve(res);
     });
   })
 }
@@ -171,4 +194,11 @@ function genericTemplate(reply) {
       }
     }
   };
+}
+
+function dbConf() {
+  if (['dev', 'test'].includes(process.env.NODE_ENV)) {
+    return {region: 'localhost', endpoint: 'http://localhost:8000'}
+  }
+  return {region: 'us-east-1'};
 }

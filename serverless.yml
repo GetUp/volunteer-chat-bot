@@ -4,6 +4,7 @@ plugins:
   - serverless-webpack
   - serverless-mocha-plugin
   - serverless-plugin-write-env-vars
+  - serverless-dynamodb-local
 
 custom:
   webpackIncludeModules: true
@@ -14,6 +15,11 @@ custom:
     NODE_ENV: ${opt:stage, self:custom.defaultStage}
     PAGE_ACCESS_TOKEN: ${self:custom.envVars.${opt:stage,self:custom.defaultStage}_page_access_token}
     VALIDATION_TOKEN: ${self:custom.envVars.${opt:stage,self:custom.defaultStage}_validation_token}
+  dynamodb:
+    start:
+      port: 8000
+      inMemory: true
+      migration: true
 
 provider:
   name: aws

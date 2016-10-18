@@ -6,6 +6,7 @@
   "main": "bot.js",
   "scripts": {
     "build": "./node_modules/.bin/sls webpack",
+    "db": "./node_modules/.bin/sls dynamodb start",
     "deploy": "./node_modules/.bin/sls deploy",
     "deployprod": "./node_modules/.bin/sls deploy --stage production --account 390857597435",
     "start": "NODE_ENV=dev ./node_modules/.bin/sls webpack serve -p 8001",
@@ -25,6 +26,7 @@
     "eslint": "^3.7.1",
     "nock": "^8.0.0",
     "serverless": "^1.0.2",
+    "serverless-dynamodb-local": "^0.2.14",
     "serverless-mocha-plugin": "^1.0.2",
     "serverless-plugin-write-env-vars": "github:getup/serverless-plugin-write-env-vars",
     "serverless-webpack": "^1.0.0-beta.2",
