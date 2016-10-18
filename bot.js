@@ -7,6 +7,7 @@ const dynamo = new AWS.DynamoDB.DocumentClient(dbConf());
 
 const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN;
 const VALIDATION_TOKEN = process.env.VALIDATION_TOKEN;
+const NODE_ENV = process.env.NODE_ENV;
 
 export const challenge = (e, ctx, cb) => {
   if (e.query['hub.mode'] === 'subscribe' && e.query['hub.verify_token'] === VALIDATION_TOKEN) {
@@ -21,7 +22,7 @@ export const chat = (e, ctx, cb) => {
   if (data.object !== 'page') return cb();
   data.entry.forEach(pageEntry => {
     pageEntry.messaging.forEach(messagingEvent => {
-      if (process.env.NODE_ENV !== 'test') console.log('messagingEvent:', JSON.stringify(messagingEvent));
+      if (NODE_ENV !== 'test') console.log('messagingEvent:', JSON.stringify(messagingEvent));
 
       const recipientId = messagingEvent.sender.id;
       if (messagingEvent.postback) {
@@ -78,7 +79,7 @@ export async function sendMessage(recipientId, key, answer) {
 }
 
 export const message = (e, ctx, cb) => {
-  if (process.env.NODE_ENV !== 'test') console.log("invoking!", e)
+  if (NODE_ENV !== 'test') console.log("invoking!", e)
   setTimeout(() => {
     sendMessage(e.recipientId, e.next);
     cb();
@@ -89,11 +90,11 @@ export function delayMessage(recipientId, next, delay) {
   const aws = require('aws-sdk');
   const lambda = new aws.Lambda({region: 'us-east-1'});
   const payload = {recipientId: recipientId, next: next, delay: delay};
-  if (['dev', 'test'].includes(process.env.NODE_ENV)) {
+  if (['dev', 'test'].includes(NODE_ENV)) {
     return message(payload, null, ()=>{});
   }
   lambda.invoke({
-    FunctionName: `volunteer-chat-bot-${process.env.NODE_ENV}-message`,
+    FunctionName: `volunteer-chat-bot-${NODE_ENV}-message`,
     InvocationType: 'Event',
     Payload: JSON.stringify(payload)
   }, function(err) {
@@ -103,7 +104,7 @@ export function delayMessage(recipientId, next, delay) {
 
 function callSendAPI(messageData) {
   return new Promise((resolve, reject) => {
-    if (process.env.NODE_ENV !== 'test') console.log('messageData:', JSON.stringify(messageData));
+    if (NODE_ENV !== 'test') console.log('messageData:', JSON.stringify(messageData));
     const payload = {
       uri: 'https://graph.facebook.com/v2.6/me/messages',
       qs: { access_token: PAGE_ACCESS_TOKEN },
@@ -197,7 +198,7 @@ function genericTemplate(reply) {
 }
 
 function dbConf() {
-  if (['dev', 'test'].includes(process.env.NODE_ENV)) {
+  if (['dev', 'test'].includes(NODE_ENV)) {
     return {region: 'localhost', endpoint: 'http://localhost:8000'}
   }
   return {region: 'us-east-1'};
