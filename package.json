@@ -26,7 +26,7 @@
     "nock": "^8.0.0",
     "serverless": "^1.0.2",
     "serverless-mocha-plugin": "^1.0.2",
-    "serverless-plugin-write-env-vars": "^1.0.1",
+    "serverless-plugin-write-env-vars": "github:getup/serverless-plugin-write-env-vars",
     "serverless-webpack": "^1.0.0-beta.2",
     "webpack": "^1.13.1",
     "webpack-node-externals": "^1.4.3"
