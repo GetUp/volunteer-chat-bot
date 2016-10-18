@@ -87,7 +87,6 @@ export function delayMessage(recipientId, next, delay) {
   const aws = require('aws-sdk');
   const lambda = new aws.Lambda({region: 'us-east-1'});
   const payload = {recipientId: recipientId, next: next, delay: delay};
-  console.log("process.env.NODE_ENV", process.env.NODE_ENV);
   if (process.env.NODE_ENV === 'dev' || process.env.NODE_ENV === 'test') {
     return message(payload, null, ()=>{});
   }
