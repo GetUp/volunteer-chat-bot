@@ -51,7 +51,7 @@ export const chat = (e, ctx, cb) => {
 export async function sendMessage(recipientId, key, answer) {
   const recipient = { id: recipientId };
   const reply = script[key] || script['unknown_payload'];
-console.log({key});
+  let completedActions = [];
   if (reply.template) {
     try {
       reply.text = await getName(recipientId, reply, answer);
@@ -70,9 +70,7 @@ console.log({key});
 
   if (key === 'default') {
     try {
-      console.log('before getActions');
-      const completedActions = await getActions(recipientId);
-      console.log('after getActions');
+      completedActions = await getActions(recipientId);
     } catch(error) {
       console.error(error);
     }
@@ -81,10 +79,7 @@ console.log({key});
   let message;
   if (reply.text) message = { text: reply.text };
   if (reply.replies) message = quickReply(reply);
-  console.log("before buttons");
-  // if (reply.buttons) message = buttonTemplate(reply);
   if (reply.buttons) message = buttonTemplate(reply, completedActions);
-  console.log("after buttons");
   if (reply.generic) message = genericTemplate(reply);
 
   callSendAPI({recipient, message}).then(() => {
@@ -195,10 +190,8 @@ function getName(recipientId, reply, answer) {
 function getActions(fbid) {
   return new Promise((resolve, reject) => {
     const TableName = `volunteer-chat-bot-${NODE_ENV}-members`;
-    console.log("during getActions");
     dynamo.get({TableName, Key: {fbid}}, (err, res) => {
       if (err) return reject(err);
-      console.log(res.Item && res.Item.actions);
       const actions = res.Item && res.Item.actions;
       resolve(actions || []);
     });
@@ -225,14 +218,20 @@ function quickReply(reply) {
 }
 
 function buttonTemplate(reply, completedActions) {
-  console.log("buttonTemplate called");
+  const actionToButtonMapping = {
+    group_joined: 'group_intro',
+    petition_details_yes: 'petition_intro',
+    subscribe_yes: 'subscribe_intro'
+  }
+  const buttonsToRemove = completedActions.map(action => actionToButtonMapping[action])
+  const availableButtons = reply.buttons.filter(button => !buttonsToRemove.includes(button.payload))
   return {
     attachment: {
       type: 'template',
       payload: {
         template_type: 'button',
         text: reply.text,
-        buttons: reply.buttons,
+        buttons: availableButtons
       }
     }
   };

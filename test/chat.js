@@ -217,7 +217,7 @@ describe('chat', () => {
     });
 
     context("after taking action and reloading the menu", () => {
-      // Remove the delay before sending the message for the menu
+      // Remove the delay between next action so that the menu message is sent
       beforeEach(() => mod.loadedScript.group_joined.delay = 1)
       afterEach(() => mod.loadedScript.group_joined.delay = null)
 
@@ -226,12 +226,11 @@ describe('chat', () => {
             .post('/v2.6/me/messages')
             .query(true).reply(200)
             .post('/v2.6/me/messages', (body) => {
-              console.log(body);
               return !body.message.attachment.payload.buttons.map(b=>b.payload).includes('group_intro');
             }).query(true).reply(200);
 
           wrapped.run(receivedData, (err) => {
-            nestedTimeout(10000, () => {
+            nestedTimeout(100, () => {
               graphAPICalls.done();
               done();
             });
