@@ -175,13 +175,14 @@ describe('chat', () => {
       TableName: 'volunteer-chat-bot-test-members',
       Key: {fbid: recipient}
     };
-    beforeEach((done) => { dynamo.delete(payload, done); });
+    beforeEach(done => dynamo.delete(payload, done));
+    beforeEach(() => {
+      nock('https://graph.facebook.com')
+        .post('/v2.6/me/messages').query(true).reply(200);
+    })
 
     context('without an existing user', () => {
       it('stores the actions', (done) => {
-        const graphAPICalls = nock('https://graph.facebook.com')
-          .post('/v2.6/me/messages').query(true).reply(200);
-
         wrapped.run(receivedData, (err) => {
           nestedTimeout(10, () => {
             dynamo.get(payload, (err, res) => {
@@ -200,12 +201,9 @@ describe('chat', () => {
           first_name: 'test'
         }}
       };
-      beforeEach((done) => { dynamo.put(member, done); });
+      beforeEach(done => dynamo.put(member, done));
 
       it('does not overwrite the user profile', (done) => {
-        const graphAPICalls = nock('https://graph.facebook.com')
-          .post('/v2.6/me/messages').query(true).reply(200);
-
         wrapped.run(receivedData, (err) => {
           nestedTimeout(5, () => {
             dynamo.get(payload, (err, res) => {
@@ -215,6 +213,26 @@ describe('chat', () => {
             });
           });
         });
+      });
+    });
+
+    context("after taking action and reloading the menu", () => {
+      it("should remove the action from the menu", (done) => {
+
+          const graphAPICalls = nock('https://graph.facebook.com')
+            .post('/v2.6/me/messages')
+            .query(true).reply(200)
+            .post('/v2.6/me/messages', (body) => {
+              return !body.message.attachment.payload.buttons.map(b=>b.payload).includes('group_intro');
+            }).query(true).reply(200);
+
+          wrapped.run(receivedData, (err) => {
+            nestedTimeout(30, () => {
+              graphAPICalls.done();
+              done();
+            });
+          });
+
       });
     });
 

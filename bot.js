@@ -76,7 +76,8 @@ export async function sendMessage(recipientId, key, answer) {
   callSendAPI({recipient, message}).then(() => {
     if (reply.next) {
       let delayedCall = () => {
-        delayMessage(recipientId, reply.next, reply.delay || 5000)
+        const delay = NODE_ENV === 'test' ? 0 : reply.delay || 5000;
+        delayMessage(recipientId, reply.next, delay);
       }
       if (reply.disable_typing){
         delayedCall();
