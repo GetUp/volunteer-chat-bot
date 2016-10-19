@@ -166,6 +166,30 @@ describe('chat', () => {
       });
     });
   });
+
+  context('with a response that persists data', () => {
+    const receivedData = JSON.parse(fs.readFileSync(fixture('postback'), 'utf8'));
+    receivedData.body.entry[0].messaging[0].postback = { payload: 'group_joined' };
+    const recipient = receivedData.body.entry[0].messaging[0].sender.id;
+
+    it('stores the action', (done) => {
+      const graphAPICalls = nock('https://graph.facebook.com')
+        .post('/v2.6/me/messages');
+      wrapped.run(receivedData, (err) => {
+        // nestedTimeout(1, () => {
+          const payload = {
+            TableName: 'volunteer-chat-bot-test-members',
+            Key: {fbid: recipient}
+          };
+
+          dynamo.get(payload, (err, res) => {
+            expect(res.Item.actions[0]).to.be.equal('group_joined');
+            done(err);
+          });
+        // });
+      });
+    });
+  });
 });
 
 function fixture(file) {

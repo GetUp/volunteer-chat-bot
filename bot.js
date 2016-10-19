@@ -59,6 +59,14 @@ export async function sendMessage(recipientId, key, answer) {
     }
   }
 
+  // if (reply.persist) {
+  //   try {
+  //     reply.text = await persist(recipientId, answer);
+  //   } catch(error) {
+  //     console.error(error);
+  //   }
+  // }
+
   let message;
   if (reply.text) message = { text: reply.text };
   if (reply.replies) message = quickReply(reply);
