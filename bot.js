@@ -1,5 +1,7 @@
 if (!global._babelPolyfill) require('babel-polyfill');
 require('dotenv').config();
+const NODE_ENV = process.env.NODE_ENV;
+
 import request from 'request';
 import { script } from './script';
 import AWS from 'aws-sdk';
@@ -7,7 +9,6 @@ const dynamo = new AWS.DynamoDB.DocumentClient(dbConf());
 
 const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN;
 const VALIDATION_TOKEN = process.env.VALIDATION_TOKEN;
-const NODE_ENV = process.env.NODE_ENV;
 
 export const challenge = (e, ctx, cb) => {
   if (e.query['hub.mode'] === 'subscribe' && e.query['hub.verify_token'] === VALIDATION_TOKEN) {
