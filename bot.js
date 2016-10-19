@@ -8,7 +8,7 @@ import AWS from 'aws-sdk';
 const dynamo = new AWS.DynamoDB.DocumentClient(dbConf());
 
 const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN;
-const VALIDATION_TOKEN = process.env.VALIDATION_TOKEN;
+export const VALIDATION_TOKEN = process.env.VALIDATION_TOKEN;
 
 export const challenge = (e, ctx, cb) => {
   if (e.query['hub.mode'] === 'subscribe' && e.query['hub.verify_token'] === VALIDATION_TOKEN) {

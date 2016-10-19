@@ -117,7 +117,7 @@ describe('chat', () => {
         .query(true)
         .reply(200);
       wrapped.run(receivedData, (err) => {
-        nestedTimeout(4, () => {
+        nestedTimeout(10, () => {
           graphAPICalls.done();
           done(err);
         });
