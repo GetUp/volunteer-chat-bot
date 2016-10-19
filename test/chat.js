@@ -72,7 +72,7 @@ describe('chat', () => {
         .query(true)
         .reply(200);
       wrapped.run(receivedData, (err) => {
-        nestedTimeout(3, () => {
+        nestedTimeout(30, () => {
           graphAPICalls.done();
           done(err)
         });
@@ -93,7 +93,7 @@ describe('chat', () => {
         .query(true)
         .reply(200)
       wrapped.run(receivedData, (err) => {
-        nestedTimeout(3, () => {
+        nestedTimeout(13, () => {
           graphAPICalls.done();
           done(err)
         });
@@ -171,24 +171,53 @@ describe('chat', () => {
     const receivedData = JSON.parse(fs.readFileSync(fixture('postback'), 'utf8'));
     receivedData.body.entry[0].messaging[0].postback = { payload: 'group_joined' };
     const recipient = receivedData.body.entry[0].messaging[0].sender.id;
+    const payload = {
+      TableName: 'volunteer-chat-bot-test-members',
+      Key: {fbid: recipient}
+    };
+    beforeEach((done) => { dynamo.delete(payload, done); });
 
-    it('stores the action', (done) => {
-      const graphAPICalls = nock('https://graph.facebook.com')
-        .post('/v2.6/me/messages');
-      wrapped.run(receivedData, (err) => {
-        // nestedTimeout(1, () => {
-          const payload = {
-            TableName: 'volunteer-chat-bot-test-members',
-            Key: {fbid: recipient}
-          };
+    context('without an existing user', () => {
+      it('stores the actions', (done) => {
+        const graphAPICalls = nock('https://graph.facebook.com')
+          .post('/v2.6/me/messages').query(true).reply(200);
 
-          dynamo.get(payload, (err, res) => {
-            expect(res.Item.actions[0]).to.be.equal('group_joined');
-            done(err);
+        wrapped.run(receivedData, (err) => {
+          nestedTimeout(10, () => {
+            dynamo.get(payload, (err, res) => {
+              expect(res.Item.actions[0]).to.be.equal('group_joined');
+              done(err);
+            });
           });
-        // });
+        });
       });
     });
+
+    context('with an existing user', () => {
+      const member = {
+        TableName: 'volunteer-chat-bot-test-members',
+        Item: {fbid: recipient, profile: {
+          first_name: 'test'
+        }}
+      };
+      beforeEach((done) => { dynamo.put(member, done); });
+
+      it('does not overwrite the user profile', (done) => {
+        const graphAPICalls = nock('https://graph.facebook.com')
+          .post('/v2.6/me/messages').query(true).reply(200);
+
+        wrapped.run(receivedData, (err) => {
+          nestedTimeout(5, () => {
+            dynamo.get(payload, (err, res) => {
+              expect(res.Item.profile.first_name).to.be.equal('test');
+              expect(res.Item.actions[0]).to.be.equal('group_joined');
+              done(err);
+            });
+          });
+        });
+      });
+    });
+
   });
 });
 

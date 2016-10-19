@@ -59,13 +59,13 @@ export async function sendMessage(recipientId, key, answer) {
     }
   }
 
-  // if (reply.persist) {
-  //   try {
-  //     reply.text = await persist(recipientId, answer);
-  //   } catch(error) {
-  //     console.error(error);
-  //   }
-  // }
+  if (reply.persist) {
+    try {
+      await persistAction(recipientId, reply.persist);
+    } catch(error) {
+      console.error(error);
+    }
+  }
 
   let message;
   if (reply.text) message = { text: reply.text };
@@ -126,6 +126,24 @@ function callSendAPI(messageData) {
       reject(error || body);
     });
   })
+}
+
+function persistAction(fbid, action) {
+  return new Promise((resolve, reject) => {
+    const TableName = `volunteer-chat-bot-${NODE_ENV}-members`;
+
+    dynamo.get({TableName, Key:{fbid}}, (err, res) => {
+      if (err) return reject(err);
+
+      const actions = (res.Item && res.Item.actions || []).concat(action);
+      const Item = res.Item ? {...res.Item, actions} : {fbid, actions};
+
+      dynamo.put({TableName, Item}, (err, res) => {
+        if (err) return reject(err);
+        resolve(res);
+      });
+    });
+  });
 }
 
 function getName(recipientId, reply, answer) {
