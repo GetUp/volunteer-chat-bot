@@ -6,6 +6,9 @@ const expect = mochaPlugin.chai.expect;
 const wrapped = lambdaWrapper.wrap(mod, { handler: 'chat' });
 import fs from 'fs';
 import nock from 'nock';
+import AWS from 'aws-sdk';
+const dynamo = new AWS.DynamoDB.DocumentClient({region: 'localhost', endpoint: 'http://localhost:8000'});
+
 
 describe('chat', () => {
   context('with a postback from the Get Started button', () => {
@@ -102,16 +105,20 @@ describe('chat', () => {
     const receivedData = JSON.parse(fs.readFileSync(fixture('message'), 'utf8'));
     receivedData.body.entry[0].messaging[0].message.text = ' 2000 ';
     const recipient = receivedData.body.entry[0].messaging[0].sender.id;
-    const profile = {first_name: 'test', last_name: 'user'};
+    const mockedProfile = {first_name: 'test', last_name: 'user'};
+    let graphAPICalls;
 
-    it('should get their details from a facebook and prompt to confirm the number', (done) => {
-      const graphAPICalls = nock('https://graph.facebook.com')
+    beforeEach(() => {
+      graphAPICalls = nock('https://graph.facebook.com')
         .get(`/v2.8/${recipient}`)
         .query(true)
-        .reply(200, profile)
-        .post('/v2.6/me/messages', (body) => {
+        .reply(200, mockedProfile)
+    });
+
+    it('should get their details from a facebook and prompt to confirm the number', (done) => {
+      graphAPICalls.post('/v2.6/me/messages', (body) => {
           return body.message.text.match(/2000/) &&
-            body.message.text.match(profile.first_name) &&
+            body.message.text.match(mockedProfile.first_name) &&
             body.message.quick_replies[0].title.match(script.petition_details.replies[0].t);
         })
         .query(true)
@@ -120,6 +127,23 @@ describe('chat', () => {
         nestedTimeout(10, () => {
           graphAPICalls.done();
           done(err);
+        });
+      });
+    });
+
+    it('should store their profile', (done) => {
+      graphAPICalls.post('/v2.6/me/messages').query(true).reply(200);
+      wrapped.run(receivedData, (err) => {
+        nestedTimeout(10, () => {
+          const payload = {
+            TableName: 'volunteer-chat-bot-test-members',
+            Key: {fbid: recipient}
+          };
+
+          dynamo.get(payload, (err, res) => {
+            expect(res.Item.profile.first_name).to.be.equal(mockedProfile.first_name);
+            done();
+          });
         });
       });
     });
