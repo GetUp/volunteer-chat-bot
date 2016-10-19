@@ -223,11 +223,12 @@ describe('chat', () => {
             .post('/v2.6/me/messages')
             .query(true).reply(200)
             .post('/v2.6/me/messages', (body) => {
+              console.log(body);
               return !body.message.attachment.payload.buttons.map(b=>b.payload).includes('group_intro');
             }).query(true).reply(200);
 
           wrapped.run(receivedData, (err) => {
-            nestedTimeout(30, () => {
+            nestedTimeout(10000, () => {
               graphAPICalls.done();
               done();
             });

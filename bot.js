@@ -50,7 +50,7 @@ export const chat = (e, ctx, cb) => {
 export async function sendMessage(recipientId, key, answer) {
   const recipient = { id: recipientId };
   const reply = script[key] || script['unknown_payload'];
-
+console.log({key});
   if (reply.template) {
     try {
       reply.text = await getName(recipientId, reply, answer);
@@ -67,10 +67,23 @@ export async function sendMessage(recipientId, key, answer) {
     }
   }
 
+  if (key === 'default') {
+    try {
+      console.log('before getActions');
+      const completedActions = await getActions(recipientId);
+      console.log('after getActions');
+    } catch(error) {
+      console.error(error);
+    }
+  }
+
   let message;
   if (reply.text) message = { text: reply.text };
   if (reply.replies) message = quickReply(reply);
-  if (reply.buttons) message = buttonTemplate(reply);
+  console.log("before buttons");
+  // if (reply.buttons) message = buttonTemplate(reply);
+  if (reply.buttons) message = buttonTemplate(reply, completedActions);
+  console.log("after buttons");
   if (reply.generic) message = genericTemplate(reply);
 
   callSendAPI({recipient, message}).then(() => {
@@ -178,6 +191,19 @@ function getName(recipientId, reply, answer) {
   })
 }
 
+function getActions(fbid) {
+  return new Promise((resolve, reject) => {
+    const TableName = `volunteer-chat-bot-${NODE_ENV}-members`;
+    console.log("during getActions");
+    dynamo.get({TableName, Key: {fbid}}, (err, res) => {
+      if (err) return reject(err);
+      console.log(res.Item && res.Item.actions);
+      const actions = res.Item && res.Item.actions;
+      resolve(actions || []);
+    });
+  })
+}
+
 function storeMember(fbid, profile, cb) {
   const payload = {
     TableName: `volunteer-chat-bot-${NODE_ENV}-members`,
@@ -197,7 +223,8 @@ function quickReply(reply) {
   };
 }
 
-function buttonTemplate(reply) {
+function buttonTemplate(reply, completedActions) {
+  console.log("buttonTemplate called");
   return {
     attachment: {
       type: 'template',
