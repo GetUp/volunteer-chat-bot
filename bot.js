@@ -6,6 +6,7 @@ import request from 'request';
 import { script } from './script';
 import AWS from 'aws-sdk';
 const dynamo = new AWS.DynamoDB.DocumentClient(dbConf());
+export const loadedScript = script;
 
 const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN;
 export const VALIDATION_TOKEN = process.env.VALIDATION_TOKEN;
@@ -76,7 +77,7 @@ export async function sendMessage(recipientId, key, answer) {
   callSendAPI({recipient, message}).then(() => {
     if (reply.next) {
       let delayedCall = () => {
-        const delay = NODE_ENV === 'test' ? 0 : reply.delay || 5000;
+        const delay = reply.delay || 5000;
         delayMessage(recipientId, reply.next, delay);
       }
       if (reply.disable_typing){

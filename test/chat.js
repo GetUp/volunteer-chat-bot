@@ -72,7 +72,7 @@ describe('chat', () => {
         .query(true)
         .reply(200);
       wrapped.run(receivedData, (err) => {
-        nestedTimeout(30, () => {
+        nestedTimeout(50, () => {
           graphAPICalls.done();
           done(err)
         });
@@ -124,7 +124,7 @@ describe('chat', () => {
         .query(true)
         .reply(200);
       wrapped.run(receivedData, (err) => {
-        nestedTimeout(10, () => {
+        nestedTimeout(30, () => {
           graphAPICalls.done();
           done(err);
         });
@@ -184,7 +184,7 @@ describe('chat', () => {
     context('without an existing user', () => {
       it('stores the actions', (done) => {
         wrapped.run(receivedData, (err) => {
-          nestedTimeout(10, () => {
+          nestedTimeout(40, () => {
             dynamo.get(payload, (err, res) => {
               expect(res.Item.actions[0]).to.be.equal('group_joined');
               done(err);
@@ -205,7 +205,7 @@ describe('chat', () => {
 
       it('does not overwrite the user profile', (done) => {
         wrapped.run(receivedData, (err) => {
-          nestedTimeout(5, () => {
+          nestedTimeout(40, () => {
             dynamo.get(payload, (err, res) => {
               expect(res.Item.profile.first_name).to.be.equal('test');
               expect(res.Item.actions[0]).to.be.equal('group_joined');
@@ -217,8 +217,11 @@ describe('chat', () => {
     });
 
     context("after taking action and reloading the menu", () => {
-      it("should remove the action from the menu", (done) => {
+      // Remove the delay before sending the message for the menu
+      beforeEach(() => mod.loadedScript.group_joined.delay = 1)
+      afterEach(() => mod.loadedScript.group_joined.delay = null)
 
+      it("should remove the action from the menu", (done) => {
           const graphAPICalls = nock('https://graph.facebook.com')
             .post('/v2.6/me/messages')
             .query(true).reply(200)
