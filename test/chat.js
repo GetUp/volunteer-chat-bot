@@ -142,7 +142,7 @@ describe('chat', () => {
 
           dynamo.get(payload, (err, res) => {
             expect(res.Item.profile.first_name).to.be.equal(mockedProfile.first_name);
-            done();
+            done(err);
           });
         });
       });
