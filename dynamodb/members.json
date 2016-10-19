@@ -1,6 +1,6 @@
 {
     "Table": {
-        "TableName": "members",
+        "TableName": "volunteer-chat-bot-dev-members",
         "KeySchema": [
             {
                 "AttributeName": "fbid",

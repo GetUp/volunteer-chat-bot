@@ -50,3 +50,19 @@ functions:
     handler: bot.message
     memorySize: 512
     timeout: 300
+
+resources:
+  Resources:
+    DynamoDbTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: volunteer-chat-bot-${opt:stage, self:custom.defaultStage}-members
+        AttributeDefinitions:
+          - AttributeName: fbid
+            AttributeType: S
+        KeySchema:
+          - AttributeName: fbid
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1

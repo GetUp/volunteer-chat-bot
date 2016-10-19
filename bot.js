@@ -151,10 +151,10 @@ function getName(recipientId, reply, answer) {
   })
 }
 
-function storeMember(fbid, member, cb) {
+function storeMember(fbid, profile, cb) {
   const payload = {
-    TableName: 'members',
-    Item: {fbid, ...member}
+    TableName: `volunteer-chat-bot-${NODE_ENV}-members`,
+    Item: {fbid, profile}
   };
   dynamo.put(payload, cb);
 }
