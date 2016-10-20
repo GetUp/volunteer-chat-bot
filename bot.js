@@ -13,7 +13,8 @@ export const VALIDATION_TOKEN = process.env.VALIDATION_TOKEN;
 
 export const challenge = (e, ctx, cb) => {
   if (e.query['hub.mode'] === 'subscribe' && e.query['hub.verify_token'] === VALIDATION_TOKEN) {
-    cb(null, parseInt(e.query['hub.challenge'], 10));
+    // webpack serve requires a string as output otherwise it converts the number to a return code
+    cb(null, ['dev'].includes(NODE_ENV) ? e.query['hub.challenge'] : parseInt(e.query['hub.challenge']));
   } else {
     cb('Validation failed');
   }
