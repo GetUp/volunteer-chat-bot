@@ -92,12 +92,25 @@ export const script = {
   subscribe_examples: [
 // TODO images? maybe a third?
     {
-      text: "Papua New Guinea's Hight Court has just ruled the Manus island camp illegal. Share this great news with your friends.",
-      buttons: [{type: 'element_share', title: 'Share', url: 'https://www.theguardian.com/australia-news/2016/apr/26/papua-new-guinea-court-rules-detention-asylum-seekers-manus-unconstitutional'}],
+      generic: [{
+        title: 'Hight Court rules Manus camp illegal!',
+        item_url: 'https://www.theguardian.com/australia-news/2016/apr/26/papua-new-guinea-court-rules-detention-asylum-seekers-manus-unconstitutional',
+        image_url: 'https://i.guim.co.uk/img/media/7ddb3483cd224882ba95d4fe1a1fcb0e784cc68d/0_310_2385_1431/2385.jpg?w=1200&h=630&q=55&auto=format&usm=12&fit=crop&bm=normal&ba=bottom%2Cleft&blend64=aHR0cHM6Ly91cGxvYWRzLmd1aW0uY28udWsvMjAxNi8wNS8yNS9vdmVybGF5LWxvZ28tMTIwMC05MF9vcHQucG5n&s=7076d8620ba88381d89c440e8bf3a721',
+        subtitle: "PNG has just ruled Manus illegal. Share this great news with your friends.",
+        buttons: [{type: 'element_share'}],
+      }]
     },
     {
-      text: "There's a rally to support refugees tomorrow at Town Hall. It'll be at 6:30pm - can you join everyone?",
-      buttons: [{type: 'element_share', title: 'Share', url: 'http://www.refugeeaction.org.au/?p=5230'}],
+      generic: [{
+        title: 'Refugee rally @ Town Hall',
+        item_url: 'http://www.refugeeaction.org.au/?p=5230',
+        image_url: 'http://www.refugeeaction.org.au/wp-content/uploads/2016/08/Post-election-rally-A5.jpg',
+        subtitle: "There's a rally to support refugees tomorrow at Town Hall. It'll be at 6:30pm - can you join everyone?",
+        buttons: [
+          {type: 'web_url', url: 'http://www.refugeeaction.org.au/?p=5230', title: 'RSVP Now', webview_height_ratio: 'tall',},
+          {type: 'element_share'},
+        ],
+      }]
     },
   ],
 

@@ -43,6 +43,10 @@ export const chat = (e, ctx, cb) => {
         return sendMessage(recipientId, 'petition_details', postcode);
       }
 
+      if (message.text === 'EXAMPLE MESSAGE') {
+        return sendMessage(recipientId, 'subscribe_examples');
+      }
+
       sendMessage(recipientId, 'fallthrough');
     });
   })
@@ -51,7 +55,13 @@ export const chat = (e, ctx, cb) => {
 
 export async function sendMessage(recipientId, key, answer) {
   const recipient = { id: recipientId };
-  const reply = script[key] || script['unknown_payload'];
+  let reply = script[key] || script['unknown_payload'];
+
+  if (reply.length) {
+    // example message is the only one that returns an array
+    reply = reply[Math.floor(Math.random()*reply.length)]
+  };
+
   let completedActions = [];
   if (reply.template) {
     try {
