@@ -40,11 +40,6 @@ describe('chat', () => {
   context('with a message that triggers a short message followed by quick replies', () => {
     const receivedData = JSON.parse(fs.readFileSync(fixture('get_started'), 'utf8'));
     const recipient = receivedData.body.entry[0].messaging[0].sender.id;
-    const payload = {
-      TableName: 'volunteer-chat-bot-test-members',
-      Key: {fbid: recipient}
-    };
-    beforeEach(done => dynamo.delete(payload, done));
 
     it('should send back a message and then after a short delay send quick replies', (done) => {
       const graphAPICalls = nock('https://graph.facebook.com')
