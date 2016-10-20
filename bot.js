@@ -34,7 +34,6 @@ async function chatAsync(e) {
       const recipientId = messagingEvent.sender.id;
       const message = messagingEvent.message;
       let matchNumber;
-
       if (NODE_ENV !== 'test') console.log('messagingEvent:', JSON.stringify(messagingEvent));
 
       if (messagingEvent.postback) {
