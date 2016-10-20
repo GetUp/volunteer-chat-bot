@@ -11,6 +11,12 @@ const dynamo = new AWS.DynamoDB.DocumentClient({region: 'localhost', endpoint: '
 
 
 describe('chat', () => {
+  const payload = {
+    TableName: 'volunteer-chat-bot-test-members',
+    Key: {fbid: '1274747332556664'}
+  };
+  beforeEach(done => dynamo.delete(payload, done));
+
   context('with a postback from the Get Started button', () => {
     const receivedData = JSON.parse(fs.readFileSync(fixture('get_started'), 'utf8'));
 
@@ -25,16 +31,20 @@ describe('chat', () => {
         .query(true)
         .reply(200)
       wrapped.run(receivedData, (err) => {
-        nestedTimeout(3, () => {
-          graphAPICalls.done();
-          done(err)
-        });
+        graphAPICalls.done();
+        done(err)
       });
     });
   });
 
   context('with a message that triggers a short message followed by quick replies', () => {
     const receivedData = JSON.parse(fs.readFileSync(fixture('get_started'), 'utf8'));
+    const recipient = receivedData.body.entry[0].messaging[0].sender.id;
+    const payload = {
+      TableName: 'volunteer-chat-bot-test-members',
+      Key: {fbid: recipient}
+    };
+    beforeEach(done => dynamo.delete(payload, done));
 
     it('should send back a message and then after a short delay send quick replies', (done) => {
       const graphAPICalls = nock('https://graph.facebook.com')
@@ -47,12 +57,10 @@ describe('chat', () => {
         .reply(200)
         .post('/v2.6/me/messages', {"recipient":{"id":"1274747332556664"},"sender_action":"typing_on"})
         .query(true)
-        .reply(200);
+        .reply(200)
       wrapped.run(receivedData, (err) => {
-        nestedTimeout(3, () => {
-          graphAPICalls.done();
-          done(err)
-        });
+        graphAPICalls.done();
+        done(err)
       });
     });
   });
@@ -72,10 +80,8 @@ describe('chat', () => {
         .query(true)
         .reply(200);
       wrapped.run(receivedData, (err) => {
-        nestedTimeout(50, () => {
-          graphAPICalls.done();
-          done(err)
-        });
+        graphAPICalls.done();
+        done(err)
       });
     });
   });
@@ -92,11 +98,12 @@ describe('chat', () => {
         })
         .query(true)
         .reply(200)
+        .post('/v2.6/me/messages')
+        .query(true)
+        .reply(200)
       wrapped.run(receivedData, (err) => {
-        nestedTimeout(13, () => {
-          graphAPICalls.done();
-          done(err)
-        });
+        graphAPICalls.done();
+        done(err)
       });
     });
   });
@@ -124,26 +131,22 @@ describe('chat', () => {
         .query(true)
         .reply(200);
       wrapped.run(receivedData, (err) => {
-        nestedTimeout(30, () => {
-          graphAPICalls.done();
-          done(err);
-        });
+        graphAPICalls.done();
+        done(err);
       });
     });
 
     it('should store their profile', (done) => {
       graphAPICalls.post('/v2.6/me/messages').query(true).reply(200);
       wrapped.run(receivedData, (err) => {
-        nestedTimeout(10, () => {
-          const payload = {
-            TableName: 'volunteer-chat-bot-test-members',
-            Key: {fbid: recipient}
-          };
+        const payload = {
+          TableName: 'volunteer-chat-bot-test-members',
+          Key: {fbid: recipient}
+        };
 
-          dynamo.get(payload, (err, res) => {
-            expect(res.Item.profile.first_name).to.be.equal(mockedProfile.first_name);
-            done(err);
-          });
+        dynamo.get(payload, (err, res) => {
+          expect(res.Item.profile.first_name).to.be.equal(mockedProfile.first_name);
+          done(err);
         });
       });
     });
@@ -159,10 +162,8 @@ describe('chat', () => {
         .query(true)
         .reply(200);
       wrapped.run(receivedData, (err) => {
-        nestedTimeout(1, () => {
-          graphAPICalls.done();
-          done(err)
-        });
+        graphAPICalls.done();
+        done(err)
       });
     });
   });
@@ -171,11 +172,7 @@ describe('chat', () => {
     const receivedData = JSON.parse(fs.readFileSync(fixture('postback'), 'utf8'));
     receivedData.body.entry[0].messaging[0].postback = { payload: 'group_joined' };
     const recipient = receivedData.body.entry[0].messaging[0].sender.id;
-    const payload = {
-      TableName: 'volunteer-chat-bot-test-members',
-      Key: {fbid: recipient}
-    };
-    beforeEach(done => dynamo.delete(payload, done));
+
     beforeEach(() => {
       nock('https://graph.facebook.com')
         .post('/v2.6/me/messages').query(true).reply(200);
@@ -184,11 +181,9 @@ describe('chat', () => {
     context('without an existing user', () => {
       it('stores the actions', (done) => {
         wrapped.run(receivedData, (err) => {
-          nestedTimeout(40, () => {
-            dynamo.get(payload, (err, res) => {
-              expect(res.Item.actions[0]).to.be.equal('group_joined');
-              done(err);
-            });
+          dynamo.get(payload, (err, res) => {
+            expect(res.Item.actions[0]).to.be.equal('group_joined');
+            done(err);
           });
         });
       });
@@ -205,21 +200,21 @@ describe('chat', () => {
 
       it('does not overwrite the user profile', (done) => {
         wrapped.run(receivedData, (err) => {
-          nestedTimeout(40, () => {
-            dynamo.get(payload, (err, res) => {
-              expect(res.Item.profile.first_name).to.be.equal('test');
-              expect(res.Item.actions[0]).to.be.equal('group_joined');
-              done(err);
-            });
+          dynamo.get(payload, (err, res) => {
+            expect(res.Item.profile.first_name).to.be.equal('test');
+            expect(res.Item.actions[0]).to.be.equal('group_joined');
+            done(err);
           });
         });
       });
     });
 
     context("after taking action and reloading the menu", () => {
-      // Remove the delay between next action so that the menu message is sent
-      beforeEach(() => mod.loadedScript.group_joined.delay = 1)
-      afterEach(() => mod.loadedScript.group_joined.delay = null)
+      const member = {
+        TableName: 'volunteer-chat-bot-test-members',
+        Item: {fbid: recipient, actions: ['group_intro'] }
+      };
+      beforeEach(done => dynamo.put(member, done));
 
       it("should remove the action from the menu", (done) => {
           const graphAPICalls = nock('https://graph.facebook.com')
@@ -230,25 +225,16 @@ describe('chat', () => {
             }).query(true).reply(200);
 
           wrapped.run(receivedData, (err) => {
-            nestedTimeout(100, () => {
+            wrapped.run(receivedData, (err) => {
               graphAPICalls.done();
               done();
             });
           });
-
       });
     });
-
   });
 });
 
 function fixture(file) {
   return `${__dirname}/fixtures/${file}.json`
-}
-
-function nestedTimeout(levels, cb) {
-  if (levels === -1) return cb();
-  setTimeout( () => {
-    nestedTimeout(levels - 1, cb);
-  }, 0);
 }

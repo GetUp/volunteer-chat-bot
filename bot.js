@@ -4,6 +4,7 @@ const NODE_ENV = process.env.NODE_ENV;
 
 import request from 'request';
 import { script } from './script';
+import promisify from 'es6-promisify'
 import AWS from 'aws-sdk';
 const dynamo = new AWS.DynamoDB.DocumentClient(dbConf());
 export const loadedScript = script;
@@ -20,37 +21,40 @@ export const challenge = (e, ctx, cb) => {
   }
 };
 
-export const chat = (e, ctx, cb) => {
+export const chat = function(e, ctx, cb) {
+  chatAsync(e).then(cb, cb)
+};
+
+async function chatAsync(e) {
   const data = e.body;
   if (data.object !== 'page') return cb();
+  let messages = [];
   data.entry.forEach(pageEntry => {
     pageEntry.messaging.forEach(messagingEvent => {
+      const recipientId = messagingEvent.sender.id;
+      const message = messagingEvent.message;
+      let matchNumber;
+
       if (NODE_ENV !== 'test') console.log('messagingEvent:', JSON.stringify(messagingEvent));
 
-      const recipientId = messagingEvent.sender.id;
       if (messagingEvent.postback) {
-        return sendMessage(recipientId, messagingEvent.postback.payload);
-      }
-
-      const message = messagingEvent.message;
-      if (message.quick_reply) {
-        return sendMessage(recipientId, message.quick_reply.payload);
-      }
-
-      let matchNumber;
-      if (matchNumber = message.text.match(/^\s*(\d{4})/)) {
+        messages.push(sendMessage(recipientId, messagingEvent.postback.payload));
+      }else if (message.quick_reply) {
+        messages.push(sendMessage(recipientId, message.quick_reply.payload));
+      }else if (matchNumber = message.text.match(/^\s*(\d{4})/)) {
         const postcode = matchNumber[1].replace(/[^\d]/g, '');
-        return sendMessage(recipientId, 'petition_details', postcode);
+        messages.push(sendMessage(recipientId, 'petition_details', postcode));
+      }else if (message.text === 'EXAMPLE MESSAGE') {
+        messages.push(sendMessage(recipientId, 'subscribe_examples'));
+      }else{
+        messages.push(sendMessage(recipientId, 'fallthrough'));
       }
-
-      if (message.text === 'EXAMPLE MESSAGE') {
-        return sendMessage(recipientId, 'subscribe_examples');
-      }
-
-      sendMessage(recipientId, 'fallthrough');
     });
   })
-  cb();
+  try {
+    await Promise.all(messages);
+  } catch(error) {
+  }
 }
 
 export async function sendMessage(recipientId, key, answer) {
@@ -64,27 +68,15 @@ export async function sendMessage(recipientId, key, answer) {
 
   let completedActions = [];
   if (reply.template) {
-    try {
-      reply.text = await getName(recipientId, reply, answer);
-    } catch(error) {
-      console.error(error);
-    }
+    reply.text = await getName(recipientId, reply, answer);
   }
 
   if (reply.persist) {
-    try {
-      await persistAction(recipientId, reply.persist);
-    } catch(error) {
-      console.error(error);
-    }
+    await persistAction(recipientId, reply.persist);
   }
 
   if (key === 'default') {
-    try {
-      completedActions = await getActions(recipientId);
-    } catch(error) {
-      console.error(error);
-    }
+    completedActions = await getActions(recipientId);
   }
 
   let message;
@@ -93,26 +85,21 @@ export async function sendMessage(recipientId, key, answer) {
   if (reply.buttons) message = buttonTemplate(reply, completedActions);
   if (reply.generic) message = genericTemplate(reply);
 
-  callSendAPI({recipient, message}).then(() => {
+  return callSendAPI({recipient, message}).then(() => {
     if (reply.next) {
-      let delayedCall = () => {
-        const delay = reply.delay || 5000;
-        delayMessage(recipientId, reply.next, delay);
+      const delay = () => {
+        let delayForEnviroment = NODE_ENV === 'test' ? 1 : (NODE_ENV === 'dev' ? 1000 : (reply.delay || 5000));
+        return delayMessage(recipientId, reply.next, delayForEnviroment);
       }
-      if (reply.disable_typing){
-        delayedCall();
-      }else{
-        callSendAPI({recipient, sender_action: 'typing_on'}).then(delayedCall);
-      }
+      return reply.disable_typing ? delay() : callSendAPI({recipient, sender_action: 'typing_on'}).then(delay());
     }
-  }).catch(::console.error);
+  })
 }
 
 export const message = (e, ctx, cb) => {
   if (NODE_ENV !== 'test') console.log("invoking!", e)
   setTimeout(() => {
-    sendMessage(e.recipientId, e.next);
-    cb();
+    sendMessage(e.recipientId, e.next).then(cb, cb);
   }, e.delay);
 };
 
@@ -121,15 +108,13 @@ export function delayMessage(recipientId, next, delay) {
   const lambda = new aws.Lambda({region: 'us-east-1'});
   const payload = {recipientId: recipientId, next: next, delay: delay};
   if (['dev', 'test'].includes(NODE_ENV)) {
-    return message(payload, null, ()=>{});
+    return promisify(message)(payload, null)
   }
-  lambda.invoke({
+  return promisify(::lambda.invoke)({
     FunctionName: `volunteer-chat-bot-${NODE_ENV}-message`,
     InvocationType: 'Event',
     Payload: JSON.stringify(payload)
-  }, function(err) {
-    if (err) console.error("Error invoking lambda", err, arguments);
-  });
+  })
 }
 
 function callSendAPI(messageData) {
@@ -187,7 +172,7 @@ function getName(recipientId, reply, answer) {
         };
 
         const cb = (err, res) => {
-          if (err) console.log({err});
+          if (err) console.log('Unable to update profile', {err});
           returnText();
         };
         const memberData = {first_name, last_name, answer, ...attrs};
