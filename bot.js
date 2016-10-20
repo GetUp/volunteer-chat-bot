@@ -220,6 +220,7 @@ function quickReply(reply) {
 function buttonTemplate(reply, completedActions) {
   const buttonsToRemove = completedActions.map(action => script.action_menu[action])
   const availableButtons = reply.buttons.filter(button => !buttonsToRemove.includes(button.payload))
+  if (availableButtons.length < 1) { return script.all_done };
   return {
     attachment: {
       type: 'template',

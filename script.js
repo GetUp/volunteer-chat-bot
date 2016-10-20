@@ -162,7 +162,7 @@ export const script = {
   },
 
   all_done: {
-    text: "Awesome! That's all we have for now. Thanks for helping to end offshore detention.",
+    text: "That's all we have for now. Thanks for helping to end offshore detention.",
   },
 
   subscription_manage: {
