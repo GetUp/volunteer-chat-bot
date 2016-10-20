@@ -122,7 +122,7 @@ describe('chat', () => {
         .reply(200, mockedProfile)
     });
 
-    it('should get their details from a facebook and prompt to confirm the number', (done) => {
+    it('should get their details from facebook and prompt to confirm the number', (done) => {
       graphAPICalls.post('/v2.6/me/messages', (body) => {
           return body.message.text.match(/2000/) &&
             body.message.text.match(mockedProfile.first_name) &&
@@ -147,6 +147,29 @@ describe('chat', () => {
         dynamo.get(payload, (err, res) => {
           expect(res.Item.profile.first_name).to.be.equal(mockedProfile.first_name);
           done(err);
+        });
+      });
+    });
+
+    context('with an existing action', () => {
+      const memberAction = {
+        TableName: 'volunteer-chat-bot-test-members',
+        Item: { fbid: recipient, actions: ['subscribed'] }
+      };
+      const member = {
+        TableName: 'volunteer-chat-bot-test-members',
+        Key: {fbid: recipient}
+      };
+      beforeEach(done => dynamo.put(memberAction, done));
+      beforeEach(() => graphAPICalls.post('/v2.6/me/messages').query(true).reply(200));
+
+      it('does not overwrite the previous actions on petition sign', (done) => {
+        wrapped.run(receivedData, (err) => {
+          graphAPICalls.done()
+          dynamo.get(member, (err, res) => {
+            expect(res.Item.actions[0]).to.be.equal('subscribed');
+            done(err);
+          });
         });
       });
     });

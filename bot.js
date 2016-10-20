@@ -194,11 +194,16 @@ function getActions(fbid) {
 }
 
 function storeMember(fbid, profile, cb) {
-  const payload = {
-    TableName: `volunteer-chat-bot-${NODE_ENV}-members`,
-    Item: {fbid, profile}
-  };
-  dynamo.put(payload, cb);
+  const member = {TableName: `volunteer-chat-bot-${NODE_ENV}-members`, Key: {fbid}};
+  dynamo.get(member, (err, res) => {
+    if (err) return cb(err);
+    const actions = res.Item && res.Item.actions || [];
+    const payload = {
+      TableName: `volunteer-chat-bot-${NODE_ENV}-members`,
+      Item: {fbid, profile, actions}
+    };
+    dynamo.put(payload, cb);
+  })
 }
 
 function quickReply(reply) {
