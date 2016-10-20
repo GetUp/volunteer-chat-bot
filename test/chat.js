@@ -154,11 +154,14 @@ describe('chat', () => {
 
   context('with a delayed reply that typing turned off', () => {
     let receivedData = JSON.parse(fs.readFileSync(fixture('get_started'), 'utf8'));
-    receivedData.body.entry[0].messaging[0].postback.payload = 'group_intro';
+    receivedData.body.entry[0].messaging[0].postback.payload = 'group_view';
 
     it('should not send the typing message', (done) => {
       const graphAPICalls = nock('https://graph.facebook.com')
         .post('/v2.6/me/messages', body => !body.message.sender_action)
+        .query(true)
+        .reply(200)
+        .post('/v2.6/me/messages', body => body.message.attachment.payload.text === script.group_prompt.text)
         .query(true)
         .reply(200);
       wrapped.run(receivedData, (err) => {

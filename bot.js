@@ -22,7 +22,10 @@ export const challenge = (e, ctx, cb) => {
 };
 
 export const chat = function(e, ctx, cb) {
-  chatAsync(e).then(cb, cb)
+  chatAsync(e).then(cb, (err) => {
+    console.error('ERROR', err);
+    cb(NODE_ENV === 'test' ? err : undefined);
+  });
 };
 
 async function chatAsync(e) {
@@ -50,10 +53,7 @@ async function chatAsync(e) {
       }
     });
   })
-  try {
-    await Promise.all(messages);
-  } catch(error) {
-  }
+  await Promise.all(messages);
 }
 
 export async function sendMessage(recipientId, key, answer) {
