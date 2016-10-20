@@ -196,6 +196,7 @@ describe('chat', () => {
 
     beforeEach(() => {
       nock('https://graph.facebook.com')
+        .post('/v2.6/me/messages').query(true).reply(200)
         .post('/v2.6/me/messages').query(true).reply(200);
     })
 
@@ -239,11 +240,11 @@ describe('chat', () => {
 
       it("should remove the action from the menu", (done) => {
           const graphAPICalls = nock('https://graph.facebook.com')
-            .post('/v2.6/me/messages')
-            .query(true).reply(200)
             .post('/v2.6/me/messages', (body) => {
               return !body.message.attachment.payload.buttons.map(b=>b.payload).includes('group_intro');
-            }).query(true).reply(200);
+            }).query(true).reply(200)
+            .post('/v2.6/me/messages').query(true).reply(200)
+            .post('/v2.6/me/messages').query(true).reply(200)
 
           wrapped.run(receivedData, (err) => {
             wrapped.run(receivedData, (err) => {
