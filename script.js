@@ -184,7 +184,7 @@ export const script = {
   },
 
   fallthrough: {
-    text: "somehow, that message passed through the gatekeepers",
+    text: "Sorry, we didn't quite understand that message.",
     next: 'default',
   },
 
