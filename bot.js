@@ -218,12 +218,7 @@ function quickReply(reply) {
 }
 
 function buttonTemplate(reply, completedActions) {
-  const actionToButtonMapping = {
-    group_joined: 'group_intro',
-    petition_details_yes: 'petition_intro',
-    subscribe_yes: 'subscribe_intro'
-  }
-  const buttonsToRemove = completedActions.map(action => actionToButtonMapping[action])
+  const buttonsToRemove = completedActions.map(action => script.action_menu[action])
   const availableButtons = reply.buttons.filter(button => !buttonsToRemove.includes(button.payload))
   return {
     attachment: {

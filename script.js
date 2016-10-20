@@ -1,3 +1,11 @@
+// hide menu items when actions are taken:
+// persisted_value: menu_button_payload
+const action_menu = {
+  group_joined: 'group_intro',
+  subscribed: 'subscribe_intro',
+  petition_signed: 'petition_intro',
+};
+
 const petition = {
   title: 'Close the camps!',
   // item_url: '',
@@ -115,6 +123,7 @@ export const script = {
   },
   petition_details_yes: {
     text: "Excellent! All done. Thank you for signing the petition.",
+    persist: 'petition_signed',
     next: 'petition_share_ask',
   },
   petition_share_ask: {
@@ -177,5 +186,7 @@ export const script = {
   fallthrough: {
     text: "somehow, that message passed through the gatekeepers",
     next: 'default',
-  }
+  },
+
+  action_menu,
 };
