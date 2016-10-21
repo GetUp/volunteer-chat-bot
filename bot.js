@@ -21,11 +21,15 @@ export const challenge = (e, ctx, cb) => {
   }
 };
 
-export const chat = function(e, ctx, cb) {
-  chatAsync(e).then(cb, (err) => {
+function onlyErrorInTest(promise, cb) {
+  promise.then(() => cb(), (err) => {
     console.error('ERROR', err);
     cb(NODE_ENV === 'test' ? err : undefined);
-  });
+  })
+}
+
+export const chat = function(e, ctx, cb) {
+  onlyErrorInTest(chatAsync(e), cb);
 };
 
 async function chatAsync(e) {
@@ -98,7 +102,7 @@ export async function sendMessage(recipientId, key, answer) {
 export const message = (e, ctx, cb) => {
   if (NODE_ENV !== 'test') console.log("invoking!", e)
   setTimeout(() => {
-    sendMessage(e.recipientId, e.next).then(cb, cb);
+    onlyErrorInTest(sendMessage(e.recipientId, e.next), cb);
   }, e.delay);
 };
 
@@ -107,7 +111,7 @@ export function delayMessage(recipientId, next, delay) {
   const lambda = new aws.Lambda({region: 'us-east-1'});
   const payload = {recipientId: recipientId, next: next, delay: delay};
   if (['dev', 'test'].includes(NODE_ENV)) {
-    return promisify(message)(payload, null)
+    return promisify(message)(payload, null);
   }
   return promisify(::lambda.invoke)({
     FunctionName: `volunteer-chat-bot-${NODE_ENV}-message`,
