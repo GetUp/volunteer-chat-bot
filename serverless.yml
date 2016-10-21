@@ -9,7 +9,7 @@ plugins:
 custom:
   webpackIncludeModules: true
   defaultStage: staging
-  defaultAccount: ':333126681707'
+  defaultAccount: '333126681707'
   envVars: ${file(./env_vars.yml)}
   writeEnvVars:
     NODE_ENV: ${opt:stage, self:custom.defaultStage}
@@ -26,7 +26,7 @@ provider:
   runtime: nodejs4.3
   stage: ${opt:stage, self:custom.defaultStage}
   profile: ${opt:stage, self:custom.defaultStage}
-  iamRoleARN: arn:aws:iam:${opt:account, self:custom.defaultAccount}:role/lambda_full_access
+  iamRoleARN: arn:aws:iam::${opt:account, self:custom.defaultAccount}:role/lambda_full_access
 
 functions:
   challenge:
