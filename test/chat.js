@@ -90,7 +90,7 @@ describe('chat', () => {
       const graphAPICalls = nock('https://graph.facebook.com')
         .persist()
         .post('/v2.6/me/messages', assertOnce((body) => {
-          return body.message.attachment.payload.text.match(script.group_view.text) &&
+          return body.message.attachment.payload.text === script.group_view.text &&
                  body.message.attachment.payload.buttons[0].url.match(script.group_view.buttons[0].url);
         }))
         .query(true)
