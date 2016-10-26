@@ -13,21 +13,7 @@ const petition = {
   subtitle: 'Minister Dutton, please end offshore detention.',
 };
 
-export const script = {
-  intro: {
-    text: "Hey! Welcome to the GetUp Volunteer Action Hub. The current campaign is to end the government's policy of offshore detention camps. In Australia, #WeCanDoBetter than locking up people seeking refuge.",
-    next: 'default',
-    delay: 1000,
-  },
-  default: {
-    text: "It would be great if you can join the campaign. Here are a few ways you can help make sure #WeCanDoBetter when it comes to our refugee policy in Australia.",
-    buttons: [
-      {type: 'postback', payload: 'group_intro', title: 'Join an action group'},
-      {type: 'postback', payload: 'subscribe_intro', title: 'Keep me up to date'},
-      {type: 'postback', payload: 'petition_intro', title: 'Sign the open letter'},
-    ],
-  },
-
+const group_action = {
   group_intro: {
     text: "GetUp #WeCanDoBetter action groups are a great way to stay up to date with campaign developments and get involved in upcoming actions.",
     next: 'group_postcode',
@@ -64,7 +50,9 @@ export const script = {
     text: "No worries, we have other ways you can get involved. :)",
     next: 'default',
   },
+};
 
+const subscribe_action = {
   subscribe_intro: {
     text: "The GetUp Strategy Team can message you when there are important updates to the campaign and opportunities for you to help out.",
     next: 'subscribe_frequency',
@@ -93,7 +81,25 @@ export const script = {
     persist: 'subscribe_no',
     next: 'default',
   },
+};
 
+// accessed from ≡ menu
+const subscription_management = {
+  subscription_manage: {
+    text: "Would you like campaign update messages on or off?",
+    replies: [{k: 'subscription_on', t: 'On please'}, {k: 'subscription_off', t: 'Off thanks'}],
+  },
+  subscription_on: {
+    text: "Awesome! We'll be in touch when there's an update. :)",
+    persist: 'subscribed',
+  },
+  subscription_off: {
+    text: "No worries. You won't receive any more campaign updates from us. :)",
+    persist: 'unsubscribed',
+  },
+};
+
+const petition_action = {
   petition_intro: {
     text: "We'll be delivering our petition to the immigration minister at the start of next month. Make sure your name is on it!",
     next: 'petition_show',
@@ -153,23 +159,32 @@ export const script = {
     persist: 'petition_error',
     next: 'default',
   },
+};
+
+export const script = {
+  intro: {
+    text: "Hey! Welcome to the GetUp Volunteer Action Hub. The current campaign is to end the government's policy of offshore detention camps. In Australia, #WeCanDoBetter than locking up people seeking refuge.",
+    next: 'default',
+    delay: 1000,
+  },
+  default: {
+    text: "It would be great if you can join the campaign. Here are a few ways you can help make sure #WeCanDoBetter when it comes to our refugee policy in Australia.",
+    buttons: [
+      {type: 'postback', payload: 'group_intro', title: 'Join an action group'},
+      {type: 'postback', payload: 'subscribe_intro', title: 'Keep me up to date'},
+      {type: 'postback', payload: 'petition_intro', title: 'Sign the open letter'},
+    ],
+  },
+
+  ...group_action,
+  ...subscribe_action,
+  ...petition_action,
 
   all_done: {
     text: "That's all we have for now. Thanks for helping to show #WeCanDoBetter!",
   },
 
-  subscription_manage: {
-    text: "Would you like campaign update messages on or off?",
-    replies: [{k: 'subscription_on', t: 'On please'}, {k: 'subscription_off', t: 'Off thanks'}],
-  },
-  subscription_on: {
-    text: "Awesome! We'll be in touch when there's an update. :)",
-    persist: 'subscribed',
-  },
-  subscription_off: {
-    text: "No worries. You won't receive any more campaign updates from us. :)",
-    persist: 'unsubscribed',
-  },
+  ...subscription_management,
 
   unknown_payload: {
     text: "Sorry, we didn't quite understand that message.",
