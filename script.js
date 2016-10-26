@@ -15,34 +15,38 @@ const petition = {
 
 export const script = {
   intro: {
-    text: "Welcome to the GetUp Volunteer Action Hub. The current campaign is to end Australia's offshore detention regime and bring the remaining refugees to Australia.",
+    text: "Hey! Welcome to the GetUp Volunteer Action Hub. The current campaign is to end the government's policy of offshore detention camps. In Australia, #WeCanDoBetter than locking up people seeking refuge.",
     next: 'default',
+    delay: 1000,
   },
   default: {
-    text: "Here are some ways you can help close the camps and #BringThemHere:",
+    text: "It would be great if you can join the campaign. Here are a few ways you can help make sure #WeCanDoBetter when it comes to our refugee policy in Australia.",
     buttons: [
-      {type: 'postback', payload: 'subscribe_intro', title: 'Subscribe to updates'},
-      {type: 'postback', payload: 'petition_intro', title: 'Sign the petition'},
-      {type: 'postback', payload: 'group_intro', title: 'Join the group'},
+      {type: 'postback', payload: 'group_intro', title: 'Join an action group'},
+      {type: 'postback', payload: 'subscribe_intro', title: 'Keep me up to date'},
+      {type: 'postback', payload: 'petition_intro', title: 'Sign the open letter'},
     ],
   },
 
   group_intro: {
-    text: 'The GetUp Volunteer group is a great way to share ideas with other GetUp members about how we can help to end offshore detention.',
-    next: 'group_view',
+    text: "GetUp #WeCanDoBetter action groups are a great way to stay up to date with campaign developments and get involved in upcoming actions.",
+    next: 'group_postcode',
+  },
+  group_postcode: {
+    text: "First off, what's your postcode so we can find the best local action group for you?",
   },
   group_view: {
-    text: "Join the group by pressing the button below and pressing on the usual join button in the window that opens. Press Close when you're finished.",
-    buttons: [{type: 'web_url', title: 'Join vollie group', url: 'https://www.facebook.com/groups/517488501775144/', webview_height_ratio: 'tall'}],
+    text: "Ok, the group that covers postcode {postcode} is {group_name}. Please join it now. :)",
+    buttons: [{type: 'web_url', webview_height_ratio: 'tall', title: 'Join action group', url: '{group_url}'}],
     next: 'group_prompt',
     delay: 20000,
-    disable_typing: true
+    disable_typing: true,
   },
   group_prompt: {
     text: "How'd you go?",
     buttons: [
-      {type: 'postback', payload: 'group_joined', title: 'I joined the group'},
-      {type: 'postback', payload: 'group_error', title: 'Something went wrong'},
+      {type: 'postback', payload: 'group_joined', title: "I joined the group"},
+      {type: 'postback', payload: 'group_error', title: "Something went wrong"},
       {type: 'postback', payload: 'group_no_thanks', title: "Not right now"},
     ],
   },
@@ -89,30 +93,6 @@ export const script = {
     persist: 'subscribe_no',
     next: 'default',
   },
-  subscribe_examples: [
-// TODO images? maybe a third?
-    {
-      generic: [{
-        title: 'Hight Court rules Manus camp illegal!',
-        item_url: 'https://www.theguardian.com/australia-news/2016/apr/26/papua-new-guinea-court-rules-detention-asylum-seekers-manus-unconstitutional',
-        image_url: 'https://i.guim.co.uk/img/media/7ddb3483cd224882ba95d4fe1a1fcb0e784cc68d/0_310_2385_1431/2385.jpg?w=1200&h=630&q=55&auto=format&usm=12&fit=crop&bm=normal&ba=bottom%2Cleft&blend64=aHR0cHM6Ly91cGxvYWRzLmd1aW0uY28udWsvMjAxNi8wNS8yNS9vdmVybGF5LWxvZ28tMTIwMC05MF9vcHQucG5n&s=7076d8620ba88381d89c440e8bf3a721',
-        subtitle: "PNG has just ruled Manus illegal. Share this great news with your friends.",
-        buttons: [{type: 'element_share'}],
-      }]
-    },
-    {
-      generic: [{
-        title: 'Refugee rally @ Town Hall',
-        item_url: 'http://www.refugeeaction.org.au/?p=5230',
-        image_url: 'http://www.refugeeaction.org.au/wp-content/uploads/2016/08/Post-election-rally-A5.jpg',
-        subtitle: "There's a rally to support refugees tomorrow at Town Hall. It'll be at 6:30pm - can you join everyone?",
-        buttons: [
-          {type: 'web_url', url: 'http://www.refugeeaction.org.au/?p=5230', title: 'RSVP Now', webview_height_ratio: 'tall',},
-          {type: 'element_share'},
-        ],
-      }]
-    },
-  ],
 
   petition_intro: {
     text: "We'll be delivering our petition to the immigration minister at the start of next month. Make sure your name is on it!",
@@ -175,7 +155,7 @@ export const script = {
   },
 
   all_done: {
-    text: "That's all we have for now. Thanks for helping to end offshore detention.",
+    text: "That's all we have for now. Thanks for helping to show #WeCanDoBetter!",
   },
 
   subscription_manage: {
