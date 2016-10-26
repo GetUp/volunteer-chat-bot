@@ -8,7 +8,7 @@ import fs from 'fs';
 import nock from 'nock';
 import AWS from 'aws-sdk';
 const dynamo = new AWS.DynamoDB.DocumentClient({region: 'localhost', endpoint: 'http://localhost:8000'});
-
+let firstIntercept;
 
 describe('chat', () => {
   const payload = {
@@ -16,20 +16,23 @@ describe('chat', () => {
     Key: {fbid: '1274747332556664'}
   };
   beforeEach(done => dynamo.delete(payload, done));
+  afterEach(() => {
+    firstIntercept = false;
+    nock.cleanAll();
+  });
 
   context('with a postback from the Get Started button', () => {
     const receivedData = JSON.parse(fs.readFileSync(fixture('get_started'), 'utf8'));
 
     it('starts the conversation and sends the intro message', (done) => {
       const graphAPICalls = nock('https://graph.facebook.com')
-        .post('/v2.6/me/messages', (body) => {
+        .persist()
+        .post('/v2.6/me/messages', assertOnce((body) => {
           return !!body.message.text.match(/Welcome to the GetUp Volunteer Action Hub/);
-        })
+        }))
         .query(true)
         .reply(200)
-        .post('/v2.6/me/messages', {"recipient":{"id":"1274747332556664"},"sender_action":"typing_on"})
-        .query(true)
-        .reply(200)
+
       wrapped.run(receivedData, (err) => {
         graphAPICalls.done();
         done(err)
@@ -43,16 +46,15 @@ describe('chat', () => {
 
     it('should send back a message and then after a short delay send quick replies', (done) => {
       const graphAPICalls = nock('https://graph.facebook.com')
-        .post('/v2.6/me/messages', (body) => {
+        .persist()
+        .post('/v2.6/me/messages', assertOnce((body) => {
           return body.message.text.match(/Welcome to the GetUp Volunteer Action Hub/) ||
             ( body.message.text.match(/Here are some ways/) &&
              body.message.quick_replies[0].title.match(/Subscribe to updates/) );
-        })
+        }))
         .query(true)
         .reply(200)
-        .post('/v2.6/me/messages', {"recipient":{"id":"1274747332556664"},"sender_action":"typing_on"})
-        .query(true)
-        .reply(200)
+
       wrapped.run(receivedData, (err) => {
         graphAPICalls.done();
         done(err)
@@ -66,14 +68,13 @@ describe('chat', () => {
 
     it('should respond with the correct reply', (done) => {
       const graphAPICalls = nock('https://graph.facebook.com')
-        .post('/v2.6/me/messages', (body) => {
+        .persist()
+        .post('/v2.6/me/messages', assertOnce((body) => {
           return body.message.text.match(script.subscribe_yes.text);
-        })
+        }))
         .query(true)
         .reply(200)
-        .post('/v2.6/me/messages', {"recipient":{"id":"1274747332556664"},"sender_action":"typing_on"})
-        .query(true)
-        .reply(200);
+
       wrapped.run(receivedData, (err) => {
         graphAPICalls.done();
         done(err)
@@ -87,15 +88,14 @@ describe('chat', () => {
 
     it('should respond with the correct reply', (done) => {
       const graphAPICalls = nock('https://graph.facebook.com')
-        .post('/v2.6/me/messages', (body) => {
+        .persist()
+        .post('/v2.6/me/messages', assertOnce((body) => {
           return body.message.attachment.payload.text.match(script.group_view.text) &&
                  body.message.attachment.payload.buttons[0].url.match(script.group_view.buttons[0].url);
-        })
+        }))
         .query(true)
         .reply(200)
-        .post('/v2.6/me/messages')
-        .query(true)
-        .reply(200)
+
       wrapped.run(receivedData, (err) => {
         graphAPICalls.done();
         done(err)
@@ -182,6 +182,7 @@ describe('chat', () => {
         .post('/v2.6/me/messages', body => body.message.attachment.payload.text === script.group_prompt.text)
         .query(true)
         .reply(200);
+
       wrapped.run(receivedData, (err) => {
         graphAPICalls.done();
         done(err)
@@ -195,8 +196,7 @@ describe('chat', () => {
     const recipient = receivedData.body.entry[0].messaging[0].sender.id;
 
     beforeEach(() => {
-      nock('https://graph.facebook.com')
-        .post('/v2.6/me/messages').query(true).reply(200)
+      nock('https://graph.facebook.com').persist()
         .post('/v2.6/me/messages').query(true).reply(200);
     })
 
@@ -230,28 +230,34 @@ describe('chat', () => {
         });
       });
     });
+  });
 
-    context("after taking action and reloading the menu", () => {
-      const member = {
-        TableName: 'volunteer-chat-bot-test-members',
-        Item: {fbid: recipient, actions: ['group_intro'] }
-      };
-      beforeEach(done => dynamo.put(member, done));
+  context("after taking action and reloading the menu", () => {
+    const receivedData = JSON.parse(fs.readFileSync(fixture('postback'), 'utf8'));
+    receivedData.body.entry[0].messaging[0].postback = { payload: 'group_joined' };
+    const recipient = receivedData.body.entry[0].messaging[0].sender.id;
+    const member = {
+      TableName: 'volunteer-chat-bot-test-members',
+      Item: {fbid: recipient, actions: ['group_intro'] }
+    };
+    beforeEach(done => dynamo.put(member, done));
 
-      it("should remove the action from the menu", (done) => {
-          const graphAPICalls = nock('https://graph.facebook.com')
-            .post('/v2.6/me/messages', (body) => {
-              return !body.message.attachment.payload.buttons.map(b=>b.payload).includes('group_intro');
-            }).query(true).reply(200)
-            .post('/v2.6/me/messages').query(true).reply(200)
-            .post('/v2.6/me/messages').query(true).reply(200)
+    it("should remove the action from the menu", (done) => {
+      const graphAPICalls = nock('https://graph.facebook.com')
+        .post('/v2.6/me/messages').query(true).reply(200)
+        .post('/v2.6/me/messages').query(true).reply(200)
+        .post('/v2.6/me/messages', (body) => {
+          return !body.message.attachment.payload.buttons.map(b=>b.payload).includes('group_intro');
+        }).query(true).reply(200)
+        .post('/v2.6/me/messages').query(true).reply(200)
+        .post('/v2.6/me/messages').query(true).reply(200)
+        .post('/v2.6/me/messages').query(true).reply(200)
 
-          wrapped.run(receivedData, (err) => {
-            wrapped.run(receivedData, (err) => {
-              graphAPICalls.done();
-              done();
-            });
-          });
+      wrapped.run(receivedData, (err) => {
+        wrapped.run(receivedData, (err) => {
+          graphAPICalls.done();
+          done();
+        });
       });
     });
   });
@@ -259,4 +265,14 @@ describe('chat', () => {
 
 function fixture(file) {
   return `${__dirname}/fixtures/${file}.json`
+}
+
+function assertOnce(assertion, body) {
+  return (body) => {
+    if(!firstIntercept) {
+      firstIntercept = true;
+      return assertion(body);
+    }
+    return true
+  }
 }
