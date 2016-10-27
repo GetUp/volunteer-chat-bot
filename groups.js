@@ -1,6 +1,6 @@
 export const groups = [{
-  name: 'WeCanDoBetter',
-  url: 'https://www.facebook.com/groups/',
+  name: '#WeCanDoBetter',
+  url: 'https://www.facebook.com/groups/1331336863544607/',
   postcodes: [], // DEFAULT group
 },{
   name: 'GetUp North Sydney',
