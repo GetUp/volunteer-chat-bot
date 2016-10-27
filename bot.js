@@ -58,13 +58,13 @@ async function chatAsync(e) {
   await Promise.all(messages);
 }
 
-export async function sendMessage(recipientId, key, answer) {
+export async function sendMessage(recipientId, key, postcode) {
   const recipient = { id: recipientId };
   const reply = script[key] || script['unknown_payload'];
 
   let completedActions = [];
   if (reply.template) {
-    reply.text = await getName(recipientId, reply, answer);
+    reply.text = await getName(recipientId, reply, postcode);
   }
 
   if (reply.persist) {
@@ -148,7 +148,7 @@ function persistAction(fbid, action) {
   });
 }
 
-function getName(recipientId, reply, answer) {
+function getName(recipientId, reply, postcode) {
   return new Promise((resolve, reject) => {
     const payload = {
       uri: `https://graph.facebook.com/v2.8/${recipientId}`,
@@ -163,7 +163,7 @@ function getName(recipientId, reply, answer) {
           const text = reply.template
             .replace(/{first_name}/, first_name)
             .replace(/{last_name}/, last_name)
-            .replace(/{postcode}/, answer);
+            .replace(/{postcode}/, postcode);
           return resolve(text);
         };
 
@@ -171,7 +171,7 @@ function getName(recipientId, reply, answer) {
           if (err) console.log('Unable to update profile', {err});
           returnText();
         };
-        const memberData = {first_name, last_name, answer, ...attrs};
+        const memberData = {first_name, last_name, postcode, ...attrs};
         return storeMember(recipientId, memberData, cb);
       }
       reject(err || body);
