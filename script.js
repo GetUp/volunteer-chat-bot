@@ -165,7 +165,7 @@ export const script = {
   intro: {
     text: "Hey! Welcome to the GetUp Volunteer Action Hub. The current campaign is to end the government's policy of offshore detention camps. In Australia, #WeCanDoBetter than locking up people seeking refuge.",
     next: 'default',
-    delay: 1000,
+    delay: 3000,
   },
   default: {
     text: "It would be great if you can join the campaign. Here are a few ways you can help make sure #WeCanDoBetter when it comes to our refugee policy in Australia.",
