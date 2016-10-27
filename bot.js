@@ -7,6 +7,9 @@ import { script } from './script';
 import promisify from 'es6-promisify'
 import AWS from 'aws-sdk';
 const dynamo = new AWS.DynamoDB.DocumentClient(dbConf());
+
+const TableName = `volunteer-chat-bot-${NODE_ENV}-members`;
+
 export const loadedScript = script;
 
 const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN;
@@ -132,8 +135,6 @@ function callSendAPI(messageData) {
 
 function persistAction(fbid, action) {
   return new Promise((resolve, reject) => {
-    const TableName = `volunteer-chat-bot-${NODE_ENV}-members`;
-
     dynamo.get({TableName, Key:{fbid}}, (err, res) => {
       if (err) return reject(err);
 
@@ -181,7 +182,6 @@ function getName(recipientId, reply, postcode) {
 
 function getActions(fbid) {
   return new Promise((resolve, reject) => {
-    const TableName = `volunteer-chat-bot-${NODE_ENV}-members`;
     dynamo.get({TableName, Key: {fbid}}, (err, res) => {
       if (err) return reject(err);
       const actions = res.Item && res.Item.actions;
@@ -191,7 +191,7 @@ function getActions(fbid) {
 }
 
 function storeMember(fbid, profile, cb) {
-  const member = {TableName: `volunteer-chat-bot-${NODE_ENV}-members`, Key: {fbid}};
+  const member = {TableName, Key: {fbid}};
   dynamo.get(member, (err, res) => {
     if (err) return cb(err);
     const actions = res.Item && res.Item.actions || [];
