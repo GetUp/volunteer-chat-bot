@@ -50,8 +50,6 @@ async function chatAsync(e) {
       }else if (matchNumber = message.text.match(/^\s*(\d{4})/)) {
         const postcode = matchNumber[1].replace(/[^\d]/g, '');
         messages.push(sendMessage(recipientId, 'petition_details', postcode));
-      }else if (message.text === 'EXAMPLE MESSAGE') {
-        messages.push(sendMessage(recipientId, 'subscribe_examples'));
       }else{
         messages.push(sendMessage(recipientId, 'fallthrough'));
       }
@@ -62,12 +60,7 @@ async function chatAsync(e) {
 
 export async function sendMessage(recipientId, key, answer) {
   const recipient = { id: recipientId };
-  let reply = script[key] || script['unknown_payload'];
-
-  if (reply.length) {
-    // example message is the only one that returns an array
-    reply = reply[Math.floor(Math.random()*reply.length)]
-  };
+  const reply = script[key] || script['unknown_payload'];
 
   let completedActions = [];
   if (reply.template) {
