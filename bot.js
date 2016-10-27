@@ -101,7 +101,7 @@ export async function sendMessage(recipientId, key, postcode) {
   return callSendAPI({recipient, message}).then(() => {
     if (reply.next) {
       const delay = () => {
-        let delayForEnviroment = NODE_ENV === 'test' ? 1 : (NODE_ENV === 'dev' ? 1000 : (reply.delay || 5000));
+        let delayForEnviroment = NODE_ENV === 'test' ? 1 : (NODE_ENV === 'dev' ? 1000 : (reply.delay || 4000));
         return delayMessage(recipientId, reply.next, delayForEnviroment);
       }
       return reply.disable_typing ? delay() : callSendAPI({recipient, sender_action: 'typing_on'}).then(delay);
