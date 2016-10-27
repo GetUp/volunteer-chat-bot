@@ -3,11 +3,15 @@ require('dotenv').config();
 const NODE_ENV = process.env.NODE_ENV;
 
 import request from 'request';
+const rp = require('request-promise-native');
 import { script } from './script';
+import { groups } from './groups';
 import promisify from 'es6-promisify'
 import AWS from 'aws-sdk';
 const dynamo = new AWS.DynamoDB.DocumentClient(dbConf());
 
+const dynamoGet = promisify(::dynamo.get);
+const dynamoPut = promisify(::dynamo.put);
 const TableName = `volunteer-chat-bot-${NODE_ENV}-members`;
 
 export const loadedScript = script;
@@ -52,7 +56,7 @@ async function chatAsync(e) {
         messages.push(sendMessage(recipientId, message.quick_reply.payload));
       }else if (matchNumber = message.text.match(/^\s*(\d{4})/)) {
         const postcode = matchNumber[1].replace(/[^\d]/g, '');
-        messages.push(sendMessage(recipientId, 'petition_details', postcode));
+        messages.push(sendMessage(recipientId, 'group_view', postcode));
       }else{
         messages.push(sendMessage(recipientId, 'fallthrough'));
       }
@@ -63,11 +67,21 @@ async function chatAsync(e) {
 
 export async function sendMessage(recipientId, key, postcode) {
   const recipient = { id: recipientId };
-  const reply = script[key] || script['unknown_payload'];
+  let reply = script[key] || script['unknown_payload'];
 
   let completedActions = [];
-  if (reply.template) {
-    reply.text = await getName(recipientId, reply, postcode);
+
+  switch(key) {
+    case 'petition_details':
+      reply.text = await getName(recipientId, reply, postcode);
+      break;
+    case 'group_view':
+      const profile = await getProfile(recipientId);
+      await storeProfile(recipientId, {...profile, postcode});
+      const group = getGroup(postcode);
+      reply = fillTemplate(reply, group, postcode);
+      break;
+    default:
   }
 
   if (reply.persist) {
@@ -131,6 +145,36 @@ function callSendAPI(messageData) {
       reject(error || body);
     });
   })
+}
+
+async function getProfile(recipientId) {
+  const payload = {
+    uri: `https://graph.facebook.com/v2.8/${recipientId}`,
+    qs: { access_token: PAGE_ACCESS_TOKEN },
+    method: 'GET',
+  };
+  const body = await rp(payload);
+  return JSON.parse(body);
+}
+
+async function storeProfile(fbid, profile) {
+  const member = {TableName, Key: {fbid}};
+  const res = await dynamoGet(member);
+  const actions = res.Item && res.Item.actions || [];
+  return dynamoPut({TableName, Item: {fbid, profile, actions}});
+}
+
+function getGroup(postcode) {
+  const group = groups.find(group => group.postcodes.includes(postcode));
+  return group || groups[0];
+}
+
+function fillTemplate(reply, group, postcode) {
+  reply.text = reply.template
+    .replace(/{postcode}/, postcode)
+    .replace(/{group_name}/, group.name);
+  reply.buttons[0].url = group.url;
+  return reply;
 }
 
 function persistAction(fbid, action) {

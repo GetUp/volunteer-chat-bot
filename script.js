@@ -22,7 +22,7 @@ const group_action = {
     text: "First off, what's your postcode so we can find the best local action group for you?",
   },
   group_view: {
-    text: "Ok, the group that covers postcode {postcode} is {group_name}. Please join it now. :)",
+    template: "Ok, the group that covers postcode {postcode} is {group_name}. Please join it now. :)",
     buttons: [{type: 'web_url', webview_height_ratio: 'tall', title: 'Join action group', url: '{group_url}'}],
     next: 'group_prompt',
     delay: 20000,
