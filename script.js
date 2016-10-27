@@ -172,7 +172,7 @@ export const script = {
     buttons: [
       {type: 'postback', payload: 'group_intro', title: 'Join an action group'},
       {type: 'postback', payload: 'subscribe_intro', title: 'Keep me up to date'},
-      {type: 'postback', payload: 'petition_intro', title: 'Sign the open letter'},
+      // {type: 'postback', payload: 'petition_intro', title: 'Sign the open letter'},
     ],
   },
 
