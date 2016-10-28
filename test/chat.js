@@ -11,6 +11,7 @@ const dynamo = new AWS.DynamoDB.DocumentClient({region: 'localhost', endpoint: '
 let firstIntercept;
 
 describe('chat', () => {
+  const mockedProfile = {first_name: 'test', last_name: 'user'};
   const payload = {
     TableName: 'volunteer-chat-bot-test-members',
     Key: {fbid: '1274747332556664'}
@@ -66,7 +67,7 @@ describe('chat', () => {
     const receivedData = JSON.parse(fs.readFileSync(fixture('message'), 'utf8'));
     receivedData.body.entry[0].messaging[0].message.quick_reply = { payload: 'subscribe_yes' };
 
-    it('should respond with the correct reply', (done) => {
+    it('should respond with the correct reply - quick', (done) => {
       const graphAPICalls = nock('https://graph.facebook.com')
         .persist()
         .post('/v2.6/me/messages', assertOnce((body) => {
@@ -84,14 +85,14 @@ describe('chat', () => {
 
   context('with a reply that has a button', () => {
     const receivedData = JSON.parse(fs.readFileSync(fixture('message'), 'utf8'));
-    receivedData.body.entry[0].messaging[0].message.quick_reply = { payload: 'group_view' };
+    receivedData.body.entry[0].messaging[0].message.quick_reply = { payload: 'default' };
 
-    it('should respond with the correct reply', (done) => {
+    it('should respond with the correct reply - button', (done) => {
       const graphAPICalls = nock('https://graph.facebook.com')
         .persist()
         .post('/v2.6/me/messages', assertOnce((body) => {
-          return body.message.attachment.payload.text === script.group_view.text &&
-                 body.message.attachment.payload.buttons[0].url.match(script.group_view.buttons[0].url);
+          return body.message.attachment.payload.text === script.default.text &&
+                 body.message.attachment.payload.buttons[0].type === 'postback';
         }))
         .query(true)
         .reply(200)
@@ -107,7 +108,6 @@ describe('chat', () => {
     const receivedData = JSON.parse(fs.readFileSync(fixture('message'), 'utf8'));
     receivedData.body.entry[0].messaging[0].message.text = ' 2000 ';
     const recipient = receivedData.body.entry[0].messaging[0].sender.id;
-    const mockedProfile = {first_name: 'test', last_name: 'user'};
     let graphAPICalls;
 
     beforeEach(() => {
@@ -117,14 +117,15 @@ describe('chat', () => {
         .reply(200, mockedProfile)
     });
 
-    it('should get their details from facebook and prompt to confirm the number', (done) => {
-      graphAPICalls.post('/v2.6/me/messages', (body) => {
-          return body.message.text.match(/2000/) &&
-            body.message.text.match(mockedProfile.first_name) &&
-            body.message.quick_replies[0].title.match(script.petition_details.replies[0].t);
-        })
+    it('should get their details from facebook and show them the appropriate action group', (done) => {
+      graphAPICalls.persist()
+        .post('/v2.6/me/messages', assertOnce((body) => {
+          return body.message.attachment.payload.text.match(/2000/) &&
+            body.message.attachment.payload.text.match(/GetUp Sydney/);
+        }))
         .query(true)
         .reply(200);
+
       wrapped.run(receivedData, (err) => {
         graphAPICalls.done();
         done(err);
@@ -132,7 +133,7 @@ describe('chat', () => {
     });
 
     it('should store their profile', (done) => {
-      graphAPICalls.post('/v2.6/me/messages').query(true).reply(200);
+      graphAPICalls.persist().post('/v2.6/me/messages').query(true).reply(200);
       wrapped.run(receivedData, (err) => {
         const payload = {
           TableName: 'volunteer-chat-bot-test-members',
@@ -156,7 +157,7 @@ describe('chat', () => {
         Key: {fbid: recipient}
       };
       beforeEach(done => dynamo.put(memberAction, done));
-      beforeEach(() => graphAPICalls.post('/v2.6/me/messages').query(true).reply(200));
+      beforeEach(() => graphAPICalls.persist().post('/v2.6/me/messages').query(true).reply(200));
 
       it('does not overwrite the previous actions on petition sign', (done) => {
         wrapped.run(receivedData, (err) => {
@@ -173,9 +174,18 @@ describe('chat', () => {
   context('with a delayed reply that typing turned off', () => {
     let receivedData = JSON.parse(fs.readFileSync(fixture('get_started'), 'utf8'));
     receivedData.body.entry[0].messaging[0].postback.payload = 'group_view';
+    const recipient = receivedData.body.entry[0].messaging[0].sender.id;
+    let graphAPICalls;
+
+    beforeEach(() => {
+      graphAPICalls = nock('https://graph.facebook.com')
+        .get(`/v2.8/${recipient}`)
+        .query(true)
+        .reply(200, mockedProfile)
+    });
 
     it('should not send the typing message', (done) => {
-      const graphAPICalls = nock('https://graph.facebook.com')
+      graphAPICalls
         .post('/v2.6/me/messages', body => !body.message.sender_action)
         .query(true)
         .reply(200)
