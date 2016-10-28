@@ -244,6 +244,40 @@ describe('chat', () => {
       });
     });
   });
+
+  context("with an unknown message", () => {
+    const receivedData = fixture('message');
+    receivedData.body.entry[0].messaging[0].message.text = 'no thanks';
+    let graphAPICalls;
+
+    beforeEach(() => {
+      graphAPICalls = nock('https://graph.facebook.com')
+        .post('/v2.6/me/messages', (body) => {
+          return body.message.text === script.fallthrough.text;
+        }).query(true).reply(200)
+        .post('/v2.6/me/messages', (body) => {
+          return body.message.attachment.payload.text === script.signpost.text &&
+            body.message.attachment.payload.buttons[0].title === script.signpost.buttons[0].title;
+        }).query(true).reply(200)
+    });
+
+    it("provides the user with help options", (done) => {
+      wrapped.run(receivedData, (err) => {
+        graphAPICalls.done();
+        done(err)
+      });
+    });
+
+    it("ignores further messages", (done) => {
+      wrapped.run(receivedData, (err) => {
+        // nock will raise if this responds
+        wrapped.run(receivedData, (err) => {
+          graphAPICalls.done();
+          done(err)
+        });
+      });
+    });
+  });
 });
 
 function fixture(file) {

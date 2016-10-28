@@ -188,12 +188,27 @@ export const script = {
 
   unknown_payload: {
     text: "Sorry, we didn't quite understand that message.",
-    next: 'default',
+    next: 'signpost',
+    delay: 1000,
+    disable_typing: true,
   },
 
   fallthrough: {
     text: "Sorry, we didn't quite understand that message.",
-    next: 'default',
+    next: 'signpost',
+    delay: 1000,
+    disable_typing: true,
+  },
+
+  signpost: {
+    text: "If you'd like to keep chatting with the bot choose 'Continue'.  If you need help from a member of the GetUp Strategy Team, choose 'Help'.",
+    buttons: [
+      {type: 'postback', payload: 'default', title: 'Continue'},
+      {type: 'postback', payload: 'human_help', title: 'Help!'},
+    ],
+  },
+  human_help: {
+    text: "Ok, we've notified the GetUp Strategy Team. Someone will be in touch shortly, but there could be a delay.",
   },
 
   action_menu,

@@ -72,6 +72,11 @@ export async function sendMessage(recipientId, key, postcode) {
   let completedActions = [];
 
   switch(key) {
+    case 'fallthrough':
+      const ignore = await getAttribute(recipientId, 'ignore_text');
+      if(ignore) return;
+      await setAttribute(recipientId, {ignore_text: true});
+      break;
     case 'petition_details':
       reply.text = await getName(recipientId, reply, postcode);
       break;
@@ -145,6 +150,18 @@ function callSendAPI(messageData) {
       reject(error || body);
     });
   })
+}
+
+async function getAttribute(fbid, attr) {
+  const res = await dynamoGet({TableName, Key: {fbid}});
+  return res.Item && res.Item[attr];
+}
+
+async function setAttribute(fbid, attr) {
+  const payload = {TableName, Key: {fbid}};
+  const res = await dynamoGet(payload);
+  const Item = Object.assign({fbid}, res.Item, attr);
+  return dynamoPut({TableName, Item});
 }
 
 async function getProfile(recipientId) {
