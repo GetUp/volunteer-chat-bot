@@ -163,7 +163,7 @@ const petition_action = {
 
 export const script = {
   intro: {
-    text: "Hey! Welcome to the GetUp Volunteer Action Hub. The current campaign is to end the government's policy of offshore detention camps. In Australia, #WeCanDoBetter than locking up people seeking refuge.",
+    text: "Hey! Welcome to the GetUp Volunteer Action Hub. The current campaign is to end the government's policy of offshore detention camps. We know that #WeCanDoBetter and bring the men, women and children on Manus Island and Nauru to safety in Australia.",
     next: 'default',
     delay: 3000,
   },
