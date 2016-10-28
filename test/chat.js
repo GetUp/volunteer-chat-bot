@@ -8,12 +8,13 @@ import fs from 'fs';
 import nock from 'nock';
 import AWS from 'aws-sdk';
 const dynamo = new AWS.DynamoDB.DocumentClient({region: 'localhost', endpoint: 'http://localhost:8000'});
+const TableName = 'volunteer-chat-bot-test-members';
 let firstIntercept;
 
 describe('chat', () => {
   const mockedProfile = {first_name: 'test', last_name: 'user'};
   const payload = {
-    TableName: 'volunteer-chat-bot-test-members',
+    TableName,
     Key: {fbid: '1274747332556664'}
   };
   beforeEach(done => dynamo.delete(payload, done));
@@ -136,7 +137,7 @@ describe('chat', () => {
       graphAPICalls.persist().post('/v2.6/me/messages').query(true).reply(200);
       wrapped.run(receivedData, (err) => {
         const payload = {
-          TableName: 'volunteer-chat-bot-test-members',
+          TableName,
           Key: {fbid: recipient}
         };
 
@@ -149,11 +150,11 @@ describe('chat', () => {
 
     context('with an existing action', () => {
       const memberAction = {
-        TableName: 'volunteer-chat-bot-test-members',
+        TableName,
         Item: { fbid: recipient, actions: ['subscribed'] }
       };
       const member = {
-        TableName: 'volunteer-chat-bot-test-members',
+        TableName,
         Key: {fbid: recipient}
       };
       beforeEach(done => dynamo.put(memberAction, done));
@@ -223,7 +224,7 @@ describe('chat', () => {
 
     context('with an existing user', () => {
       const member = {
-        TableName: 'volunteer-chat-bot-test-members',
+        TableName,
         Item: {fbid: recipient, profile: {
           first_name: 'test'
         }}
@@ -247,7 +248,7 @@ describe('chat', () => {
     receivedData.body.entry[0].messaging[0].postback = { payload: 'group_joined' };
     const recipient = receivedData.body.entry[0].messaging[0].sender.id;
     const member = {
-      TableName: 'volunteer-chat-bot-test-members',
+      TableName,
       Item: {fbid: recipient, actions: ['group_intro'] }
     };
     beforeEach(done => dynamo.put(member, done));
