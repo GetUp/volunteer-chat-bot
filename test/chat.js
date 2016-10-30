@@ -278,6 +278,38 @@ describe('chat', () => {
       });
     });
   });
+
+  context("with ignore_text set", () => {
+    const member = {
+      TableName,
+      Item: {fbid, ignore_text: true}
+    };
+    beforeEach(done => dynamo.put(member, done));
+
+    context("with a postback payload", () => {
+      const postback = fixture('postback');
+      postback.body.entry[0].messaging[0].postback = { payload: 'default' };
+      const receivedData = fixture('message');
+      receivedData.body.entry[0].messaging[0].message.text = 'no thanks';
+
+      it("unsets ignore_text and responds to plain text messages", (done) => {
+        const graphAPICalls = nock('https://graph.facebook.com')
+          .post('/v2.6/me/messages').query(true).reply(200) // 'default'
+          .post('/v2.6/me/messages').query(true).reply(200) // 'fallthrough'
+          .post('/v2.6/me/messages', (body) => {
+              return body.message.attachment.payload.text === script.signpost.text &&
+                body.message.attachment.payload.buttons[0].title === script.signpost.buttons[0].title;
+            }).query(true).reply(200) // signpost
+
+        wrapped.run(postback, (err) => {
+          wrapped.run(receivedData, (err) => {
+            graphAPICalls.done();
+            done(err)
+          });
+        });
+      });
+    });
+  });
 });
 
 function fixture(file) {

@@ -72,6 +72,10 @@ export async function sendMessage(recipientId, key, postcode) {
   let completedActions = [];
 
   switch(key) {
+    case 'default':
+      completedActions = await getActions(recipientId);
+      await setAttribute(recipientId, {ignore_text: false});
+      break;
     case 'fallthrough':
       const ignore = await getAttribute(recipientId, 'ignore_text');
       if(ignore) return;
@@ -91,10 +95,6 @@ export async function sendMessage(recipientId, key, postcode) {
 
   if (reply.persist) {
     await persistAction(recipientId, reply.persist);
-  }
-
-  if (key === 'default') {
-    completedActions = await getActions(recipientId);
   }
 
   let message;
