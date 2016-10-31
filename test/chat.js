@@ -24,6 +24,12 @@ describe('chat', () => {
 
   context('with a postback from the Get Started button', () => {
     const receivedData = fixture('get_started');
+    beforeEach(() => {
+      nock('https://graph.facebook.com')
+        .get(`/v2.8/${fbid}`)
+        .query(true)
+        .reply(200, mockedProfile)
+    });
 
     it('starts the conversation and sends the intro message', (done) => {
       const graphAPICalls = nock('https://graph.facebook.com')
@@ -37,10 +43,28 @@ describe('chat', () => {
         done(err)
       });
     });
+
+    it('retrieves and saves the profile', (done) => {
+      const graphAPICalls = nock('https://graph.facebook.com').persist()
+        .post('/v2.6/me/messages').query(true).reply(200)
+
+      wrapped.run(receivedData, (err) => {
+        dynamo.get({ TableName, Key: {fbid} }, (err, res) => {
+          expect(res.Item.profile.first_name).to.be.equal(mockedProfile.first_name);
+          done(err);
+        });
+      });
+    });
   });
 
   context('with a message that triggers a short message followed by quick replies', () => {
     const receivedData = fixture('get_started');
+    beforeEach(() => {
+      nock('https://graph.facebook.com')
+        .get(`/v2.8/${fbid}`)
+        .query(true)
+        .reply(200, mockedProfile)
+    });
 
     it('should send back a message and then after a short delay send quick replies', (done) => {
       const graphAPICalls = nock('https://graph.facebook.com')

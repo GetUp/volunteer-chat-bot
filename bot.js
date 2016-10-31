@@ -72,6 +72,9 @@ export async function sendMessage(recipientId, key, postcode) {
   let completedActions = [];
 
   switch(key) {
+    case 'intro':
+      await getAndStoreProfile(recipientId);
+      break;
     case 'default':
       completedActions = await getActions(recipientId);
       await setAttribute(recipientId, {ignore_text: false});
@@ -85,8 +88,7 @@ export async function sendMessage(recipientId, key, postcode) {
       reply.text = await getName(recipientId, reply, postcode);
       break;
     case 'group_view':
-      const profile = await getProfile(recipientId);
-      await storeProfile(recipientId, {...profile, postcode});
+      await getAndStoreProfile(recipientId, postcode);
       const group = getGroup(postcode);
       reply = fillTemplate(reply, group, postcode);
       break;
@@ -162,6 +164,11 @@ async function setAttribute(fbid, attr) {
   const res = await dynamoGet(payload);
   const Item = Object.assign({fbid}, res.Item, attr);
   return dynamoPut({TableName, Item});
+}
+
+async function getAndStoreProfile(fbid, postcode) {
+  const profile = await getProfile(fbid);
+  return storeProfile(fbid, {...profile, postcode});
 }
 
 async function getProfile(recipientId) {
