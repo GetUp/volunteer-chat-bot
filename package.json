@@ -29,7 +29,7 @@
     "serverless-dynamodb-local": "^0.2.14",
     "serverless-mocha-plugin": "^1.0.2",
     "serverless-plugin-write-env-vars": "github:getup/serverless-plugin-write-env-vars",
-    "serverless-webpack": "^1.0.0-beta.2",
+    "serverless-webpack": "^1.0.0-rc.2",
     "webpack": "^1.13.1",
     "webpack-node-externals": "^1.4.3"
   },

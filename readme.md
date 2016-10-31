@@ -4,7 +4,6 @@
 
 * run `npm install`
 * install dynamodb local: `sls dynamodb install`
-* patch `serverless-webpack` with this https://github.com/elastic-coders/serverless-webpack/issues/20 until a new version is released
 * ensure you have IAM credentials and create `staging` and `production` profiles in your `~/.aws/credentials` file
 * Follow this https://developers.facebook.com/docs/messenger-platform/quickstart and update the constants in `.env.example` and rename to `.env`
 
