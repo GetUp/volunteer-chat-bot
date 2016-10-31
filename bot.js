@@ -194,20 +194,12 @@ function fillTemplate(reply, group, postcode) {
   return reply;
 }
 
-function persistAction(fbid, action) {
-  return new Promise((resolve, reject) => {
-    dynamo.get({TableName, Key:{fbid}}, (err, res) => {
-      if (err) return reject(err);
-
-      const actions = (res.Item && res.Item.actions || []).concat(action);
-      const Item = res.Item ? {...res.Item, actions} : {fbid, actions};
-
-      dynamo.put({TableName, Item}, (err, res) => {
-        if (err) return reject(err);
-        resolve(res);
-      });
-    });
-  });
+async function persistAction(fbid, action) {
+  const member = {TableName, Key: {fbid}};
+  const res = await dynamoGet(member);
+  const actions = (res.Item && res.Item.actions || []).concat(action);
+  const Item = res.Item ? {...res.Item, actions} : {fbid, actions};
+  return dynamoPut({TableName, Item});
 }
 
 function getName(recipientId, reply, postcode) {
@@ -241,14 +233,9 @@ function getName(recipientId, reply, postcode) {
   })
 }
 
-function getActions(fbid) {
-  return new Promise((resolve, reject) => {
-    dynamo.get({TableName, Key: {fbid}}, (err, res) => {
-      if (err) return reject(err);
-      const actions = res.Item && res.Item.actions;
-      resolve(actions || []);
-    });
-  })
+async function getActions(fbid) {
+  const res = await dynamoGet({TableName, Key: {fbid}});
+  return res.Item && res.Item.actions || [];
 }
 
 function storeMember(fbid, profile, cb) {
@@ -256,10 +243,7 @@ function storeMember(fbid, profile, cb) {
   dynamo.get(member, (err, res) => {
     if (err) return cb(err);
     const actions = res.Item && res.Item.actions || [];
-    const payload = {
-      TableName: `volunteer-chat-bot-${NODE_ENV}-members`,
-      Item: {fbid, profile, actions}
-    };
+    const payload = { TableName, Item: {fbid, profile, actions} };
     dynamo.put(payload, cb);
   })
 }
