@@ -31,7 +31,7 @@ const group_action = {
   group_prompt: {
     text: "How'd you go?",
     buttons: [
-      {type: 'postback', payload: 'group_joined', title: "I joined the group"},
+      {type: 'postback', payload: 'group_joined', title: "I requested to join"},
       {type: 'postback', payload: 'group_error', title: "Something went wrong"},
       {type: 'postback', payload: 'group_no_thanks', title: "Not right now"},
     ],
