@@ -37,12 +37,12 @@ const group_action = {
     ],
   },
   group_joined: {
-    text: "Excellent! Keep your eye out for Facebook notifications from the group.",
+    text: "Excellent! :D Keep your eye out for Facebook notifications from the group.",
     persist: 'group_joined',
     next: 'default',
   },
   group_error: {
-    text: "Bummer! Somebody will be in touch shortly. Maybe try one of the other ways to get involved?",
+    text: "Bummer! :( Somebody will be in touch shortly. Maybe try one of the other ways to get involved?",
     persist: 'group_error',
     next: 'default',
   },
@@ -67,7 +67,7 @@ const subscribe_action = {
     replies: [{k: 'subscribe_yes', t: 'Yes please!'}, {k: 'subscribe_no', t: 'No thanks'}],
   },
   subscribe_yes: {
-    text: "Great! We'll be in touch when something important comes up.",
+    text: "Great! We'll be in touch when something important comes up. :D",
     persist: 'subscribed',
     next: 'subscribe_manage',
     delay: 3000,
