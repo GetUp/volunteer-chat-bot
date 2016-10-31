@@ -269,6 +269,41 @@ describe('chat', () => {
     });
   });
 
+  context("with a chosen action path", () => {
+    const choosePath = fixture('postback');
+    choosePath.body.entry[0].messaging[0].postback = { payload: 'group_intro' };
+    const showMenu = fixture('postback');
+    showMenu.body.entry[0].messaging[0].postback = { payload: 'default' };
+
+    beforeEach(() => {
+      nock('https://graph.facebook.com')
+        .post('/v2.6/me/messages').query(true).reply(200) // group_intro
+        .post('/v2.6/me/messages').query(true).reply(200) // typing_on
+        .post('/v2.6/me/messages').query(true).reply(200) // group_postcode
+    });
+
+    it("removes the action from the menu one time only", (done) => {
+      const graphAPICalls = nock('https://graph.facebook.com')
+        .post('/v2.6/me/messages', (body) => {
+          return !body.message.attachment.payload.buttons.map(b=>b.payload).includes('group_intro');
+        }).query(true).reply(200)
+        .post('/v2.6/me/messages', (body) => {
+          return body.message.attachment.payload.buttons.map(b=>b.payload).includes('group_intro');
+        }).query(true).reply(200)
+        // .post('/v2.6/me/messages', body => console.log(JSON.stringify(body))).query(true).reply(200)
+        // .post('/v2.6/me/messages').query(true).reply(200)
+
+      wrapped.run(choosePath, (err) => {
+        wrapped.run(showMenu, (err) => {
+          wrapped.run(showMenu, (err) => {
+            graphAPICalls.done();
+            done(err);
+          });
+        });
+      });
+    });
+  });
+
   context("with an unknown message", () => {
     const receivedData = fixture('message');
     receivedData.body.entry[0].messaging[0].message.text = 'no thanks';

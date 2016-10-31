@@ -2,8 +2,11 @@
 // persisted_value: menu_button_payload
 const action_menu = {
   group_joined: 'group_intro',
+  group_intro: 'group_intro',
   subscribed: 'subscribe_intro',
+  subscribe_intro: 'subscribe_intro',
   petition_signed: 'petition_intro',
+  petition_intro: 'petition_intro',
 };
 
 const petition = {
@@ -17,6 +20,7 @@ const group_action = {
   group_intro: {
     text: "GetUp #WeCanDoBetter action groups are a great way to stay up to date with campaign developments and get involved in upcoming actions.",
     next: 'group_postcode',
+    persist: 'group_intro',
   },
   group_postcode: {
     text: "First off, what's your postcode so we can find the best local action group for you?",
@@ -56,6 +60,7 @@ const subscribe_action = {
   subscribe_intro: {
     text: "The GetUp Strategy Team can message you when there are important updates to the campaign and opportunities for you to help out.",
     next: 'subscribe_frequency',
+    persist: 'subscribe_intro',
   },
   subscribe_frequency: {
     text: "It's unlikely you'll receive more than two per week.",
@@ -103,6 +108,7 @@ const petition_action = {
   petition_intro: {
     text: "We'll be delivering our petition to the immigration minister at the start of next month. Make sure your name is on it!",
     next: 'petition_show',
+    persist: 'petition_intro',
   },
   petition_show: {
     generic: [{

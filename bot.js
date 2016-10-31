@@ -77,6 +77,7 @@ export async function sendMessage(recipientId, key, postcode) {
       break;
     case 'default':
       completedActions = await getActions(recipientId);
+      await clearIntroActions(recipientId);
       await setAttribute(recipientId, {ignore_text: false});
       break;
     case 'fallthrough':
@@ -238,6 +239,15 @@ function getName(recipientId, reply, postcode) {
       reject(err || body);
     });
   })
+}
+
+// "intro actions" prevent a menu item from displaying one time
+// so we don't loop endlessly on one item
+async function clearIntroActions(fbid) {
+  const res = await dynamoGet({TableName, Key: {fbid}});
+  if (!res.Item) return;
+  const actions = (res.Item.actions || []).filter(action => !action.match(/_intro/))
+  return dynamoPut({TableName, Item: {...res.Item, actions}});
 }
 
 async function getActions(fbid) {
