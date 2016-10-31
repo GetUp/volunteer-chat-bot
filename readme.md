@@ -27,6 +27,10 @@ In separate terminal windows:
 * deploy to staging with `npm run deploy`
 * deploy to production with `npm run deployprod`
 
+## Notes
+
+Dynamodb local can be a bit finnicky.  Any probs, just `sls dynamodb remove; sls dynamodb install`
+
 ## Page "Thread Setup"
 
 To provide help text, Get Started button, and persistent menu in the messenger interface, grab a page token and use the following curl commands:
