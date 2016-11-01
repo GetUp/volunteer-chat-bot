@@ -70,11 +70,11 @@ export async function sendMessage(recipientId, key, postcode) {
   let reply = script[key] || script['unknown_payload'];
 
   let completedActions = [];
+  if (key === 'fallthrough' && await firstTimer(recipientId)) reply = script['intro'];
+
+  await setupProfile(recipientId);
 
   switch(key) {
-    case 'intro':
-      await getAndStoreProfile(recipientId);
-      break;
     case 'default':
       completedActions = await getActions(recipientId);
       await clearIntroActions(recipientId);
@@ -82,7 +82,7 @@ export async function sendMessage(recipientId, key, postcode) {
       break;
     case 'fallthrough':
       const ignore = await getAttribute(recipientId, 'ignore_text');
-      if(ignore) return;
+      if (ignore) return;
       await setAttribute(recipientId, {ignore_text: true});
       break;
     case 'petition_details':
@@ -155,6 +155,20 @@ function callSendAPI(messageData) {
   })
 }
 
+async function firstTimer(fbid) {
+  const res = await dynamoGet({TableName, Key: {fbid}});
+  if (!res.Item) return true;
+}
+
+async function setupProfile(fbid) {
+  const res = await dynamoGet({TableName, Key: {fbid}});
+  if (res.Item && res.Item.profile && res.Item.actions) return;
+
+  const profile = await getProfile(fbid);
+  const actions = res.Item && res.Item.actions || [];
+  return dynamoPut({TableName, Item: {fbid, profile, actions, ignore_text: false}});
+}
+
 async function getAttribute(fbid, attr) {
   const res = await dynamoGet({TableName, Key: {fbid}});
   return res.Item && res.Item[attr];
@@ -183,8 +197,7 @@ async function getProfile(recipientId) {
 }
 
 async function storeProfile(fbid, profile) {
-  const member = {TableName, Key: {fbid}};
-  const res = await dynamoGet(member);
+  const res = await dynamoGet({TableName, Key: {fbid}});
   const actions = res.Item && res.Item.actions || [];
   return dynamoPut({TableName, Item: {fbid, profile, actions}});
 }

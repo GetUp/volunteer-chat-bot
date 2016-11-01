@@ -22,6 +22,31 @@ describe('chat', () => {
     nock.cleanAll();
   });
 
+  beforeEach(() => {
+    nock('https://graph.facebook.com')
+      .get(`/v2.8/${fbid}`)
+      .query(true)
+      .reply(200, mockedProfile)
+  });
+
+  context('with a free text message as the first interaction', () => {
+    const receivedData = fixture('message');
+    receivedData.body.entry[0].messaging[0].message.text = 'Hi!';
+
+    it('responds nicely by sending the intro message', (done) => {
+      const graphAPICalls = nock('https://graph.facebook.com')
+        .persist()
+        .post('/v2.6/me/messages', assertOnce((body) => {
+          return !!body.message.text.match(/Welcome to the GetUp Volunteer Action Hub/);
+        })).query(true).reply(200)
+
+      wrapped.run(receivedData, (err) => {
+        graphAPICalls.done();
+        done(err)
+      });
+    });
+  });
+
   context('with a postback from the Get Started button', () => {
     const receivedData = fixture('get_started');
     beforeEach(() => {
@@ -304,13 +329,17 @@ describe('chat', () => {
     });
   });
 
-  context("with an unknown message", () => {
+  context("with an unknown message that isn't the first interaction", () => {
+    const getStarted = fixture('get_started');
     const receivedData = fixture('message');
     receivedData.body.entry[0].messaging[0].message.text = 'no thanks';
     let graphAPICalls;
 
     beforeEach(() => {
       graphAPICalls = nock('https://graph.facebook.com')
+        .post('/v2.6/me/messages').query(true).reply(200) // intro
+        .post('/v2.6/me/messages').query(true).reply(200) // typing
+        .post('/v2.6/me/messages').query(true).reply(200) // default
         .post('/v2.6/me/messages', (body) => {
           return body.message.text === script.fallthrough.text;
         }).query(true).reply(200)
@@ -319,6 +348,8 @@ describe('chat', () => {
             body.message.attachment.payload.buttons[0].title === script.signpost.buttons[0].title;
         }).query(true).reply(200)
     });
+
+    beforeEach(() => wrapped.run(getStarted));
 
     it("provides the user with help options", (done) => {
       wrapped.run(receivedData, (err) => {
