@@ -1,4 +1,4 @@
-export const groups = [{
+export const allGroups = [{
   name: '#WeCanDoBetter',
   url: 'https://www.facebook.com/groups/1331336863544607/',
   postcodes: [], // DEFAULT group

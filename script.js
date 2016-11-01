@@ -25,6 +25,9 @@ const group_action = {
   group_postcode: {
     text: "First off, what's your postcode so we can find the best local action group for you?",
   },
+  group_multiple_electorates: {
+    template: "Postcode {postcode} covers multiple electorates. Which electorate do you live in?",
+  },
   group_view: {
     template: "Ok, the group that covers postcode {postcode} is {group_name}. Please join it now. :)",
     buttons: [{type: 'web_url', webview_height_ratio: 'tall', title: 'Join action group', url: '{group_url}'}],

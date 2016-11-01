@@ -5,7 +5,7 @@ const NODE_ENV = process.env.NODE_ENV;
 import request from 'request';
 const rp = require('request-promise-native');
 import { script } from './script';
-import { groups } from './groups';
+import { allGroups } from './groups';
 import promisify from 'es6-promisify'
 import AWS from 'aws-sdk';
 const dynamo = new AWS.DynamoDB.DocumentClient(dbConf());
@@ -90,8 +90,12 @@ export async function sendMessage(recipientId, key, postcode) {
       break;
     case 'group_view':
       await getAndStoreProfile(recipientId, postcode);
-      const group = getGroup(postcode);
-      reply = fillTemplate(reply, group, postcode);
+      const groups = getGroups(postcode);
+      if (groups.length === 1) {
+        reply = fillTemplate(reply, groups[0], postcode);
+      } else {
+        reply = showElectorates(script['group_multiple_electorates'], groups, postcode);
+      }
       break;
     default:
   }
@@ -202,9 +206,8 @@ async function storeProfile(fbid, profile) {
   return dynamoPut({TableName, Item: {fbid, profile, actions}});
 }
 
-function getGroup(postcode) {
-  const group = groups.find(group => group.postcodes.includes(postcode));
-  return group || groups[0];
+function getGroups(postcode) {
+  return allGroups.filter(group => group.postcodes.includes(postcode)) || allGroups[0];
 }
 
 function fillTemplate(reply, group, postcode) {
@@ -212,6 +215,18 @@ function fillTemplate(reply, group, postcode) {
     .replace(/{postcode}/, postcode)
     .replace(/{group_name}/, group.name);
   reply.buttons[0].url = group.url;
+  return reply;
+}
+
+function showElectorates(reply, groups, postcode) {
+  reply.text = reply.template.replace(/{postcode}/, postcode);
+  reply.replies = groups.map(group => {
+    const electorate = group.name.split(' ').slice(1).join(' ');
+    return {
+      k: `electorate_${electorate.toLowerCase().replace(/\s/,'_')}`,
+      t: electorate,
+    }
+  });
   return reply;
 }
 

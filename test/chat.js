@@ -196,6 +196,23 @@ describe('chat', () => {
         });
       });
     });
+
+    context('that belongs to multiple electorates', () => {
+      it('shows both electorates and asks the user to choose', (done) => {
+        receivedData.body.entry[0].messaging[0].message.text = ' 2010 ';
+        graphAPICalls.persist()
+          .post('/v2.6/me/messages', assertOnce((body) => {
+            return body.message.text.match(/2010/)
+              && body.message.quick_replies[0].title.match(/Wentworth/)
+              && body.message.quick_replies[1].title.match(/Sydney/);
+          })).query(true).reply(200);
+
+        wrapped.run(receivedData, (err) => {
+          graphAPICalls.done();
+          done(err);
+        });
+      });
+    });
   });
 
   context('with a delayed reply that typing turned off', () => {
