@@ -29,12 +29,8 @@ const group_action = {
     template: "Postcode {postcode} covers multiple electorates. Which electorate do you live in?",
   },
   group_view: {
-    template: "Ok, the group that covers postcode {postcode} is {group_name}.",
-    next: 'group_view_buttons'
-  },
-  group_view_buttons: {
-    template: "Use the button below to view the group page. Then click the 'Join' or 'Join Group' button to join the group.",
-    buttons: [{type: 'web_url', webview_height_ratio: 'tall', title: 'Show me the group', url: '{group_url}'}],
+    template: "Ok, the group that covers the {area} area is {group_name}. Please join it now. :)",
+    buttons: [{type: 'web_url', webview_height_ratio: 'tall', title: 'Join action group', url: '{group_url}'}],
     next: 'group_prompt',
     delay: 20000,
     disable_typing: true,
@@ -185,7 +181,7 @@ export const script = {
     buttons: [
       {type: 'postback', payload: 'group_intro', title: 'Join an action group'},
       {type: 'postback', payload: 'subscribe_intro', title: 'Keep me up to date'},
-      //{type: 'postback', payload: 'petition_intro', title: 'Sign the open letter'},
+      // {type: 'postback', payload: 'petition_intro', title: 'Sign the open letter'},
     ],
   },
 

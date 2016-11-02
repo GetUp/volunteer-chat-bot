@@ -30,6 +30,7 @@ export const challenge = (e, ctx, cb) => {
 
 function onlyErrorInTest(promise, cb) {
   promise.then(() => cb(), (err) => {
+    console.error('ERROR', err);
     cb(NODE_ENV === 'test' ? err : undefined);
   })
 }
@@ -40,7 +41,6 @@ export const chat = function(e, ctx, cb) {
 
 async function chatAsync(e) {
   const data = e.body;
-  console.error(JSON.stringify(data, 10))
   if (data.object !== 'page') return cb();
   let messages = [];
   data.entry.forEach(pageEntry => {
@@ -96,7 +96,6 @@ export async function sendMessage(recipientId, key, postcode) {
       reply.text = await getName(recipientId, reply, postcode);
       break;
     case 'group_view':
-    case 'group_view_buttons':
       await getAndStoreProfile(recipientId, postcode);
       const groups = getGroups(postcode);
       if (groups.length === 1) {
@@ -222,7 +221,7 @@ function fillTemplate(reply, group, area) {
   reply.text = reply.template
     .replace(/{area}/, area)
     .replace(/{group_name}/, group.name);
-  if (reply.buttons) reply.buttons[0].url = group.url;
+  reply.buttons[0].url = group.url;
   return reply;
 }
 
