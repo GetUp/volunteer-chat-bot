@@ -81,7 +81,12 @@ export async function sendMessage(recipientId, key, postcode) {
   let completedActions = [];
   if (key === 'fallthrough' && await firstTimer(recipientId)) reply = script['intro'];
 
-  await setupProfile(recipientId);
+  const profile = await setupProfile(recipientId);
+
+  if (postcode && profile.previous === 'petition_postcode') {
+    key = 'petition_details';
+    reply = script[key];
+  }
 
   switch(key) {
     case 'intro':
@@ -127,15 +132,17 @@ export async function sendMessage(recipientId, key, postcode) {
   if (reply.buttons) message = buttonTemplate(reply, completedActions);
   if (reply.generic) message = genericTemplate(reply);
 
-  return callSendAPI({recipient, message}).then(() => {
-    if (reply.next) {
-      const delay = () => {
-        let delayForEnviroment = NODE_ENV === 'test' ? 1 : (NODE_ENV === 'dev' ? 1000 : (reply.delay || 4000));
-        return delayMessage(recipientId, reply.next, delayForEnviroment);
+  return callSendAPI({recipient, message})
+    .then(() => setAttribute(recipientId, {previous: key}))
+    .then(() => {
+      if (reply.next) {
+        const delay = () => {
+          let delayForEnviroment = NODE_ENV === 'test' ? 1 : (NODE_ENV === 'dev' ? 1000 : (reply.delay || 4000));
+          return delayMessage(recipientId, reply.next, delayForEnviroment);
+        }
+        return reply.disable_typing ? delay() : callSendAPI({recipient, sender_action: 'typing_on'}).then(delay);
       }
-      return reply.disable_typing ? delay() : callSendAPI({recipient, sender_action: 'typing_on'}).then(delay);
-    }
-  })
+    });
 }
 
 export const message = (e, ctx, cb) => {
@@ -185,11 +192,13 @@ async function firstTimer(fbid) {
 
 async function setupProfile(fbid) {
   const res = await dynamoGet({TableName, Key: {fbid}});
-  if (res.Item && res.Item.profile && res.Item.actions) return;
+  if (res.Item && res.Item.profile && res.Item.actions) return res.Item;
 
   const profile = await getProfile(fbid);
   const actions = res.Item && res.Item.actions || [];
-  return dynamoPut({TableName, Item: {fbid, profile, actions, ignore_text: false}});
+  let newProfile = {fbid, profile, actions, ignore_text: false}
+  await dynamoPut({TableName, Item: newProfile});
+  return newProfile;
 }
 
 async function getAttribute(fbid, attr) {
