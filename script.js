@@ -29,7 +29,7 @@ const group_action = {
     template: "Postcode {postcode} covers multiple electorates. Which electorate do you live in?",
   },
   group_view: {
-    template: "Ok, the group that covers the {area} area is {group_name}. Please join it now. :)",
+    template: "Ok, the group that covers the {area} area is {group_name}.\n\nUse the button below to view the group page. Then click the 'Join' or 'Join Group' button to join the group",
     buttons: [{type: 'web_url', webview_height_ratio: 'tall', title: 'Join action group', url: '{group_url}'}],
     next: 'group_prompt',
     delay: 20000,
