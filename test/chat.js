@@ -216,22 +216,18 @@ describe('chat', () => {
   });
 
   context('with a delayed reply that typing turned off', () => {
-    let receivedData = fixture('get_started');
-    receivedData.body.entry[0].messaging[0].postback.payload = 'group_view';
-    let graphAPICalls;
+    let receivedData = fixture('postback');
+    receivedData.body.entry[0].messaging[0].postback.payload = 'fallthrough';
 
-    beforeEach(() => {
-      graphAPICalls = nock('https://graph.facebook.com')
-        .get(`/v2.8/${fbid}`)
-        .query(true)
-        .reply(200, mockedProfile)
-    });
+    // skip welcome messages
+    const member = { TableName, Item: {fbid, profile: {}, actions: []}};
+    beforeEach(done => dynamo.put(member, done));
 
     it('should not send the typing message', (done) => {
-      graphAPICalls
+      const graphAPICalls = nock('https://graph.facebook.com')
         .post('/v2.6/me/messages', body => !body.message.sender_action)
         .query(true).reply(200)
-        .post('/v2.6/me/messages', body => body.message.attachment.payload.text === script.group_prompt.text)
+        .post('/v2.6/me/messages', body => body.message.attachment.payload.text === script.signpost.text)
         .query(true).reply(200)
 
       wrapped.run(receivedData, (err) => {
