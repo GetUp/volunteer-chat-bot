@@ -243,7 +243,7 @@ describe('chat', () => {
       const graphAPICalls = nock('https://graph.facebook.com').persist()
         .post('/v2.6/me/messages', assertOnce((body) => {
           return body.message.attachment.payload.text.match(/Wentworth/) &&
-            body.message.attachment.payload.buttons[0].title === "Join action group";
+            body.message.attachment.payload.buttons[0].title === "Show me the group";
         })).query(true).reply(200);
 
       wrapped.run(receivedData, (err) => {
