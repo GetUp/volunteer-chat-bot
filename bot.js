@@ -71,7 +71,7 @@ export async function sendMessage(recipientId, key, postcode) {
 
   if (key.match(/^electorate_/)) {
     const group = allGroups.find(group => group.key === key);
-    reply = handleElectorate(script['group_multiple_view'], group, key);
+    reply = fillTemplate(script['group_view'], group, group.electorate);
   }
 
   let completedActions = [];
@@ -215,17 +215,9 @@ function getGroups(postcode) {
   return allGroups.filter(group => group.postcodes.includes(postcode)) || allGroups[0];
 }
 
-function fillTemplate(reply, group, postcode) {
+function fillTemplate(reply, group, area) {
   reply.text = reply.template
-    .replace(/{postcode}/, postcode)
-    .replace(/{group_name}/, group.name);
-  reply.buttons[0].url = group.url;
-  return reply;
-}
-
-function handleElectorate(reply, group, key) {
-  reply.text = reply.template
-    .replace(/{electorate}/, group.electorate)
+    .replace(/{area}/, area)
     .replace(/{group_name}/, group.name);
   reply.buttons[0].url = group.url;
   return reply;

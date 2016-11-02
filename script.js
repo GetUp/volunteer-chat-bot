@@ -28,15 +28,8 @@ const group_action = {
   group_multiple_electorates: {
     template: "Postcode {postcode} covers multiple electorates. Which electorate do you live in?",
   },
-  group_multiple_view: {
-    template: "Ok, the group that covers electorate of {electorate} is {group_name}. Please join it now. :)",
-    buttons: [{type: 'web_url', webview_height_ratio: 'tall', title: 'Join action group', url: '{group_url}'}],
-    next: 'group_prompt',
-    delay: 20000,
-    disable_typing: true,
-  },
   group_view: {
-    template: "Ok, the group that covers postcode {postcode} is {group_name}. Please join it now. :)",
+    template: "Ok, the group that covers the {area} area is {group_name}. Please join it now. :)",
     buttons: [{type: 'web_url', webview_height_ratio: 'tall', title: 'Join action group', url: '{group_url}'}],
     next: 'group_prompt',
     delay: 20000,
