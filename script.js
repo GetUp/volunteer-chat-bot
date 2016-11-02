@@ -195,6 +195,11 @@ export const script = {
 
   ...subscription_management,
 
+  unsubscribe: {
+    text: "No worries, you won't receive anymore campaign updates from us. :) If you unsubscribed in error or change your mind later, you can resubscribe from the ≡ menu below at any time. Thanks!",
+    persist: 'unsubscribed',
+  },
+
   unknown_payload: {
     text: "Sorry, we didn't quite understand that message.",
     next: 'signpost',

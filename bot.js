@@ -57,6 +57,8 @@ async function chatAsync(e) {
       }else if (matchNumber = message.text.match(/^\s*(\d{4})/)) {
         const postcode = matchNumber[1].replace(/[^\d]/g, '');
         messages.push(sendMessage(recipientId, 'group_view', postcode));
+      }else if (message.text.toLowerCase() === "stop" || message.text.match(/unsubscribe/i)) {
+        messages.push(sendMessage(recipientId, 'unsubscribe'));
       }else{
         messages.push(sendMessage(recipientId, 'fallthrough'));
       }

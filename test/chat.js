@@ -364,6 +364,29 @@ describe('chat', () => {
     });
   });
 
+  context("with an 'unsubscribe' or 'stop' message", () => {
+    const receivedData = fixture('message');
+    receivedData.body.entry[0].messaging[0].message.text = 'pls unsubscribe me';
+
+    // skip welcome messages
+    const member = { TableName, Item: {fbid, profile: {}, actions: []}};
+    beforeEach(done => dynamo.put(member, done));
+
+    it("unsubscribes the user", (done) => {
+      const graphAPICalls = nock('https://graph.facebook.com')
+        .post('/v2.6/me/messages', body => body.message.text === script.unsubscribe.text)
+        .query(true).reply(200)
+
+      wrapped.run(receivedData, (err) => {
+        graphAPICalls.done();
+        dynamo.get({ TableName, Key: {fbid} }, (err, res) => {
+          expect(res.Item.actions.pop()).to.be.equal('unsubscribed');
+          done(err);
+        });
+      });
+    });
+  });
+
   context("with an unknown message that isn't the first interaction", () => {
     const getStarted = fixture('get_started');
     const receivedData = fixture('message');
