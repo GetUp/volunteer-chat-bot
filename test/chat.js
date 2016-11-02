@@ -215,6 +215,28 @@ describe('chat', () => {
     });
   });
 
+  context('with an electorate payload', () => {
+    let receivedData = fixture('postback');
+    receivedData.body.entry[0].messaging[0].postback.payload = 'electorate_wentworth';
+
+    // skip welcome messages
+    const member = { TableName, Item: {fbid, profile: {}, actions: []}};
+    beforeEach(done => dynamo.put(member, done));
+
+    it('shows them the right action group', (done) => {
+      const graphAPICalls = nock('https://graph.facebook.com').persist()
+        .post('/v2.6/me/messages', assertOnce((body) => {
+          return body.message.attachment.payload.text.match(/Wentworth/) &&
+            body.message.attachment.payload.buttons[0].title === "Join action group";
+        })).query(true).reply(200);
+
+      wrapped.run(receivedData, (err) => {
+        graphAPICalls.done();
+        done(err);
+      });
+    });
+  });
+
   context('with a delayed reply that typing turned off', () => {
     let receivedData = fixture('postback');
     receivedData.body.entry[0].messaging[0].postback.payload = 'fallthrough';

@@ -69,6 +69,11 @@ export async function sendMessage(recipientId, key, postcode) {
   const recipient = { id: recipientId };
   let reply = script[key] || script['unknown_payload'];
 
+  if (key.match(/^electorate_/)) {
+    const group = allGroups.find(group => group.key === key);
+    reply = handleElectorate(script['group_multiple_view'], group, key);
+  }
+
   let completedActions = [];
   if (key === 'fallthrough' && await firstTimer(recipientId)) reply = script['intro'];
 
@@ -218,15 +223,17 @@ function fillTemplate(reply, group, postcode) {
   return reply;
 }
 
+function handleElectorate(reply, group, key) {
+  reply.text = reply.template
+    .replace(/{electorate}/, group.electorate)
+    .replace(/{group_name}/, group.name);
+  reply.buttons[0].url = group.url;
+  return reply;
+}
+
 function showElectorates(reply, groups, postcode) {
   reply.text = reply.template.replace(/{postcode}/, postcode);
-  reply.replies = groups.map(group => {
-    const electorate = group.name.split(' ').slice(1).join(' ');
-    return {
-      k: `electorate_${electorate.toLowerCase().replace(/\s/,'_')}`,
-      t: electorate,
-    }
-  });
+  reply.replies = groups.map(group => { return {k: group.key, t: group.electorate} });
   return reply;
 }
 
