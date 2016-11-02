@@ -214,7 +214,8 @@ async function storeProfile(fbid, profile) {
 }
 
 function getGroups(postcode) {
-  return allGroups.filter(group => group.postcodes.includes(postcode)) || allGroups[0];
+  const groups = allGroups.filter(group => group.postcodes.includes(postcode));
+  return groups.length ? groups : [ allGroups[0] ];
 }
 
 function fillTemplate(reply, group, area) {
