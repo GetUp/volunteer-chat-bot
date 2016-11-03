@@ -104,4 +104,28 @@ export const allGroups = [{
   name: 'GetUp Higgins',
   url: 'https://www.facebook.com/groups/1207310889330572/',
   postcodes: ['3147','3143','3204','3163','3145','3146','3141','3142','3166','3144','3181'],
+},{
+  key: 'electorate_barton',
+  electorate: 'Barton',
+  name: 'GetUp Barton',
+  url: 'https://www.facebook.com/groups/210284679401349/',
+  postcodes: ['2218','2205','2193','2216','2207','2192','2208','2217','2209','2194','2203','2206','2220','2204','2044'],
+},{
+  key: 'electorate_mackellar',
+  electorate: 'Mackellar',
+  name: 'GetUp Mackellar',
+  url: 'https://www.facebook.com/groups/1203374649726220/',
+  postcodes: ['2084','2100','2107','2087','2104','2085','2105','2097','2099','2101','2086','2103','2106','2108','2102'],
+},{
+  key: 'electorate_cunningham',
+  electorate: 'Cunningham',
+  name: 'GetUp Cunningham',
+  url: 'https://www.facebook.com/groups/1781395095436081/',
+  postcodes: ['2515','2519','2574','2518','2516','2508','2500','2526','2502','2525','2505','2517'],
+},{
+  key: 'electorate_warringah',
+  electorate: 'Warringah',
+  name: 'GetUp Warringah',
+  url: 'https://www.facebook.com/groups/218295255271982/',
+  postcodes: ['2100','2093','2088','2087','2090','2099','2096','2086','2089','2095','2094','2092'],
 }];
