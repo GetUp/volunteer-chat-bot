@@ -81,7 +81,7 @@ const subscribe_action = {
     delay: 3000,
   },
   subscribe_manage: {
-    text: "You can manage when we contact you from the ≡ icon below.",
+    text: "You can turn campaign updates on or off from the ≡ icon below.",
     next: 'default',
   },
   subscribe_no: {
