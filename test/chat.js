@@ -216,10 +216,10 @@ describe('chat', () => {
 
     context("that doesn't belong to any electorate", () => {
       it("shows the default group", (done) => {
-        receivedData.body.entry[0].messaging[0].message.text = ' 2093 ';
+        receivedData.body.entry[0].messaging[0].message.text = ' 0000 ';
         graphAPICalls.persist()
           .post('/v2.6/me/messages', assertOnce((body) => {
-            return body.message.attachment.payload.text.match(/2093/) &&
+            return body.message.attachment.payload.text.match(/0000/) &&
               body.message.attachment.payload.text.match(/#WeCanDoBetter/);
           })).query(true).reply(200);
 
