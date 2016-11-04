@@ -228,7 +228,13 @@ function fillTemplate(reply, group, area) {
 
 function showElectorates(reply, groups, postcode) {
   reply.text = reply.template.replace(/{postcode}/, postcode);
-  reply.replies = groups.map(group => { return {k: group.key, t: group.electorate} });
+  reply.replies = groups.map(group => {
+    return {
+      content_type: 'text',
+      payload: group.key,
+      title: group.electorate,
+    }
+  });
   return reply;
 }
 
@@ -298,11 +304,7 @@ function storeMember(fbid, profile, cb) {
 function quickReply(reply) {
   return {
     text: reply.text,
-    quick_replies: reply.replies.map(option => ({
-      content_type: 'text',
-      title: option.t,
-      payload: option.k,
-    })),
+    quick_replies: reply.replies,
   };
 }
 

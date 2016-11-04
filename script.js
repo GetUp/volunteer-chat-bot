@@ -72,7 +72,10 @@ const subscribe_action = {
   },
   subscribe_ask: {
     text: "Would you like us to keep you in the loop?",
-    replies: [{k: 'subscribe_yes', t: 'Yes please!'}, {k: 'subscribe_no', t: 'No thanks'}],
+    replies: [
+      {content_type: 'text', payload: 'subscribe_yes', title: 'Yes please!'},
+      {content_type: 'text', payload: 'subscribe_no', title: 'No thanks'}
+    ],
   },
   subscribe_yes: {
     text: "Great! We'll be in touch when something important comes up. :D",
@@ -95,7 +98,10 @@ const subscribe_action = {
 const subscription_management = {
   subscription_manage: {
     text: "Would you like campaign update messages on or off?",
-    replies: [{k: 'subscription_on', t: 'On please'}, {k: 'subscription_off', t: 'Off thanks'}],
+    replies: [
+      {content_type: 'text', payload: 'subscription_on', title: 'On please'},
+      {content_type: 'text', payload: 'subscription_off', title: 'Off thanks'}
+    ],
   },
   subscription_on: {
     text: "Awesome! We'll be in touch when there's an update. :)",
@@ -127,7 +133,10 @@ const petition_action = {
   },
   petition_details: {
     template: "Great! Your signature will be recorded as {first_name} {last_name}, {postcode}. Is that correct?",
-    replies: [{k: 'petition_details_yes', t: "Yep, that's me"}, {k: 'petition_details_no', t: "No, that's not right"}],
+    replies: [
+      {content_type: 'text', payload: 'petition_details_yes', title: "Yep, that's me"},
+      {content_type: 'text', payload: 'petition_details_no', title: "No, that's not right"}
+    ],
   },
   petition_details_yes: {
     text: "Excellent! All done. Thank you for signing the petition.",
@@ -136,7 +145,10 @@ const petition_action = {
   },
   petition_share_ask: {
     text: "Would you be willing to share the petition with your friends?",
-    replies: [{k: 'petition_share_yes', t: 'Yeah sure'}, {k: 'petition_share_no', t: 'Not right now'}],
+    replies: [
+      {content_type: 'text', payload: 'petition_share_yes', title: 'Yeah sure'},
+      {content_type: 'text', payload: 'petition_share_no', title: 'Not right now'}
+    ],
   },
   petition_share_yes: {
     generic: [{
