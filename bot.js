@@ -113,7 +113,7 @@ export async function sendMessage(recipientId, key, postcode) {
 
   let message;
   if (reply.text) message = { text: reply.text };
-  if (reply.replies) message = quickReply(reply);
+  if (reply.replies) message = quickReply(reply, completedActions);
   if (reply.buttons) message = buttonTemplate(reply, completedActions);
   if (reply.generic) message = genericTemplate(reply);
 
@@ -301,10 +301,13 @@ function storeMember(fbid, profile, cb) {
   })
 }
 
-function quickReply(reply) {
+function quickReply(reply, completedActions) {
+  const buttonsToRemove = completedActions.map(action => script.action_menu[action])
+  const availableButtons = reply.replies.filter(button => !buttonsToRemove.includes(button.payload))
+  if (availableButtons.length < 1) { return script.all_done };
   return {
     text: reply.text,
-    quick_replies: reply.replies,
+    quick_replies: availableButtons,
   };
 }
 

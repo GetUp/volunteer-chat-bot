@@ -127,13 +127,13 @@ describe('chat', () => {
 
   context('with a reply that has a button', () => {
     const receivedData = fixture('message');
-    receivedData.body.entry[0].messaging[0].message.quick_reply = { payload: 'default' };
+    receivedData.body.entry[0].messaging[0].message.quick_reply = { payload: 'signpost' };
 
     it('should respond with the correct reply - button', (done) => {
       const graphAPICalls = nock('https://graph.facebook.com')
         .persist()
         .post('/v2.6/me/messages', assertOnce((body) => {
-          return body.message.attachment.payload.text === script.default.text &&
+          return body.message.attachment.payload.text === script.signpost.text &&
                  body.message.attachment.payload.buttons[0].type === 'postback';
         })).query(true).reply(200)
 
@@ -316,28 +316,29 @@ describe('chat', () => {
     });
   });
 
-  context("after taking action and reloading the menu", () => {
-    const receivedData = fixture('postback');
-    receivedData.body.entry[0].messaging[0].postback = { payload: 'group_joined' };
-    const member = {
-      TableName,
-      Item: {fbid, actions: ['group_intro'] }
-    };
-    beforeEach(done => dynamo.put(member, done));
+  context("after taking action", () => {
+    const takeAction = fixture('postback');
+    takeAction.body.entry[0].messaging[0].postback = { payload: 'group_joined' };
+    const showMenu = fixture('postback');
+    showMenu.body.entry[0].messaging[0].postback = { payload: 'default' };
 
-    it("should remove the action from the menu", (done) => {
+    beforeEach(() => {
+      nock('https://graph.facebook.com')
+        .post('/v2.6/me/messages').query(true).reply(200) // group_joined
+        .post('/v2.6/me/messages').query(true).reply(200) // typing_on
+    });
+
+    it("removes the action from the menu permanently", (done) => {
       const graphAPICalls = nock('https://graph.facebook.com')
-        .post('/v2.6/me/messages').query(true).reply(200)
-        .post('/v2.6/me/messages').query(true).reply(200)
         .post('/v2.6/me/messages', (body) => {
-          return !body.message.attachment.payload.buttons.map(b=>b.payload).includes('group_intro');
-        }).query(true).reply(200)
-        .post('/v2.6/me/messages').query(true).reply(200)
-        .post('/v2.6/me/messages').query(true).reply(200)
-        .post('/v2.6/me/messages').query(true).reply(200)
+          return !body.message.quick_replies.map(b=>b.payload).includes('group_intro');
+        }).query(true).reply(200) // default
+        .post('/v2.6/me/messages', (body) => {
+          return !body.message.quick_replies.map(b=>b.payload).includes('group_intro');
+        }).query(true).reply(200) // default
 
-      wrapped.run(receivedData, (err) => {
-        wrapped.run(receivedData, (err) => {
+      wrapped.run(takeAction, (err) => {
+        wrapped.run(showMenu, (err) => {
           graphAPICalls.done();
           done(err);
         });
@@ -361,13 +362,11 @@ describe('chat', () => {
     it("removes the action from the menu one time only", (done) => {
       const graphAPICalls = nock('https://graph.facebook.com')
         .post('/v2.6/me/messages', (body) => {
-          return !body.message.attachment.payload.buttons.map(b=>b.payload).includes('group_intro');
+          return !body.message.quick_replies.map(b=>b.payload).includes('group_intro');
         }).query(true).reply(200)
         .post('/v2.6/me/messages', (body) => {
-          return body.message.attachment.payload.buttons.map(b=>b.payload).includes('group_intro');
+          return body.message.quick_replies.map(b=>b.payload).includes('group_intro');
         }).query(true).reply(200)
-        // .post('/v2.6/me/messages', body => console.log(JSON.stringify(body))).query(true).reply(200)
-        // .post('/v2.6/me/messages').query(true).reply(200)
 
       wrapped.run(choosePath, (err) => {
         wrapped.run(showMenu, (err) => {
@@ -489,3 +488,6 @@ function assertOnce(assertion, body) {
     return true
   }
 }
+
+// .post('/v2.6/me/messages', body => console.log(JSON.stringify(body))).query(true).reply(200)
+// .post('/v2.6/me/messages').query(true).reply(200)

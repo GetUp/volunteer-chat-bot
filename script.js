@@ -37,10 +37,10 @@ const group_action = {
   },
   group_prompt: {
     text: "How'd you go?",
-    buttons: [
-      {type: 'postback', payload: 'group_joined', title: "I requested to join"},
-      {type: 'postback', payload: 'group_error', title: "Something went wrong"},
-      {type: 'postback', payload: 'group_no_thanks', title: "Not right now"},
+    replies: [
+      {content_type: 'text', payload: 'group_joined', title: "I requested to join"},
+      {content_type: 'text', payload: 'group_no_thanks', title: "Not right now"},
+      {content_type: 'text', payload: 'group_error', title: "Something went wrong"},
     ],
   },
   group_joined: {
@@ -170,9 +170,9 @@ const petition_action = {
   },
   petition_details_no_prompt: {
     text: "How'd you go?",
-    buttons: [
-      {type: 'postback', payload: 'petition_details_yes', title: 'All signed'},
-      {type: 'postback', payload: 'petition_error', title: 'Something went wrong'},
+    replies: [
+      {content_type: 'text', payload: 'petition_details_yes', title: 'All signed'},
+      {content_type: 'text', payload: 'petition_error', title: 'Something went wrong'},
     ],
   },
   petition_error: {
@@ -190,10 +190,10 @@ export const script = {
   },
   default: {
     text: "It would be great if you can join the campaign. Here are a few ways you can help make sure #WeCanDoBetter when it comes to our refugee policy in Australia.",
-    buttons: [
-      {type: 'postback', payload: 'group_intro', title: 'Join an action group'},
-      {type: 'postback', payload: 'subscribe_intro', title: 'Keep me up to date'},
-      // {type: 'postback', payload: 'petition_intro', title: 'Sign the open letter'},
+    replies: [
+      {content_type: 'text', payload: 'group_intro', title: 'Join an action group'},
+      {content_type: 'text', payload: 'subscribe_intro', title: 'Keep me up to date'},
+      // {content_type: 'text', payload: 'petition_intro', title: 'Sign the open letter'},
     ],
   },
 
