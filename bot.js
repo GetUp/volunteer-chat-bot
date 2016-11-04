@@ -302,29 +302,32 @@ function storeMember(fbid, profile, cb) {
 }
 
 function quickReply(reply, completedActions) {
-  const buttonsToRemove = completedActions.map(action => script.action_menu[action])
-  const availableButtons = reply.replies.filter(button => !buttonsToRemove.includes(button.payload))
-  if (availableButtons.length < 1) { return script.all_done };
+  const availableOptions = actionFilter(completedActions, reply.replies);
+  if (availableOptions.length < 1) { return script.all_done };
   return {
     text: reply.text,
-    quick_replies: availableButtons,
+    quick_replies: availableOptions,
   };
 }
 
 function buttonTemplate(reply, completedActions) {
-  const buttonsToRemove = completedActions.map(action => script.action_menu[action])
-  const availableButtons = reply.buttons.filter(button => !buttonsToRemove.includes(button.payload))
-  if (availableButtons.length < 1) { return script.all_done };
+  const availableOptions = actionFilter(completedActions, reply.buttons);
+  if (availableOptions.length < 1) { return script.all_done };
   return {
     attachment: {
       type: 'template',
       payload: {
         template_type: 'button',
         text: reply.text,
-        buttons: availableButtons
+        buttons: availableOptions,
       }
     }
   };
+}
+
+function actionFilter(completedActions, options) {
+  const actionsToRemove = completedActions.map(action => script.action_menu[action]);
+  return options.filter(option => !actionsToRemove.includes(option.payload));
 }
 
 function genericTemplate(reply) {
