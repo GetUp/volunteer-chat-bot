@@ -30,6 +30,7 @@
     "serverless-mocha-plugin": "^1.0.2",
     "serverless-plugin-write-env-vars": "github:getup/serverless-plugin-write-env-vars",
     "serverless-webpack": "^1.0.0-rc.2",
+    "timekeeper": "^1.0.0",
     "webpack": "^1.13.1",
     "webpack-node-externals": "^1.4.3"
   },
@@ -38,6 +39,7 @@
     "babel-runtime": "6.11.6",
     "dotenv": "^2.0.0",
     "es6-promisify": "^5.0.0",
+    "moment-timezone": "^0.5.9",
     "request": "^2.75.0",
     "request-promise-native": "^1.0.3"
   }

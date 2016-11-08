@@ -8,6 +8,8 @@ import fs from 'fs';
 import nock from 'nock';
 import AWS from 'aws-sdk';
 const dynamo = new AWS.DynamoDB.DocumentClient({region: 'localhost', endpoint: 'http://localhost:8000'});
+const tk = require('timekeeper');
+const moment = require('moment-timezone');
 
 const TableName = 'volunteer-chat-bot-test-members';
 const fbid = '1274747332556664';
@@ -20,6 +22,7 @@ describe('chat', () => {
   afterEach(() => {
     firstIntercept = false;
     nock.cleanAll();
+    tk.reset();
   });
 
   beforeEach(() => {
@@ -76,6 +79,45 @@ describe('chat', () => {
       wrapped.run(receivedData, (err) => {
         dynamo.get({ TableName, Key: {fbid} }, (err, res) => {
           expect(res.Item.profile.first_name).to.be.equal(mockedProfile.first_name);
+          done(err);
+        });
+      });
+    });
+
+    it('ignores subsequent intro postbacks on the same day', (done) => {
+      const graphAPICalls = nock('https://graph.facebook.com')
+        .post('/v2.6/me/messages', body => {
+          return !!body.message.text.match(/Welcome to the GetUp Volunteer Action Hub/);
+        }).query(true).reply(200)
+        .post('/v2.6/me/messages').query(true).reply(200) // typing_on
+        .post('/v2.6/me/messages').query(true).reply(200) // default
+
+      wrapped.run(receivedData, (err) => {
+        // nock will raise if this responds
+        wrapped.run(receivedData, (err) => {
+          graphAPICalls.done();
+          done(err);
+        });
+      });
+    });
+
+    it('responds to subsequent intro postbacks on a new day', (done) => {
+      const graphAPICalls = nock('https://graph.facebook.com')
+        .post('/v2.6/me/messages', body => {
+          return !!body.message.text.match(/Welcome to the GetUp Volunteer Action Hub/);
+        }).query(true).reply(200)
+        .post('/v2.6/me/messages').query(true).reply(200) // typing_on
+        .post('/v2.6/me/messages').query(true).reply(200) // default
+        .post('/v2.6/me/messages', body => {
+          return !!body.message.text.match(/Welcome to the GetUp Volunteer Action Hub/);
+        }).query(true).reply(200)
+        .post('/v2.6/me/messages').query(true).reply(200) // typing_on
+        .post('/v2.6/me/messages').query(true).reply(200) // default
+
+      wrapped.run(receivedData, (err) => {
+        tk.travel(moment().add(1, 'day').toDate());
+        wrapped.run(receivedData, (err) => {
+          graphAPICalls.done();
           done(err);
         });
       });

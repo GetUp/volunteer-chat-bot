@@ -2,6 +2,8 @@ if (!global._babelPolyfill) require('babel-polyfill');
 require('dotenv').config();
 const NODE_ENV = process.env.NODE_ENV;
 
+const moment = require('moment-timezone');
+moment.tz.setDefault('Australia/Sydney');
 import request from 'request';
 const rp = require('request-promise-native');
 import { script } from './script';
@@ -82,6 +84,11 @@ export async function sendMessage(recipientId, key, postcode) {
   await setupProfile(recipientId);
 
   switch(key) {
+    case 'intro':
+      const startTime = await getAttribute(recipientId, 'started');
+      const sameDay = startTime && moment(startTime).isSame(moment(), 'day');
+      if (sameDay) return;
+      await setAttribute(recipientId, {started: moment().format()});
     case 'default':
       completedActions = await getActions(recipientId);
       await clearIntroActions(recipientId);
