@@ -128,4 +128,10 @@ export const allGroups = [{
   name: 'GetUp Warringah',
   url: 'https://www.facebook.com/groups/218295255271982/',
   postcodes: ['2100','2093','2088','2087','2090','2099','2096','2086','2089','2095','2094','2092'],
+},{
+  key: 'electorate_kingsford_smith',
+  electorate: 'Kingsford Smith',
+  name: 'GetUp Kingsford Smith',
+  url: 'https://www.facebook.com/groups/1779186622329077/',
+  postcodes: ['2019','2036','2034','2018','2033','2032','2035','2020','2031','2052'],
 }];
