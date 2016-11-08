@@ -87,7 +87,10 @@ export async function sendMessage(recipientId, key, postcode) {
     case 'intro':
       const startTime = await getAttribute(recipientId, 'started');
       const sameDay = startTime && moment(startTime).isSame(moment(), 'day');
-      if (sameDay) return;
+      if (sameDay) {
+        console.error("repeated key?");
+        return
+      };
       await setAttribute(recipientId, {started: moment().format()});
     case 'default':
       completedActions = await getActions(recipientId);
