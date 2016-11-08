@@ -161,7 +161,7 @@ function callSendAPI(messageData) {
 
     request(payload, function(error, response, body) {
       if (!error && response.statusCode === 200) return resolve(body);
-      console.log(`####### non-200 response.statusCode: ${response.statusCode}`);
+      console.log(`####### non-200 response.statusCode: ${response && response.statusCode}`);
       console.log({body});
       reject(error || body);
     });

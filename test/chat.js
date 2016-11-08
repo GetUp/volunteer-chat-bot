@@ -70,7 +70,7 @@ describe('chat', () => {
     });
 
     it('retrieves and saves the profile', (done) => {
-      const graphAPICalls = nock('https://graph.facebook.com').persist()
+      nock('https://graph.facebook.com').persist()
         .post('/v2.6/me/messages').query(true).reply(200)
 
       wrapped.run(receivedData, (err) => {
@@ -253,7 +253,7 @@ describe('chat', () => {
     });
   });
 
-  context('with a delayed reply that typing turned off', () => {
+  context('with a delayed reply that has typing turned off', () => {
     let receivedData = fixture('postback');
     receivedData.body.entry[0].messaging[0].postback.payload = 'fallthrough';
 
