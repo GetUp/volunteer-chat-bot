@@ -134,4 +134,10 @@ export const allGroups = [{
   name: 'GetUp Kingsford Smith',
   url: 'https://www.facebook.com/groups/1779186622329077/',
   postcodes: ['2019','2036','2034','2018','2033','2032','2035','2020','2031','2052'],
+},{
+  key: 'electorate_burt',
+  electorate: 'Burt',
+  name: 'GetUp Burt',
+  url: 'https://www.facebook.com/groups/1028298793959558/',
+  postcodes: ['6112','6155','6110','6111','6147','6108'],
 }];
