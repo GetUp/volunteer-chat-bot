@@ -140,4 +140,22 @@ export const allGroups = [{
   name: 'GetUp Burt',
   url: 'https://www.facebook.com/groups/1028298793959558/',
   postcodes: ['6112','6155','6110','6111','6147','6108'],
+},{
+  key: 'electorate_macquarie',
+  electorate: 'Macquarie',
+  name: 'GetUp Macquarie',
+  url: 'https://www.facebook.com/groups/824551361018000/',
+  postcodes: ['2753','2787','2786','2758','2785','2774','2756','2765','2784','2776','2775','2773','2777','2779','2780','2757','2783','2778','2754','2782'],
+},{
+  key: 'electorate_hasluck',
+  electorate: 'Hasluck',
+  name: 'GetUp Hasluck',
+  url: 'https://www.facebook.com/groups/1018637131616056/',
+  postcodes: ['6056','6107','6556','6076','6055','6070','6058','6071','6057','6109','6072','6082','6073','6083','6074','6081','6558'],
+},{
+  key: 'electorate_',
+  electorate: '',
+  name: 'GetUp ',
+  url: '',
+  postcodes: [],
 }];
