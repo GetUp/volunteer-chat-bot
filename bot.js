@@ -102,6 +102,10 @@ export async function sendMessage(recipientId, key, postcode) {
       };
       await setAttribute(recipientId, {started: moment().format()});
     case 'default':
+    case 'default_group':
+    case 'default_subscribe':
+    case 'default_petition':
+    case 'default_persistent_menu':
       completedActions = await getActions(recipientId);
       await clearIntroActions(recipientId);
       await setAttribute(recipientId, {ignore_text: false});

@@ -46,16 +46,16 @@ const group_action = {
   group_joined: {
     text: "Excellent! :D Keep your eye out for Facebook notifications from the group.",
     persist: 'group_joined',
-    next: 'default',
+    next: 'default_group',
   },
   group_error: {
     text: "Bummer! :( Somebody will be in touch shortly. Maybe try one of the other ways to get involved?",
     persist: 'group_error',
-    next: 'default',
+    next: 'default_group',
   },
   group_no_thanks: {
     text: "No worries, we have other ways you can get involved. :)",
-    next: 'default',
+    next: 'default_group',
   },
 };
 
@@ -85,12 +85,12 @@ const subscribe_action = {
   },
   subscribe_manage: {
     text: "You can turn campaign updates on or off from the ≡ icon below.",
-    next: 'default',
+    next: 'default_subscribe',
   },
   subscribe_no: {
     text: "No problem, there are plenty of ways to stay up to date. :)",
     persist: 'subscribe_no',
-    next: 'default',
+    next: 'default_subscribe',
   },
 };
 
@@ -155,13 +155,13 @@ const petition_action = {
       ...petition,
       buttons: [{type: 'element_share'}],
     }],
-    next: 'default',
+    next: 'default_petition',
     delay: 20000,
     disable_typing: true
   },
   petition_share_no: {
     text: "Not a problem. Maybe another time. :)",
-    next: 'default',
+    next: 'default_petition',
   },
   petition_details_no: {
     text: "Aah, that's no good. To sign, please use our website:",
@@ -178,8 +178,17 @@ const petition_action = {
   petition_error: {
     text: "Bummer! Somebody will be in touch shortly. Maybe try one of the other ways to get involved?",
     persist: 'petition_error',
-    next: 'default',
+    next: 'default_petition',
   },
+};
+
+const menu = {
+  text: "It would be great if you can join the campaign. Here are a few ways you can help make sure #WeCanDoBetter when it comes to our refugee policy in Australia.",
+  replies: [
+    {content_type: 'text', payload: 'group_intro', title: 'Join an action group'},
+    {content_type: 'text', payload: 'subscribe_intro', title: 'Keep me up to date'},
+    // {content_type: 'text', payload: 'petition_intro', title: 'Sign the open letter'},
+  ],
 };
 
 export const script = {
@@ -188,14 +197,13 @@ export const script = {
     next: 'default',
     delay: 3000,
   },
-  default: {
-    text: "It would be great if you can join the campaign. Here are a few ways you can help make sure #WeCanDoBetter when it comes to our refugee policy in Australia.",
-    replies: [
-      {content_type: 'text', payload: 'group_intro', title: 'Join an action group'},
-      {content_type: 'text', payload: 'subscribe_intro', title: 'Keep me up to date'},
-      // {content_type: 'text', payload: 'petition_intro', title: 'Sign the open letter'},
-    ],
-  },
+
+  // b/c FB sends us repeated postbacks so we need to ignore them for 25 secs
+  default: menu,
+  default_group: menu,
+  default_subscribe: menu,
+  default_petition: menu,
+  default_persistent_menu: menu,
 
   ...group_action,
   ...subscribe_action,
