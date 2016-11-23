@@ -18,7 +18,7 @@ const petition = {
 
 const group_action = {
   group_intro: {
-    text: "GetUp #WeCanDoBetter action groups are a great way to stay up to date with campaign developments and get involved in upcoming actions.",
+    text: "GetUp #SafetyForAll action groups are a great way to stay up to date with campaign developments and get involved in upcoming actions.",
     next: 'group_postcode',
     persist: 'group_intro',
   },
@@ -183,7 +183,7 @@ const petition_action = {
 };
 
 const menu = {
-  text: "It would be great if you can join the campaign. Here are a few ways you can help make sure #WeCanDoBetter when it comes to our refugee policy in Australia.",
+  text: "It would be great if you can join the campaign. Here are a few ways you can help make sure we have #SafetyForAll when it comes to our refugee policy in Australia.",
   replies: [
     {content_type: 'text', payload: 'group_intro', title: 'Join an action group'},
     {content_type: 'text', payload: 'subscribe_intro', title: 'Keep me up to date'},
@@ -193,7 +193,7 @@ const menu = {
 
 export const script = {
   intro: {
-    text: "Hey! Welcome to the GetUp Volunteer Action Hub. The current campaign is to end the government's policy of offshore detention camps. We know that #WeCanDoBetter and bring the men, women and children on Manus Island and Nauru to safety in Australia.",
+    text: "Hey! Welcome to the GetUp Volunteer Action Hub. The current campaign is to ensure that we can have #SafetyForAll people in offshore detention camps.",
     next: 'default',
     delay: 3000,
   },
@@ -210,7 +210,7 @@ export const script = {
   ...petition_action,
 
   all_done: {
-    text: "That's all we have for now. Thanks for helping to show #WeCanDoBetter!",
+    text: "That's all we have for now. Thanks for helping to show we can have #SafetyForAll!",
   },
 
   ...subscription_management,

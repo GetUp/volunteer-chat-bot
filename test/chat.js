@@ -223,7 +223,7 @@ describe('chat', () => {
         graphAPICalls.persist()
           .post('/v2.6/me/messages', assertOnce((body) => {
             return body.message.attachment.payload.text.match(/0000/) &&
-              body.message.attachment.payload.text.match(/#WeCanDoBetter/);
+              body.message.attachment.payload.text.match(/#SafetyForAll/);
           })).query(true).reply(200);
 
         wrapped.run(receivedData, (err) => {
@@ -485,7 +485,7 @@ describe('chat', () => {
     it('ignores subsequent identical postbacks for some time', (done) => {
       const graphAPICalls = nock('https://graph.facebook.com')
         .post('/v2.6/me/messages', body => {
-          return !!body.message.text.match(/GetUp #WeCanDoBetter action groups/);
+          return !!body.message.text.match(/GetUp #SafetyForAll action groups/);
         }).query(true).reply(200)
         .post('/v2.6/me/messages').query(true).reply(200) // typing_on
         .post('/v2.6/me/messages').query(true).reply(200) // group_postcode
@@ -502,12 +502,12 @@ describe('chat', () => {
     it('responds to identical postbacks after that time has passed', (done) => {
       const graphAPICalls = nock('https://graph.facebook.com')
         .post('/v2.6/me/messages', body => {
-          return !!body.message.text.match(/GetUp #WeCanDoBetter action groups/);
+          return !!body.message.text.match(/GetUp #SafetyForAll action groups/);
         }).query(true).reply(200)
         .post('/v2.6/me/messages').query(true).reply(200) // typing_on
         .post('/v2.6/me/messages').query(true).reply(200) // group_postcode
         .post('/v2.6/me/messages', body => {
-          return !!body.message.text.match(/GetUp #WeCanDoBetter action groups/);
+          return !!body.message.text.match(/GetUp #SafetyForAll action groups/);
         }).query(true).reply(200)
         .post('/v2.6/me/messages').query(true).reply(200) // typing_on
         .post('/v2.6/me/messages').query(true).reply(200) // group_postcode

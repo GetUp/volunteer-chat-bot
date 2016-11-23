@@ -1,5 +1,5 @@
 export const allGroups = [{
-  name: '#WeCanDoBetter',
+  name: '#SafetyForAll',
   url: 'https://www.facebook.com/groups/1331336863544607/',
   postcodes: [], // DEFAULT group
 },{
