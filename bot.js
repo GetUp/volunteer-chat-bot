@@ -105,6 +105,7 @@ export async function sendMessage(recipientId, key, postcode) {
     case 'default_group':
     case 'default_subscribe':
     case 'default_petition':
+    case 'default_continue':
     case 'default_persistent_menu':
       completedActions = await getActions(recipientId);
       await clearIntroActions(recipientId);

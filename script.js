@@ -203,6 +203,7 @@ export const script = {
   default_group: menu,
   default_subscribe: menu,
   default_petition: menu,
+  default_continue: menu,
   default_persistent_menu: menu,
 
   ...group_action,
@@ -237,7 +238,7 @@ export const script = {
   signpost: {
     text: "If you'd like to keep chatting with the bot choose 'Continue'.  If you need help from a member of the GetUp Strategy Team, choose 'Help'.",
     buttons: [
-      {type: 'postback', payload: 'default', title: 'Continue'},
+      {type: 'postback', payload: 'default_continue', title: 'Continue'},
       {type: 'postback', payload: 'human_help', title: 'Help!'},
     ],
   },

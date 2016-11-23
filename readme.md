@@ -59,7 +59,7 @@ curl -X POST -H "Content-Type: application/json" -d '{
   "call_to_actions": [{
     "type":"postback",
     "title":"What can I do?",
-    "payload":"default"
+    "payload":"default_persistent_menu"
   },{
     "type":"postback",
     "title":"Manage campaign updates",
