@@ -86,10 +86,10 @@ export async function sendMessage(recipientId, key, postcode) {
     reply = fillTemplate(script['group_view'], group, group.electorate);
   }
 
-  if (postcode && profile.previous === 'petition_postcode') {
-    key = 'petition_details';
-    reply = script[key];
-  }
+  // if (postcode && profile.previous === 'petition_postcode') {
+  //   key = 'petition_details';
+  //   reply = script[key];
+  // }
 
   let completedActions = [];
   switch(key) {
