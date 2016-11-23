@@ -14,6 +14,7 @@ const dynamo = new AWS.DynamoDB.DocumentClient(dbConf());
 
 const dynamoGet = promisify(::dynamo.get);
 const dynamoPut = promisify(::dynamo.put);
+const dynamoUpdate = promisify(::dynamo.update);
 const TableName = `volunteer-chat-bot-${NODE_ENV}-members`;
 
 export const loadedScript = script;
@@ -73,28 +74,31 @@ export async function sendMessage(recipientId, key, postcode) {
   const recipient = { id: recipientId };
   let reply = script[key] || script['unknown_payload'];
 
+  if (key === 'fallthrough' && await firstTimer(recipientId)) reply = script['intro'];
+
+  const profile = await setupProfile(recipientId);
+  const repeatedMessage = await repeatMessageCheck(recipientId, key);
+  await prependLog(recipientId, key);
+  if(repeatedMessage) return;
+
   if (key.match(/^electorate_/)) {
     const group = allGroups.find(group => group.key === key);
     reply = fillTemplate(script['group_view'], group, group.electorate);
   }
-
-  let completedActions = [];
-  if (key === 'fallthrough' && await firstTimer(recipientId)) reply = script['intro'];
-
-  const profile = await setupProfile(recipientId);
 
   if (postcode && profile.previous === 'petition_postcode') {
     key = 'petition_details';
     reply = script[key];
   }
 
+  let completedActions = [];
   switch(key) {
     case 'intro':
       const startTime = await getAttribute(recipientId, 'started');
       const sameDay = startTime && moment(startTime).isSame(moment(), 'day');
       if (sameDay) {
         console.error("repeated key?");
-        return
+        return;
       };
       await setAttribute(recipientId, {started: moment().format()});
     case 'default':
@@ -192,11 +196,12 @@ async function firstTimer(fbid) {
 
 async function setupProfile(fbid) {
   const res = await dynamoGet({TableName, Key: {fbid}});
-  if (res.Item && res.Item.profile && res.Item.actions) return res.Item;
+  if (res.Item && res.Item.profile && res.Item.actions && res.Item.log) return res.Item;
 
   const profile = await getProfile(fbid);
   const actions = res.Item && res.Item.actions || [];
-  let newProfile = {fbid, profile, actions, ignore_text: false}
+  const log = res.Item && res.Item.log || [];
+  let newProfile = {fbid, profile, actions, log, ignore_text: false};
   await dynamoPut({TableName, Item: newProfile});
   return newProfile;
 }
@@ -211,6 +216,24 @@ async function setAttribute(fbid, attr) {
   const res = await dynamoGet(payload);
   const Item = Object.assign({fbid}, res.Item, attr);
   return dynamoPut({TableName, Item});
+}
+
+async function repeatMessageCheck(fbid, key) {
+  const messageLog = await getAttribute(fbid, 'log');
+  const repeat = messageLog.find(message => message.key === key);
+  if (repeat && moment().diff(repeat.timestamp, 's') < 25) return true;
+  return false;
+}
+
+async function prependLog(fbid, key) {
+  const payload = {
+    TableName,
+    Key: {fbid},
+    UpdateExpression: 'SET #attrName = list_append(:attrValue, #attrName)',
+    ExpressionAttributeNames: { '#attrName': 'log' },
+    ExpressionAttributeValues: { ':attrValue': [{key, timestamp: moment().format()}] }
+  };
+  return dynamoUpdate(payload);
 }
 
 async function getAndStoreProfile(fbid, postcode) {

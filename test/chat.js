@@ -83,45 +83,6 @@ describe('chat', () => {
         });
       });
     });
-
-    it('ignores subsequent intro postbacks on the same day', (done) => {
-      const graphAPICalls = nock('https://graph.facebook.com')
-        .post('/v2.6/me/messages', body => {
-          return !!body.message.text.match(/Welcome to the GetUp Volunteer Action Hub/);
-        }).query(true).reply(200)
-        .post('/v2.6/me/messages').query(true).reply(200) // typing_on
-        .post('/v2.6/me/messages').query(true).reply(200) // default
-
-      wrapped.run(receivedData, (err) => {
-        // nock will raise if this responds
-        wrapped.run(receivedData, (err) => {
-          graphAPICalls.done();
-          done(err);
-        });
-      });
-    });
-
-    it('responds to subsequent intro postbacks on a new day', (done) => {
-      const graphAPICalls = nock('https://graph.facebook.com')
-        .post('/v2.6/me/messages', body => {
-          return !!body.message.text.match(/Welcome to the GetUp Volunteer Action Hub/);
-        }).query(true).reply(200)
-        .post('/v2.6/me/messages').query(true).reply(200) // typing_on
-        .post('/v2.6/me/messages').query(true).reply(200) // default
-        .post('/v2.6/me/messages', body => {
-          return !!body.message.text.match(/Welcome to the GetUp Volunteer Action Hub/);
-        }).query(true).reply(200)
-        .post('/v2.6/me/messages').query(true).reply(200) // typing_on
-        .post('/v2.6/me/messages').query(true).reply(200) // default
-
-      wrapped.run(receivedData, (err) => {
-        tk.travel(moment().add(1, 'day').toDate());
-        wrapped.run(receivedData, (err) => {
-          graphAPICalls.done();
-          done(err);
-        });
-      });
-    });
   });
 
   context('with a message that triggers a short message followed by quick replies', () => {
@@ -511,6 +472,49 @@ describe('chat', () => {
             graphAPICalls.done();
             done(err)
           });
+        });
+      });
+    });
+  });
+
+  context("with a facebook bug that repeats postbacks", () => {
+    const receivedData = fixture('postback');
+
+    it('ignores subsequent identical postbacks for some time', (done) => {
+      const graphAPICalls = nock('https://graph.facebook.com')
+        .post('/v2.6/me/messages', body => {
+          return !!body.message.text.match(/GetUp #WeCanDoBetter action groups/);
+        }).query(true).reply(200)
+        .post('/v2.6/me/messages').query(true).reply(200) // typing_on
+        .post('/v2.6/me/messages').query(true).reply(200) // group_postcode
+
+      wrapped.run(receivedData, (err) => {
+        // nock will raise if this responds
+        wrapped.run(receivedData, (err) => {
+          graphAPICalls.done();
+          done(err);
+        });
+      });
+    });
+
+    it('responds to identical postbacks after that time has passed', (done) => {
+      const graphAPICalls = nock('https://graph.facebook.com')
+        .post('/v2.6/me/messages', body => {
+          return !!body.message.text.match(/GetUp #WeCanDoBetter action groups/);
+        }).query(true).reply(200)
+        .post('/v2.6/me/messages').query(true).reply(200) // typing_on
+        .post('/v2.6/me/messages').query(true).reply(200) // group_postcode
+        .post('/v2.6/me/messages', body => {
+          return !!body.message.text.match(/GetUp #WeCanDoBetter action groups/);
+        }).query(true).reply(200)
+        .post('/v2.6/me/messages').query(true).reply(200) // typing_on
+        .post('/v2.6/me/messages').query(true).reply(200) // group_postcode
+
+      wrapped.run(receivedData, (err) => {
+        tk.travel(moment().add(25, 'seconds').toDate());
+        wrapped.run(receivedData, (err) => {
+          graphAPICalls.done();
+          done(err);
         });
       });
     });
