@@ -120,7 +120,6 @@ export async function sendMessage(recipientId, key, postcode) {
       reply.text = await getName(recipientId, reply, postcode);
       break;
     case 'group_view':
-      await getAndStoreProfile(recipientId, postcode);
       const groups = getGroups(postcode);
       if (groups.length === 1) {
         reply = fillTemplate(reply, groups[0], postcode);
@@ -241,11 +240,6 @@ async function prependLog(fbid, key) {
   return dynamoUpdate(payload);
 }
 
-async function getAndStoreProfile(fbid, postcode) {
-  const profile = await getProfile(fbid);
-  return storeProfile(fbid, {...profile, postcode});
-}
-
 async function getProfile(recipientId) {
   const payload = {
     uri: `https://graph.facebook.com/v2.8/${recipientId}`,
@@ -254,12 +248,6 @@ async function getProfile(recipientId) {
   };
   const body = await rp(payload);
   return JSON.parse(body);
-}
-
-async function storeProfile(fbid, profile) {
-  const res = await dynamoGet({TableName, Key: {fbid}});
-  const actions = res.Item && res.Item.actions || [];
-  return dynamoPut({TableName, Item: {fbid, profile, actions}});
 }
 
 function getGroups(postcode) {

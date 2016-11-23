@@ -150,14 +150,7 @@ describe('chat', () => {
   context('with a reply that appears to be a postcode', () => {
     const receivedData = fixture('message');
     receivedData.body.entry[0].messaging[0].message.text = ' 2000 ';
-    let graphAPICalls;
-
-    beforeEach(() => {
-      graphAPICalls = nock('https://graph.facebook.com')
-        .get(`/v2.8/${fbid}`)
-        .query(true)
-        .reply(200, mockedProfile)
-    });
+    const graphAPICalls = nock('https://graph.facebook.com');
 
     it('should get their details from facebook and show them the appropriate action group', (done) => {
       graphAPICalls.persist()
@@ -194,6 +187,24 @@ describe('chat', () => {
           graphAPICalls.done()
           dynamo.get(member, (err, res) => {
             expect(res.Item.actions[0]).to.be.equal('subscribed');
+            done(err);
+          });
+        });
+      });
+    });
+
+    context('with an existing log', () => {
+      const log = { key: 'intro', timestamp: moment().format() };
+      const memberLog = { TableName, Item: { fbid, log: [log] } };
+      const member = { TableName, Key: {fbid} };
+      beforeEach(done => dynamo.put(memberLog, done));
+      beforeEach(() => graphAPICalls.persist().post('/v2.6/me/messages').query(true).reply(200));
+
+      it('does not overwrite the previous logs', (done) => {
+        wrapped.run(receivedData, (err) => {
+          graphAPICalls.done()
+          dynamo.get(member, (err, res) => {
+            expect(res.Item.log[2]).to.eql(log);
             done(err);
           });
         });
