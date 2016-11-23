@@ -79,7 +79,10 @@ export async function sendMessage(recipientId, key, postcode) {
   const profile = await setupProfile(recipientId);
   const repeatedMessage = await repeatMessageCheck(recipientId, key);
   await prependLog(recipientId, key);
-  if(repeatedMessage) return;
+  if (repeatedMessage) {
+    if (NODE_ENV !== 'test') console.error("REPEATED KEY?");
+    return;
+  };
 
   if (key.match(/^electorate_/)) {
     const group = allGroups.find(group => group.key === key);
@@ -94,12 +97,6 @@ export async function sendMessage(recipientId, key, postcode) {
   let completedActions = [];
   switch(key) {
     case 'intro':
-      const startTime = await getAttribute(recipientId, 'started');
-      const sameDay = startTime && moment(startTime).isSame(moment(), 'day');
-      if (sameDay) {
-        console.error("repeated key?");
-        return;
-      };
       await setAttribute(recipientId, {started: moment().format()});
     case 'default':
     case 'default_group':
