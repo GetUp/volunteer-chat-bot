@@ -341,6 +341,7 @@ describe('chat', () => {
         }).query(true).reply(200) // default
 
       wrapped.run(takeAction, (err) => {
+        tk.travel(moment().add(25, 'seconds').toDate());
         wrapped.run(showMenu, (err) => {
           graphAPICalls.done();
           done(err);
@@ -373,6 +374,7 @@ describe('chat', () => {
 
       wrapped.run(choosePath, (err) => {
         wrapped.run(showMenu, (err) => {
+          tk.travel(moment().add(25, 'seconds').toDate());
           wrapped.run(showMenu, (err) => {
             graphAPICalls.done();
             done(err);
