@@ -108,11 +108,11 @@ export async function sendMessage(recipientId, key, postcode) {
       await clearIntroActions(recipientId);
       await setAttribute(recipientId, {ignore_text: false});
       break;
-    case 'fallthrough':
-      const ignore = await getAttribute(recipientId, 'ignore_text');
-      if (ignore) return;
-      await setAttribute(recipientId, {ignore_text: true});
-      break;
+    // case 'fallthrough':
+    //   const ignore = await getAttribute(recipientId, 'ignore_text');
+    //   if (ignore) return;
+    //   await setAttribute(recipientId, {ignore_text: true});
+    //   break;
     case 'petition_details':
       reply.text = await getName(recipientId, reply, postcode);
       break;
