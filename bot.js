@@ -18,55 +18,109 @@ const dynamoPut = promisify(::dynamo.put);
 const dynamoUpdate = promisify(::dynamo.update);
 const TableName = `chatfuel-json-api-${NODE_ENV}-members`;
 
-export const chat = function(e, ctx, cb) {
+export const chat = (e, ctx, cb) => {
   if (NODE_ENV !== 'test') console.log({
     query: JSON.stringify(e.queryStringParameters),
     body: JSON.stringify(e.body),
   });
 
-  const message = postcodeMessage(e.queryStringParameters.postcode);
-
   const response = {
     statusCode: 200,
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(message),
   };
 
-  storeProfile(e.queryStringParameters)
-    .then(() => cb(null, response), (err) => {
+  handleParams(e.queryStringParameters)
+    .then((body) => {
+      cb(null, { ...response, body })
+    }, (err) => {
       console.error('ERROR', err);
       cb(err);
     })
 };
 
+async function handleParams(params) {
+  let message;
+
+  if (params.postcode) {
+    message = postcodeMessage(params.postcode, params.fbid);
+    await storeProfile(params);
+  } else if (params.key && params.key.match(/^electorate_/)) {
+    message = electorateMessage(params.key);
+    await storeElectorate(params.key, params.fbid);
+  }
+
+  return JSON.stringify(message);
+}
+
 async function storeProfile(params) {
   return dynamoPut({TableName, Item: params});
 }
 
-function postcodeMessage(postcode) {
-  const template = script['group_view'];
+async function storeElectorate(key, fbid) {
+  const payload = {
+    TableName,
+    Key: {fbid},
+    UpdateExpression: 'SET electorate = :value',
+    ExpressionAttributeValues: { ':value': key },
+  };
+  return dynamoUpdate(payload);
+}
+
+function postcodeMessage(postcode, fbid) {
   const groups = getGroups(postcode);
   let reply;
   if (groups.length === 1) {
-    reply = buttonTemplate(fillTemplate(template, groups[0], postcode));
+    reply = buttonTemplate(fillTemplate(script['group_view'], groups[0], postcode));
   } else {
-    reply = showElectorates(script['group_multiple_electorates'], groups, postcode);
+    reply = showElectorates(script['group_multiple_electorates'], groups, postcode, fbid);
   }
 
   return { messages: [{ ...reply }] };
 }
 
-function showElectorates(reply, groups, postcode) {
+function showElectorates(reply, groups, postcode, fbid) {
   reply.text = reply.template.replace(/{postcode}/, postcode);
   delete reply.template;
   reply.quick_replies = groups.map(group => {
     return {
       type: 'json_plugin_url',
-      url: `${HOSTNAME}/webhook?key=${group.key}`,
+      url: `${HOSTNAME}/webhook?key=${group.key}&fbid=${fbid}`,
       title: group.electorate,
     }
   });
   return reply;
+}
+
+function electorateMessage(key) {
+  const group = allGroups.find(group => group.key === key);
+  const reply = buttonTemplate(fillTemplate(script['group_view'], group, group.electorate));
+  return { messages: [{ ...reply }] };
+}
+
+function getGroups(postcode) {
+  const groups = allGroups.filter(group => group.postcodes.includes(postcode));
+  return groups.length ? groups : [ allGroups[0] ];
+}
+
+function fillTemplate(reply, group, area) {
+  reply.text = reply.template
+    .replace(/{area}/, area)
+    .replace(/{group_name}/, group.name);
+  reply.buttons[0].url = group.url;
+  return reply;
+}
+
+function buttonTemplate(reply, completedActions) {
+  return {
+    attachment: {
+      type: 'template',
+      payload: {
+        template_type: 'button',
+        text: reply.text,
+        buttons: reply.buttons,
+      }
+    }
+  };
 }
 
 
@@ -275,19 +329,6 @@ async function getProfile(recipientId) {
   return JSON.parse(body);
 }
 
-function getGroups(postcode) {
-  const groups = allGroups.filter(group => group.postcodes.includes(postcode));
-  return groups.length ? groups : [ allGroups[0] ];
-}
-
-function fillTemplate(reply, group, area) {
-  reply.text = reply.template
-    .replace(/{area}/, area)
-    .replace(/{group_name}/, group.name);
-  reply.buttons[0].url = group.url;
-  return reply;
-}
-
 async function persistAction(fbid, action) {
   const member = {TableName, Key: {fbid}};
   const res = await dynamoGet(member);
@@ -357,21 +398,6 @@ function quickReply(reply, completedActions) {
   return {
     text: reply.text,
     quick_replies: availableOptions,
-  };
-}
-
-function buttonTemplate(reply, completedActions) {
-  // const availableOptions = actionFilter(completedActions, reply.buttons);
-  // if (availableOptions.length < 1) { return script.all_done };
-  return {
-    attachment: {
-      type: 'template',
-      payload: {
-        template_type: 'button',
-        text: reply.text,
-        buttons: reply.buttons,
-      }
-    }
   };
 }
 

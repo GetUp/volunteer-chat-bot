@@ -17,7 +17,7 @@ describe('bot', () => {
     context('with a postcode that spans one electorate', () => {
       const payload = fixture('postcode_event_2000');
 
-      it('returns a group view message with button', done => {
+      it('returns a group view message for the postcode', done => {
         const response = responseFile('postcode_2000');
         bot.chat(payload, {}, (err, res) => {
           const body = JSON.parse(res.body);
@@ -52,14 +52,26 @@ describe('bot', () => {
     });
 
     context('with an electorate key', () => {
-      const payload = {};
+      const payload = { "queryStringParameters": { "key": "electorate_wentworth", fbid }};
+      const profile = fixture('profile');
+      beforeEach(done => dynamo.put({TableName, Item: {...profile}}, done));
 
-      it('returns a multi electorate message with quick replies', done => {
-        const response = responseFile('postcode_2010');
+      it('returns a group view message for the electorate', done => {
+        const response = responseFile('electorate_wentworth');
         bot.chat(payload, {}, (err, res) => {
           const body = JSON.parse(res.body);
           expect(body).to.be.eql(response);
           done(err);
+        });
+      });
+
+      it('stores the electorate key', done => {
+        const profile = fixture('profile_w_electorate');
+        bot.chat(payload, {}, (err, _) => {
+          dynamo.get(memberQuery, (err, res) => {
+            expect(res.Item).to.be.eql(profile);
+            done(err);
+          });
         });
       });
 
