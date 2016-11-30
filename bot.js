@@ -1,6 +1,7 @@
 if (!global._babelPolyfill) require('babel-polyfill');
 require('dotenv').config();
 const NODE_ENV = process.env.NODE_ENV;
+const HOSTNAME = process.env.HOSTNAME;
 
 // const moment = require('moment-timezone');
 // moment.tz.setDefault('Australia/Sydney');
@@ -23,18 +24,26 @@ export const chat = function(e, ctx, cb) {
     body: JSON.stringify(e.body),
   });
 
+  const message = postcodeMessage(e.queryStringParameters.postcode);
+
+  const response = {
+    statusCode: 200,
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(message),
+  };
+
   storeProfile(e.queryStringParameters)
-  .then(() => cb(null, postcode(e.queryStringParameters.postcode)), (err) => {
-    console.error('ERROR', err);
-    cb(err);
-  })
+    .then(() => cb(null, response), (err) => {
+      console.error('ERROR', err);
+      cb(err);
+    })
 };
 
 async function storeProfile(params) {
   return dynamoPut({TableName, Item: params});
 }
 
-const postcode = postcode => {
+function postcodeMessage(postcode) {
   const template = script['group_view'];
   const groups = getGroups(postcode);
   let reply;
@@ -45,6 +54,19 @@ const postcode = postcode => {
   }
 
   return { messages: [{ ...reply }] };
+}
+
+function showElectorates(reply, groups, postcode) {
+  reply.text = reply.template.replace(/{postcode}/, postcode);
+  delete reply.template;
+  reply.quick_replies = groups.map(group => {
+    return {
+      type: 'json_plugin_url',
+      url: `${HOSTNAME}/webhook?key=${group.key}`,
+      title: group.electorate,
+    }
+  });
+  return reply;
 }
 
 
@@ -263,18 +285,6 @@ function fillTemplate(reply, group, area) {
     .replace(/{area}/, area)
     .replace(/{group_name}/, group.name);
   reply.buttons[0].url = group.url;
-  return reply;
-}
-
-function showElectorates(reply, groups, postcode) {
-  reply.text = reply.template.replace(/{postcode}/, postcode);
-  reply.replies = groups.map(group => {
-    return {
-      content_type: 'text',
-      payload: group.key,
-      title: group.electorate,
-    }
-  });
   return reply;
 }
 

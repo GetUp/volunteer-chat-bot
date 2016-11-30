@@ -1,0 +1,3 @@
+staging_hostname: 'https://bdqdwt82f3.execute-api.us-east-1.amazonaws.com/staging'
+
+production_hostname:

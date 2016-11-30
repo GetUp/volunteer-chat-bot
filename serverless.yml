@@ -33,7 +33,6 @@ functions:
       - http:
           method: get
           path: webhook
-          integration: lambda
     memorySize: 512
     timeout: 300
 

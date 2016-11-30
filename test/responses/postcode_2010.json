@@ -1,0 +1,19 @@
+{
+  "messages": [
+    {
+      "text": "Postcode 2010 covers multiple electorates. Which electorate do you live in?",
+      "quick_replies": [
+        {
+          "type": "json_plugin_url",
+          "url": "https://workpony.ngrok.io/webhook?key=electorate_wentworth",
+          "title": "Wentworth"
+        },
+        {
+          "type": "json_plugin_url",
+          "url": "https://workpony.ngrok.io/webhook?key=electorate_sydney",
+          "title": "Sydney"
+        }
+      ]
+    }
+  ]
+}
