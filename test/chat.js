@@ -101,7 +101,28 @@ describe('bot', () => {
           });
         });
       });
+    });
 
+    context('with an action', () => {
+      const payload = { queryStringParameters: { fbid,
+        key: "action",
+        action: "group_joined",
+      }};
+      const profile = fixture('profile');
+      beforeEach(done => dynamo.put({TableName, Item: profile}, done));
+
+      it('stores actions', done => {
+        bot.chat(payload, {}, (err, _) => {
+          bot.chat(payload, {}, (err, _) => {
+            dynamo.get(memberQuery, (err, res) => {
+              expect(res.Item.actions.length).to.be.equal(2);
+              expect(res.Item.actions[0].action).to.be.equal('group_joined');
+              expect(res.Item.actions[1].action).to.be.equal('group_joined');
+              done(err);
+            });
+          });
+        });
+      });
     });
   });
 });

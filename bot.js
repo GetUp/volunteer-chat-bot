@@ -5,6 +5,9 @@ let apiPath = process.env.API_PATH;
 
 import { script } from './script';
 import { allGroups } from './groups';
+
+const moment = require('moment-timezone');
+moment.tz.setDefault('Australia/Sydney');
 import promisify from 'es6-promisify'
 import AWS from 'aws-sdk';
 const dynamo = new AWS.DynamoDB.DocumentClient(dbConf());
@@ -53,10 +56,23 @@ async function handleParams({key, fbid, ...params}) {
       await setAttr(fbid, 'electorate', params.electorate);
       message = electorateMessage(fbid, params.electorate);
       break;
+    case 'action':
+      await storeAction(fbid, params.action);
+      break;
     default:
   }
 
   return JSON.stringify(message);
+}
+
+async function storeAction(fbid, action) {
+  const payload = {
+    TableName,
+    Key: {fbid},
+    UpdateExpression: 'SET actions = list_append(:value, actions)',
+    ExpressionAttributeValues: { ':value': [{action, timestamp: moment().format()}] }
+  };
+  return dynamoUpdate(payload);
 }
 
 async function storeProfile(fbid, params) {
