@@ -26,6 +26,21 @@ describe('bot', () => {
           });
         });
       });
+
+      context('with an existing action', () => {
+        const actions = [{action: 'subscribed'}];
+        beforeEach(done => dynamo.put({TableName, Item: {fbid, actions}}, done));
+
+        it('does not overwrite previous actions', done => {
+          bot.chat(payload, {}, (err, _) => {
+            dynamo.get(memberQuery, (err, res) => {
+              expect(res.Item.actions.length).to.be.equal(1);
+              expect(res.Item.actions[0].action).to.be.equal('subscribed');
+              done(err);
+            });
+          });
+        });
+      });
     });
 
     context('with a postcode that spans one electorate', () => {

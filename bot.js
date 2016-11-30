@@ -11,8 +11,6 @@ moment.tz.setDefault('Australia/Sydney');
 import promisify from 'es6-promisify'
 import AWS from 'aws-sdk';
 const dynamo = new AWS.DynamoDB.DocumentClient(dbConf());
-
-const dynamoGet = promisify(::dynamo.get);
 const dynamoPut = promisify(::dynamo.put);
 const dynamoUpdate = promisify(::dynamo.update);
 const TableName = `chatfuel-json-api-${NODE_ENV}-members`;
@@ -70,18 +68,30 @@ async function storeAction(fbid, action) {
     TableName,
     Key: {fbid},
     UpdateExpression: 'SET actions = list_append(:value, actions)',
-    ExpressionAttributeValues: { ':value': [{action, timestamp: moment().format()}] }
+    ExpressionAttributeValues: {
+      ':value': [{action, timestamp: moment().format()}]
+    }
   };
   return dynamoUpdate(payload);
 }
 
 async function storeProfile(fbid, params) {
-  const profile = {
-    fbid,
-    profile: params,
-    actions: []
+  const payload = {
+    TableName,
+    Item: {
+      fbid,
+      profile: params,
+      actions: [],
+    },
+    ConditionExpression: 'attribute_not_exists(fbid)',
   };
-  return dynamoPut({TableName, Item: profile});
+  try {
+    await dynamoPut(payload);
+    return;
+  } catch (e) {
+    if (e.code === "ConditionalCheckFailedException") return;
+    throw e;
+  }
 }
 
 async function setAttr(fbid, attr, val) {
