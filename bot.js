@@ -17,21 +17,22 @@ const dynamoPut = promisify(::dynamo.put);
 const dynamoUpdate = promisify(::dynamo.update);
 const TableName = `chatfuel-json-api-${NODE_ENV}-members`;
 
-function onlyErrorInTest(promise, cb) {
-  promise.then(() => cb(), (err) => {
-    console.error('ERROR', err);
-    cb(NODE_ENV === 'test' ? err : undefined);
-  })
-}
-
 export const chat = function(e, ctx, cb) {
-  console.log({
+  if (NODE_ENV !== 'test') console.log({
     query: JSON.stringify(e.queryStringParameters),
     body: JSON.stringify(e.body),
   });
 
-  cb(null, postcode(e.queryStringParameters.postcode));
+  storeProfile(e.queryStringParameters)
+  .then(() => cb(null, postcode(e.queryStringParameters.postcode)), (err) => {
+    console.error('ERROR', err);
+    cb(err);
+  })
 };
+
+async function storeProfile(params) {
+  return dynamoPut({TableName, Item: params});
+}
 
 const postcode = postcode => {
   const template = script['group_view'];

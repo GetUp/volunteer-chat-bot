@@ -12,18 +12,31 @@ const dynamo = new AWS.DynamoDB.DocumentClient({region: 'localhost', endpoint: '
 // const moment = require('moment-timezone');
 
 const TableName = 'chatfuel-json-api-test-members';
-const fbid = '1274747332556664';
+const fbid = '583b8377e4b074593314e725';
+const memberQuery = { TableName, Key: {fbid} };
 
 describe('webhook', () => {
-  // beforeEach(done => dynamo.delete(payload, done));
+  beforeEach(done => dynamo.delete(memberQuery, done));
+
   describe('postcode', () => {
     context('with a postcode that spans one electorate', () => {
       const payload = fixture('postcode_event');
+
       it('returns a group view message with button', done => {
         const response = responseFile('postcode_2000');
         wrapped.run(payload, (err, res) => {
           expect(res).to.be.eql(response);
           done();
+        });
+      });
+
+      it('stores the member profile', done => {
+        const profile = fixture('profile');
+        wrapped.run(payload, (err, _) => {
+          dynamo.get(memberQuery, (err, res) => {
+            expect(res.Item).to.be.eql(profile);
+            done(err);
+          });
         });
       });
     });
