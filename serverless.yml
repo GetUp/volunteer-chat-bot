@@ -1,4 +1,4 @@
-service: volunteer-chat-bot
+service: chatfuel-json-api
 
 plugins:
   - serverless-webpack
@@ -13,8 +13,6 @@ custom:
   envVars: ${file(./env_vars.yml)}
   writeEnvVars:
     NODE_ENV: ${opt:stage, self:custom.defaultStage}
-    PAGE_ACCESS_TOKEN: ${self:custom.envVars.${opt:stage,self:custom.defaultStage}_page_access_token}
-    VALIDATION_TOKEN: ${self:custom.envVars.${opt:stage,self:custom.defaultStage}_validation_token}
   dynamodb:
     start:
       port: 8000
@@ -29,25 +27,13 @@ provider:
   iamRoleARN: arn:aws:iam:${opt:account, self:custom.defaultAccount}:role/lambda_full_access
 
 functions:
-  challenge:
-    handler: bot.challenge
+  chat:
+    handler: bot.chat
     events:
       - http:
           method: get
           path: webhook
           integration: lambda
-    memorySize: 512
-  chat:
-    handler: bot.chat
-    events:
-      - http:
-          method: post
-          path: webhook
-          integration: lambda
-    memorySize: 512
-    timeout: 300
-  message:
-    handler: bot.message
     memorySize: 512
     timeout: 300
 
@@ -56,7 +42,7 @@ resources:
     DynamoDbTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: volunteer-chat-bot-${opt:stage, self:custom.defaultStage}-members
+        TableName: chatfuel-json-api-${opt:stage, self:custom.defaultStage}-members
         AttributeDefinitions:
           - AttributeName: fbid
             AttributeType: S

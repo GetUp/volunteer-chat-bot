@@ -2,10 +2,10 @@ if (!global._babelPolyfill) require('babel-polyfill');
 require('dotenv').config();
 const NODE_ENV = process.env.NODE_ENV;
 
-const moment = require('moment-timezone');
-moment.tz.setDefault('Australia/Sydney');
-import request from 'request';
-const rp = require('request-promise-native');
+// const moment = require('moment-timezone');
+// moment.tz.setDefault('Australia/Sydney');
+// import request from 'request';
+// const rp = require('request-promise-native');
 import { script } from './script';
 import { allGroups } from './groups';
 import promisify from 'es6-promisify'
@@ -15,21 +15,7 @@ const dynamo = new AWS.DynamoDB.DocumentClient(dbConf());
 const dynamoGet = promisify(::dynamo.get);
 const dynamoPut = promisify(::dynamo.put);
 const dynamoUpdate = promisify(::dynamo.update);
-const TableName = `volunteer-chat-bot-${NODE_ENV}-members`;
-
-export const loadedScript = script;
-
-const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN;
-export const VALIDATION_TOKEN = process.env.VALIDATION_TOKEN;
-
-export const challenge = (e, ctx, cb) => {
-  if (e.query['hub.mode'] === 'subscribe' && e.query['hub.verify_token'] === VALIDATION_TOKEN) {
-    // webpack serve requires a string as output otherwise it converts the number to a return code
-    cb(null, ['dev'].includes(NODE_ENV) ? e.query['hub.challenge'] : parseInt(e.query['hub.challenge']));
-  } else {
-    cb('Validation failed');
-  }
-};
+const TableName = `chatfuel-json-api-${NODE_ENV}-members`;
 
 function onlyErrorInTest(promise, cb) {
   promise.then(() => cb(), (err) => {
@@ -39,8 +25,27 @@ function onlyErrorInTest(promise, cb) {
 }
 
 export const chat = function(e, ctx, cb) {
-  onlyErrorInTest(chatAsync(e), cb);
+  console.log({
+    query: JSON.stringify(e.queryStringParameters),
+    body: JSON.stringify(e.body),
+  });
+
+  cb(null, postcode(e.queryStringParameters.postcode));
 };
+
+const postcode = postcode => {
+  const template = script['group_view'];
+  const groups = getGroups(postcode);
+  let reply;
+  if (groups.length === 1) {
+    reply = buttonTemplate(fillTemplate(template, groups[0], postcode));
+  } else {
+    reply = showElectorates(script['group_multiple_electorates'], groups, postcode);
+  }
+
+  return { messages: [{ ...reply }] };
+}
+
 
 async function chatAsync(e) {
   const data = e.body;
@@ -165,7 +170,7 @@ export function delayMessage(recipientId, next, delay) {
     return promisify(message)(payload, null);
   }
   return promisify(::lambda.invoke)({
-    FunctionName: `volunteer-chat-bot-${NODE_ENV}-message`,
+    FunctionName: `chatfuel-json-api-${NODE_ENV}-message`,
     InvocationType: 'Event',
     Payload: JSON.stringify(payload)
   })
@@ -345,15 +350,15 @@ function quickReply(reply, completedActions) {
 }
 
 function buttonTemplate(reply, completedActions) {
-  const availableOptions = actionFilter(completedActions, reply.buttons);
-  if (availableOptions.length < 1) { return script.all_done };
+  // const availableOptions = actionFilter(completedActions, reply.buttons);
+  // if (availableOptions.length < 1) { return script.all_done };
   return {
     attachment: {
       type: 'template',
       payload: {
         template_type: 'button',
         text: reply.text,
-        buttons: availableOptions,
+        buttons: reply.buttons,
       }
     }
   };

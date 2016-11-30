@@ -1,6 +1,6 @@
 {
     "Table": {
-        "TableName": "volunteer-chat-bot-test-members",
+        "TableName": "chatfuel-json-api-test-members",
         "KeySchema": [
             {
                 "AttributeName": "fbid",

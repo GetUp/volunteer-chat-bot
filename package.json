@@ -1,8 +1,8 @@
 {
-  "name": "volunteer-chat-bot",
+  "name": "chatfuel-json-api",
   "private": true,
   "version": "1.0.0",
-  "description": "Chatbot for volunteers",
+  "description": "JSON API for our Chatfuel chatbot",
   "main": "bot.js",
   "scripts": {
     "build": "./node_modules/.bin/sls webpack",
