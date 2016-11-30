@@ -14,8 +14,25 @@ describe('bot', () => {
   beforeEach(done => dynamo.delete(memberQuery, done));
 
   describe('chat', () => {
+    context('with a welcome callback', () => {
+      const payload = fixture('welcome');
+
+      it('stores the profile', done => {
+        const profile = fixture('profile');
+        bot.chat(payload, {}, (err, res) => {
+          dynamo.get(memberQuery, (err, res) => {
+            expect(res.Item).to.be.eql(profile);
+            done(err);
+          });
+        });
+      });
+    });
+
     context('with a postcode that spans one electorate', () => {
-      const payload = fixture('postcode_event_2000');
+      const payload = { queryStringParameters: { fbid,
+        key: "postcode",
+        postcode: "2000",
+      }};
 
       it('returns a group view message for the postcode', done => {
         const response = responseFile('postcode_2000');
@@ -26,11 +43,10 @@ describe('bot', () => {
         });
       });
 
-      it('stores the member profile', done => {
-        const profile = fixture('profile');
+      it('stores the postcode', done => {
         bot.chat(payload, {}, (err, _) => {
           dynamo.get(memberQuery, (err, res) => {
-            expect(res.Item).to.be.eql(profile);
+            expect(res.Item.postcode).to.be.equal('2000');
             done(err);
           });
         });
@@ -38,7 +54,10 @@ describe('bot', () => {
     });
 
     context('with a postcode that spans more than one electorate', () => {
-      const payload = fixture('postcode_event_2010');
+      const payload = { queryStringParameters: { fbid,
+        key: "postcode",
+        postcode: "2010",
+      }};
 
       it('returns a multi electorate message with quick replies', done => {
         const response = responseFile('postcode_2010');
@@ -49,12 +68,21 @@ describe('bot', () => {
         });
       });
 
+      it('also stores the postcode', done => {
+        bot.chat(payload, {}, (err, _) => {
+          dynamo.get(memberQuery, (err, res) => {
+            expect(res.Item.postcode).to.be.equal('2010');
+            done(err);
+          });
+        });
+      });
     });
 
-    context('with an electorate key', () => {
-      const payload = { "queryStringParameters": { "key": "electorate_wentworth", fbid }};
-      const profile = fixture('profile');
-      beforeEach(done => dynamo.put({TableName, Item: {...profile}}, done));
+    context('with an electorate', () => {
+      const payload = { queryStringParameters: { fbid,
+        key: "electorate",
+        electorate: "wentworth",
+      }};
 
       it('returns a group view message for the electorate', done => {
         const response = responseFile('electorate_wentworth');
@@ -65,11 +93,10 @@ describe('bot', () => {
         });
       });
 
-      it('stores the electorate key', done => {
-        const profile = fixture('profile_w_electorate');
+      it('stores the electorate', done => {
         bot.chat(payload, {}, (err, _) => {
           dynamo.get(memberQuery, (err, res) => {
-            expect(res.Item).to.be.eql(profile);
+            expect(res.Item.electorate).to.be.equal('wentworth');
             done(err);
           });
         });
