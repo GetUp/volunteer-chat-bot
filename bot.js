@@ -39,7 +39,7 @@ export const chat = (e, ctx, cb) => {
 };
 
 async function handleParams({key, fbid, ...params}) {
-  let message = '';
+  let message = { set_variables: {welcome: true} };
 
   switch(key) {
     case 'welcome':
