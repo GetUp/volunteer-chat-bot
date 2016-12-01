@@ -43,7 +43,7 @@ export const allGroups = [{
   electorate: 'Grayndler',
   name: 'GetUp Grayndler',
   url: 'https://www.facebook.com/groups/1816181865293437/',
-  postcodes: ['2038','2039','2040','2041','2042','2044','2045','2048','2049','2130','2131','2193','2203','2204'],
+  postcodes: ['2038','2039','2040','2041','2042','2044','2045','2048','2049','2130','2203','2204'],
 },{
   key: 'hasluck',
   electorate: 'Hasluck',
@@ -85,19 +85,19 @@ export const allGroups = [{
   electorate: 'North Sydney',
   name: 'GetUp North Sydney',
   url: 'https://www.facebook.com/groups/217287118692508/',
-  postcodes: ['2060','2061','2062','2063','2064','2065','2066','2067','2068','2069','2089','2090','2110','2111'],
+  postcodes: ['2060','2061','2062','2063','2064','2065','2066','2067','2068','2090','2110'],
 },{
   key: 'sydney',
   electorate: 'Sydney',
   name: 'GetUp Sydney',
   url: 'https://www.facebook.com/groups/1805996886306238/',
-  postcodes: ['2000','2006','2007','2008','2009','2010','2011','2015','2016','2017','2018','2037','2038','2042','2043','2044','2050','2898'],
+  postcodes: ['2000','2006','2007','2008','2009','2010','2011','2015','2016','2017','2037','2038','2042','2043','2044','2050','2898'],
 },{
   key: 'wentworth',
   electorate: 'Wentworth',
   name: 'GetUp Wentworth',
   url: 'https://www.facebook.com/groups/1135959736494638/',
-  postcodes: ['2010','2011','2021','2022','2023','2024','2025','2026','2027','2028','2029','2030','2031'],
+  postcodes: ['2010','2011','2021','2022','2023','2024','2025','2026','2027','2028','2029','2030'],
 },{
   key: 'wills',
   electorate: 'Wills',
