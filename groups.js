@@ -1,6 +1,6 @@
 export const allGroups = [{
-  name: '#SafetyForAll',
-  url: 'https://www.facebook.com/groups/1331336863544607/',
+  name: 'GetUp Volunteers',
+  url: 'https://www.facebook.com/groups/GetUpVolunteers/',
   postcodes: [], // DEFAULT group
 },{
   key: 'greater_northern_sydney',
