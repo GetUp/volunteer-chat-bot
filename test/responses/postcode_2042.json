@@ -1,12 +1,12 @@
 {
   "messages": [
     {
-      "text": "Postcode 2010 covers multiple electorates. Which electorate do you live in?",
+      "text": "Postcode 2042 covers multiple electorates. Which electorate do you live in?",
       "quick_replies": [
         {
           "type": "json_plugin_url",
-          "url": "https://workpony.ngrok.io/webhook?key=electorate&electorate=wentworth&fbid=583b8377e4b074593314e725",
-          "title": "Wentworth"
+          "url": "https://workpony.ngrok.io/webhook?key=electorate&electorate=grayndler&fbid=583b8377e4b074593314e725",
+          "title": "Grayndler"
         },
         {
           "type": "json_plugin_url",

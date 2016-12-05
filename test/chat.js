@@ -71,11 +71,11 @@ describe('bot', () => {
     context('with a postcode that spans more than one electorate', () => {
       const payload = { queryStringParameters: { fbid,
         key: "postcode",
-        postcode: "2010",
+        postcode: "2042",
       }};
 
       it('returns a multi electorate message with quick replies', done => {
-        const response = responseFile('postcode_2010');
+        const response = responseFile('postcode_2042');
         bot.chat(payload, {}, (err, res) => {
           const body = JSON.parse(res.body);
           expect(body).to.be.eql(response);
@@ -86,7 +86,7 @@ describe('bot', () => {
       it('also stores the postcode', done => {
         bot.chat(payload, {}, (err, _) => {
           dynamo.get(memberQuery, (err, res) => {
-            expect(res.Item.postcode).to.be.equal('2010');
+            expect(res.Item.postcode).to.be.equal('2042');
             done(err);
           });
         });
