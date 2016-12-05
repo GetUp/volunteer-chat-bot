@@ -41,6 +41,20 @@ describe('bot', () => {
           });
         });
       });
+
+      context('with an empty string attribute', () => {
+        beforeEach(() => payload.queryStringParameters.gender = "");
+
+        it('persists the valid attributes', done => {
+          bot.chat(payload, {}, (err, _) => {
+            dynamo.get(memberQuery, (err, res) => {
+              expect(res.Item.profile.first_name).to.be.equal("Tim");
+              expect(res.Item.profile.last_name).to.be.equal("McEwan");
+              done(err);
+            });
+          });
+        });
+      });
     });
 
     context('with a postcode that spans one electorate', () => {

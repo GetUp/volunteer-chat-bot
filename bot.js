@@ -76,11 +76,12 @@ async function storeAction(fbid, action) {
 }
 
 async function storeProfile(fbid, params) {
+  const sanitisedParams = sanitiseParams(params);
   const payload = {
     TableName,
     Item: {
       fbid,
-      profile: params,
+      profile: sanitisedParams,
       actions: [],
     },
     ConditionExpression: 'attribute_not_exists(fbid)',
@@ -92,6 +93,11 @@ async function storeProfile(fbid, params) {
     if (e.code === "ConditionalCheckFailedException") return;
     throw e;
   }
+}
+
+function sanitiseParams(params) {
+  const validAttrs = Object.entries(params).map(([key, val]) => !!val && {[key]: val});
+  return Object.assign(...validAttrs);
 }
 
 async function setAttr(fbid, attr, val) {
