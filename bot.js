@@ -97,7 +97,7 @@ async function storeProfile(fbid, params) {
 
 function sanitiseParams(params) {
   const validAttrs = Object.entries(params).map(([key, val]) => !!val && {[key]: val});
-  return Object.assign(...validAttrs);
+  return Object.assign({}, ...validAttrs);
 }
 
 async function setAttr(fbid, attr, val) {
