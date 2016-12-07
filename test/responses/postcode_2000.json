@@ -1,19 +1,24 @@
 {
-  "messages": [{
-    "attachment": {
-      "type": "template",
-      "payload": {
-        "template_type": "button",
-        "text": "Ok, the group that covers the 2000 area is GetUp Sydney.\n\nUse the button below to view the group page. Then click the 'Join' or 'Join Group' button to join the group",
-        "buttons": [
-          {
-            "type": "web_url",
-            "webview_height_ratio": "tall",
-            "title": "Show me the group",
-            "url": "https://www.facebook.com/groups/1805996886306238/"
-          }
-        ]
+  "set_variables": {
+    "electorate": "Sydney"
+  },
+  "messages": [
+    {
+      "attachment": {
+        "type": "template",
+        "payload": {
+          "template_type": "button",
+          "text": "Ok, the group that covers the 2000 area is GetUp Sydney.\n\nUse the button below to view the group page. Then click the 'Join' or 'Join Group' button to join the group",
+          "buttons": [
+            {
+              "type": "web_url",
+              "webview_height_ratio": "tall",
+              "title": "Show me the group",
+              "url": "https://www.facebook.com/groups/1805996886306238/"
+            }
+          ]
+        }
       }
     }
-  }]
+  ]
 }

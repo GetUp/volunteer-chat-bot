@@ -127,7 +127,8 @@ function electorateMessage(fbid, electorate) {
 function areaTemplate(group, area) {
   const template = Object.assign({}, script['group_view']);
   const reply = buttonTemplate(fillTemplate(template, group, area));
-  return { messages: [{ ...reply }] };
+  const electorate = group.electorate;
+  return { set_variables: {electorate}, messages: [{ ...reply }] };
 }
 
 function getGroups(postcode) {
