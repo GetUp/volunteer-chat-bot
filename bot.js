@@ -112,21 +112,21 @@ async function setAttr(fbid, attr, val) {
 
 function postcodeMessage(fbid, postcode) {
   const groups = getGroups(postcode);
-  let reply, template;
-  if (groups.length === 1) {
-    template = Object.assign({}, script['group_view']);
-    reply = buttonTemplate(fillTemplate(template, groups[0], postcode));
-  } else {
-    template = Object.assign({}, script['group_multiple_electorates']);
-    reply = showElectorates(template, groups, postcode, fbid);
-  }
+  if (groups.length === 1) return areaTemplate(groups[0], postcode);
+
+  const template = Object.assign({}, script['group_multiple_electorates']);
+  const reply = showElectorates(template, groups, postcode, fbid);
   return { messages: [{ ...reply }] };
 }
 
 function electorateMessage(fbid, electorate) {
   const group = allGroups.find(group => group.key === electorate);
+  return areaTemplate(group, group.electorate);
+}
+
+function areaTemplate(group, area) {
   const template = Object.assign({}, script['group_view']);
-  const reply = buttonTemplate(fillTemplate(template, group, group.electorate));
+  const reply = buttonTemplate(fillTemplate(template, group, area));
   return { messages: [{ ...reply }] };
 }
 
