@@ -54,6 +54,9 @@ async function handleParams({key, fbid, ...params}) {
       await setAttr(fbid, 'electorate', params.electorate);
       message = electorateMessage(fbid, params.electorate);
       break;
+    case 'mobile':
+      await setAttr(fbid, 'mobile', params.mobile);
+      break;
     case 'action':
       await storeAction(fbid, params.action);
       break;

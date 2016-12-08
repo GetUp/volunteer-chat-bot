@@ -153,6 +153,23 @@ describe('bot', () => {
         });
       });
     });
+
+    context('with a mobile number', () => {
+      const payload = { queryStringParameters: { fbid,
+        key: "mobile",
+        mobile: "0412345678",
+      }};
+
+      it('stores the mobile', done => {
+        bot.chat(payload, {}, (err, _) => {
+          dynamo.get(memberQuery, (err, res) => {
+            expect(res.Item.mobile).to.be.equal('0412345678');
+            done(err);
+          });
+        });
+      });
+    });
+
   });
 });
 
