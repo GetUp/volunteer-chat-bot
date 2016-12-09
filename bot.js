@@ -57,6 +57,9 @@ async function handleParams({key, fbid, ...params}) {
     case 'mobile':
       await setAttr(fbid, 'mobile', params.mobile);
       break;
+    case 'email':
+      await setAttr(fbid, 'email', params.email);
+      break;
     case 'action':
       await storeAction(fbid, params.action);
       break;

@@ -170,6 +170,22 @@ describe('bot', () => {
       });
     });
 
+    context('with an email address', () => {
+      const payload = { queryStringParameters: { fbid,
+        key: "email",
+        email: "tim@example.com",
+      }};
+
+      it('stores the mobile', done => {
+        bot.chat(payload, {}, (err, _) => {
+          dynamo.get(memberQuery, (err, res) => {
+            expect(res.Item.email).to.be.equal('tim@example.com');
+            done(err);
+          });
+        });
+      });
+    });
+
   });
 });
 
